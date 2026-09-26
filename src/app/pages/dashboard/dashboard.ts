@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
+import { DatePipe, UpperCasePipe } from '@angular/common';
 import { Api } from '../../services/api';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [],
+  imports: [
+    DatePipe,
+    UpperCasePipe
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
@@ -26,19 +30,32 @@ export class Dashboard implements OnInit {
     this.errorMessage = '';
 
     this.api.getPatientDashboard(1).subscribe({
+      
       next: (data) => {
-        console.log('📊 Dashboard recibido:', data);
+
+        console.log('✅ Dashboard recibido:', data);
 
         this.patientData = data;
+
+        console.log('✅ patientData asignado:', this.patientData);
+        console.log('✅ loading antes:', this.loading);
+
         this.loading = false;
+
+        console.log('✅ loading después:', this.loading);
       },
 
       error: (error) => {
+
         console.error('❌ Error cargando dashboard:', error);
 
-        this.errorMessage = 'No fue posible cargar la información del paciente.';
+        this.errorMessage =
+          error?.error?.detail ||
+          'No fue posible cargar la información del paciente.';
+
         this.loading = false;
       }
+
     });
   }
 }
