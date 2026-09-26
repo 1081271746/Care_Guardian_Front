@@ -17,6 +17,7 @@ export class Dashboard implements OnInit {
   patientData: any = null;
   loading = true;
   errorMessage = '';
+  today = new Date();
 
   constructor(private api: Api) {}
 

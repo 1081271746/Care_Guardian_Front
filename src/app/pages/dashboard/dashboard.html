@@ -143,18 +143,25 @@
 
   <section style="padding: 40px;">
 
-    <h2>Dashboard cargado correctamente ✅</h2>
+    <div class="dashboard-intro">
+  <div>
+    <span class="eyebrow">SEGUIMIENTO DEL PACIENTE</span>
+
+    <h2>
+      Bienvenido al panel de cuidado
+    </h2>
 
     <p>
-      Paciente:
-      {{ patientData?.patient?.nombres }}
-      {{ patientData?.patient?.apellidos }}
+      Consulta el estado actual, evolución y actividades de cuidado
+      de tu paciente desde un solo lugar.
     </p>
+  </div>
 
-    <p>
-      Síntomas:
-      {{ patientData?.symptoms?.length }}
-    </p>
+  <div class="intro-date">
+    <span>Hoy</span>
+    <strong>{{ today | date:'dd/MM/yyyy' }}</strong>
+  </div>
+</div>
 
     <p>
       Medicamentos:
@@ -313,96 +320,89 @@
            RESUMEN
            ===================================================== -->
 
-      <section class="summary-grid">
+        <!-- TARJETAS DE RESUMEN -->
+<section class="summary-cards">
 
-        <!-- SÍNTOMAS -->
-        <article class="summary-card">
+  <!-- Síntomas -->
+  <article class="summary-card">
+    <div class="summary-icon symptoms-icon">
+      🩺
+    </div>
 
-          <div class="summary-icon">
-            ♥
-          </div>
+    <div class="summary-content">
+      <span class="summary-label">Síntomas registrados</span>
 
-          <div>
+      <strong class="summary-value">
+        {{ patientData?.symptoms?.length || 0 }}
+      </strong>
 
-            <strong>
-              {{ patientData.symptoms.length }}
-            </strong>
-
-            <span>
-              Síntomas registrados
-            </span>
-
-          </div>
-
-        </article>
-
-
-        <!-- MEDICAMENTOS -->
-        <article class="summary-card">
-
-          <div class="summary-icon">
-            +
-          </div>
-
-          <div>
-
-            <strong>
-              {{ patientData.medications.length }}
-            </strong>
-
-            <span>
-              Medicamentos activos
-            </span>
-
-          </div>
-
-        </article>
+      <span class="summary-description">
+        Registros disponibles
+      </span>
+    </div>
+  </article>
 
 
-        <!-- CITAS -->
-        <article class="summary-card">
+  <!-- Medicamentos -->
+  <article class="summary-card">
+    <div class="summary-icon medications-icon">
+      💊
+    </div>
 
-          <div class="summary-icon">
-            □
-          </div>
+    <div class="summary-content">
+      <span class="summary-label">Medicamentos activos</span>
 
-          <div>
+      <strong class="summary-value">
+        {{ patientData?.medications?.length || 0 }}
+      </strong>
 
-            <strong>
-              {{ patientData.upcoming_appointments.length }}
-            </strong>
-
-            <span>
-              Próximas citas
-            </span>
-
-          </div>
-
-        </article>
+      <span class="summary-description">
+        Tratamientos registrados
+      </span>
+    </div>
+  </article>
 
 
-        <!-- ALERTAS -->
-        <article class="summary-card">
+  <!-- Citas -->
+  <article class="summary-card">
+    <div class="summary-icon appointments-icon">
+      📅
+    </div>
 
-          <div class="summary-icon">
-            !
-          </div>
+    <div class="summary-content">
+      <span class="summary-label">Próximas citas</span>
 
-          <div>
+      <strong class="summary-value">
+        {{ patientData?.upcoming_appointments?.length || 0 }}
+      </strong>
 
-            <strong>
-              {{ patientData.active_alerts.length }}
-            </strong>
+      <span class="summary-description">
+        Actividades programadas
+      </span>
+    </div>
+  </article>
 
-            <span>
-              Alertas activas
-            </span>
 
-          </div>
+  <!-- Alertas -->
+  <article class="summary-card">
+    <div class="summary-icon alerts-icon">
+      🚨
+    </div>
 
-        </article>
+    <div class="summary-content">
+      <span class="summary-label">Alertas activas</span>
 
-      </section>
+      <strong class="summary-value">
+        {{ patientData?.alerts?.length || 0 }}
+      </strong>
+
+      <span class="summary-description">
+        Requieren seguimiento
+      </span>
+    </div>
+  </article>
+
+</section>
 
 
       <!-- =====================================================
