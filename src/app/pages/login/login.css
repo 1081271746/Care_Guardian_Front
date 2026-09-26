@@ -1,0 +1,478 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.login-page {
+  min-height: 100vh;
+  background: #f4f7f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #1f2933;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 1180px;
+  min-height: 700px;
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  box-shadow: 0 20px 60px rgba(31, 41, 51, 0.12);
+}
+
+
+/* =========================
+   PANEL IZQUIERDO
+   ========================= */
+
+.welcome-section {
+  position: relative;
+  padding: 52px;
+  background: linear-gradient(
+    145deg,
+    #0f766e 0%,
+    #115e59 55%,
+    #134e4a 100%
+  );
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.welcome-section::before {
+  content: "";
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  top: -100px;
+  right: -100px;
+}
+
+.welcome-section::after {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  bottom: -80px;
+  left: -70px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.brand-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 23px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.brand p {
+  margin: 3px 0 0;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.welcome-content {
+  max-width: 500px;
+  position: relative;
+  z-index: 1;
+}
+
+.welcome-badge {
+  display: inline-block;
+  padding: 8px 13px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.11);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  margin-bottom: 25px;
+}
+
+.welcome-content h2 {
+  font-size: 48px;
+  line-height: 1.1;
+  margin: 0 0 22px;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+}
+
+.welcome-content h2 span {
+  color: #99f6e4;
+}
+
+.welcome-content > p {
+  font-size: 15px;
+  line-height: 1.8;
+  opacity: 0.82;
+  margin: 0 0 35px;
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.feature-icon {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.feature strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.feature span {
+  display: block;
+  font-size: 12px;
+  opacity: 0.7;
+  line-height: 1.5;
+}
+
+.welcome-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  opacity: 0.55;
+  position: relative;
+  z-index: 1;
+}
+
+
+/* =========================
+   PANEL DERECHO
+   ========================= */
+
+.login-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 55px;
+  background: #ffffff;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 410px;
+}
+
+.mobile-brand {
+  display: none;
+}
+
+.login-header {
+  margin-bottom: 35px;
+}
+
+.login-label {
+  color: #0f766e;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.login-header h2 {
+  margin: 10px 0 10px;
+  font-size: 34px;
+  color: #17212b;
+  letter-spacing: -0.8px;
+}
+
+.login-header p {
+  margin: 0;
+  color: #718096;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+
+/* =========================
+   FORMULARIO
+   ========================= */
+
+.form-group {
+  margin-bottom: 23px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #344054;
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.label-row label {
+  margin-bottom: 9px;
+}
+
+.forgot-link {
+  color: #0f766e;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  color: #98a2b3;
+  font-size: 14px;
+  z-index: 1;
+}
+
+.input-wrapper input {
+  width: 100%;
+  height: 52px;
+  border: 1px solid #d9e0e5;
+  border-radius: 11px;
+  padding: 0 45px;
+  font-size: 14px;
+  color: #1f2933;
+  outline: none;
+  transition: 0.2s ease;
+  background: #fcfdfd;
+}
+
+.input-wrapper input::placeholder {
+  color: #aab4be;
+}
+
+.input-wrapper input:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.09);
+  background: white;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 13px;
+  border: none;
+  background: transparent;
+  color: #98a2b3;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+
+/* =========================
+   RECORDAR
+   ========================= */
+
+.remember-row {
+  margin-top: -3px;
+  margin-bottom: 25px;
+}
+
+.remember {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  margin: 0 !important;
+  cursor: pointer;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #667085 !important;
+}
+
+.remember input {
+  width: 15px;
+  height: 15px;
+  accent-color: #0f766e;
+}
+
+
+/* =========================
+   BOTÓN
+   ========================= */
+
+.login-button {
+  width: 100%;
+  height: 53px;
+  border: none;
+  border-radius: 11px;
+  background: #0f766e;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.login-button:hover {
+  background: #0d655f;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(15, 118, 110, 0.2);
+}
+
+.login-button:active {
+  transform: translateY(0);
+}
+
+.arrow {
+  font-size: 19px;
+  transition: 0.2s ease;
+}
+
+.login-button:hover .arrow {
+  transform: translateX(4px);
+}
+
+
+/* =========================
+   SEGURIDAD
+   ========================= */
+
+.security-message {
+  margin-top: 25px;
+  padding: 13px 15px;
+  border-radius: 10px;
+  background: #f5f8f8;
+  color: #718096;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.lock-icon {
+  font-size: 12px;
+}
+
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 900px) {
+
+  .login-container {
+    grid-template-columns: 1fr;
+    max-width: 550px;
+  }
+
+  .welcome-section {
+    display: none;
+  }
+
+  .login-section {
+    padding: 45px 35px;
+    min-height: 650px;
+  }
+
+  .mobile-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #0f766e;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 45px;
+  }
+
+  .mobile-brand-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: #0f766e;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+  }
+}
+
+@media (max-width: 500px) {
+
+  .login-page {
+    padding: 0;
+    background: white;
+  }
+
+  .login-container {
+    min-height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .login-section {
+    padding: 30px 24px;
+  }
+
+  .login-header h2 {
+    font-size: 30px;
+  }
+}
