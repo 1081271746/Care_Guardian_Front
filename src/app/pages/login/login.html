@@ -91,7 +91,7 @@
         </div>
 
 
-        <form>
+        <form (ngSubmit)="login()">
 
           <!-- Correo -->
           <div class="form-group">
@@ -106,6 +106,8 @@
               <input
                 id="email"
                 type="email"
+                name="email"
+                [(ngModel)]="email"
                 placeholder="correo@ejemplo.com"
               />
             </div>
@@ -133,6 +135,8 @@
               <input
                 id="password"
                 type="password"
+                name="password"
+                [(ngModel)]="password"
                 placeholder="Ingresa tu contraseña"
               />
 
@@ -158,15 +162,27 @@
 
           </div>
 
+          @if (errorMessage) {
+          <div class="error-message">
+         {{ errorMessage }}
+         </div>
+}
+
 
           <!-- Botón -->
-          <button
-            type="submit"
-            class="login-button"
-          >
-            <span>Iniciar sesión</span>
-            <span class="arrow">→</span>
-          </button>
+           <button
+  type="submit"
+  class="login-button"
+  [disabled]="loading"
+>
+  @if (loading) {
+    <span>Iniciando sesión...</span>
+  } @else {
+    <span>Iniciar sesión</span>
+    <span class="arrow">→</span>
+  }
+</button>
+          
 
         </form>
 
