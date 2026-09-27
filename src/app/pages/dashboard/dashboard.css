@@ -1885,3 +1885,138 @@
   }
 
 }
+
+/* =========================================================
+   NOTAS RECIENTES
+   ========================================================= */
+
+.notes-subtitle {
+  display: block;
+  margin-top: 4px;
+
+  color: #829397;
+  font-size: 11px;
+}
+
+.notes-count {
+  min-width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  background: #edf0fb;
+  color: #5967a7;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+
+/* LISTA */
+
+.note-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+
+/* TARJETA */
+
+.note-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  padding: 14px;
+
+  border: 1px solid #e7eeee;
+  border-radius: 14px;
+
+  background: #f9fbfb;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.note-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 7px 18px rgba(18, 65, 70, 0.07);
+}
+
+
+/* ICONO */
+
+.note-icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: #edf0fb;
+  color: #5967a7;
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+
+/* CONTENIDO */
+
+.note-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.note-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+  margin-bottom: 7px;
+}
+
+.note-header strong {
+  color: #173f46;
+  font-size: 12px;
+}
+
+.note-date {
+  color: #8a999c;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.note-content p {
+  margin: 0;
+
+  color: #566e72;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 600px) {
+
+  .note-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+}

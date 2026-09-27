@@ -1,14 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { DatePipe, UpperCasePipe } from '@angular/common';
 import { Api } from '../../services/api';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    DatePipe,
-    UpperCasePipe
-  ],
+  DatePipe,
+  UpperCasePipe,
+  RouterLink,
+  RouterLinkActive
+],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
