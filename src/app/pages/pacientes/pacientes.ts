@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Api } from '../../services/api';
 import { RouterLink } from '@angular/router';
 
@@ -8,7 +9,8 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [
     DatePipe,
-    RouterLink
+    RouterLink,
+    FormsModule
   ],
   templateUrl: './pacientes.html',
   styleUrl: './pacientes.css'
@@ -19,10 +21,27 @@ export class Pacientes implements OnInit {
   loading = true;
   errorMessage = '';
 
+  // Control del formulario
+  showForm = false;
+  creatingPatient = false;
+  formError = '';
+
+  // Datos del nuevo paciente
+  newPatient = {
+    nombres: '',
+    apellidos: '',
+    fecha_nacimiento: '',
+    documento: '',
+    telefono: '',
+    direccion: '',
+    contacto_emergencia: '',
+    telefono_emergencia: ''
+  };
+
   constructor(
-  private api: Api,
-  private cdr: ChangeDetectorRef
-) {}
+    private api: Api,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadPatients();
@@ -35,26 +54,26 @@ export class Pacientes implements OnInit {
 
     this.api.getPatients().subscribe({
 
-       next: (data) => {
+      next: (data) => {
 
-  console.log('========== PACIENTES ==========');
-  console.log('PACIENTES:', data);
-  console.log('TOTAL:', data.length);
+        console.log('========== PACIENTES ==========');
+        console.log('PACIENTES:', data);
+        console.log('TOTAL:', data.length);
 
-  this.patients = data;
+        this.patients = data;
 
-  console.log('ANTES DE CAMBIAR LOADING:', this.loading);
+        console.log('ANTES DE CAMBIAR LOADING:', this.loading);
 
-  this.loading = false;
+        this.loading = false;
 
-  console.log('DESPUÉS DE CAMBIAR LOADING:', this.loading);
-  console.log('PACIENTES GUARDADOS:', this.patients);
+        console.log('DESPUÉS DE CAMBIAR LOADING:', this.loading);
+        console.log('PACIENTES GUARDADOS:', this.patients);
 
-  this.cdr.detectChanges();
-  
-  console.log('================================');
+        this.cdr.detectChanges();
 
-},
+        console.log('================================');
+
+      },
 
       error: (error) => {
 
@@ -66,9 +85,102 @@ export class Pacientes implements OnInit {
 
         this.loading = false;
 
+        this.cdr.detectChanges();
+
       }
 
     });
+
+  }
+
+  openPatientForm(): void {
+
+    this.showForm = true;
+    this.formError = '';
+
+    this.cdr.detectChanges();
+
+  }
+
+  closePatientForm(): void {
+
+    this.showForm = false;
+    this.formError = '';
+
+    this.resetForm();
+
+    this.cdr.detectChanges();
+
+  }
+
+  createPatient(): void {
+
+    this.formError = '';
+
+    if (
+      !this.newPatient.nombres ||
+      !this.newPatient.apellidos ||
+      !this.newPatient.fecha_nacimiento ||
+      !this.newPatient.documento
+    ) {
+
+      this.formError =
+        'Completa los campos obligatorios antes de continuar.';
+
+      this.cdr.detectChanges();
+
+      return;
+    }
+
+    this.creatingPatient = true;
+
+    this.api.createPatient(this.newPatient).subscribe({
+
+      next: (patient) => {
+
+        console.log('Paciente creado:', patient);
+
+        this.creatingPatient = false;
+        this.showForm = false;
+
+        this.resetForm();
+
+        this.loadPatients();
+
+        this.cdr.detectChanges();
+
+      },
+
+      error: (error) => {
+
+        console.error('Error creando paciente:', error);
+
+        this.formError =
+          error?.error?.detail ||
+          'No fue posible registrar el paciente.';
+
+        this.creatingPatient = false;
+
+        this.cdr.detectChanges();
+
+      }
+
+    });
+
+  }
+
+  resetForm(): void {
+
+    this.newPatient = {
+      nombres: '',
+      apellidos: '',
+      fecha_nacimiento: '',
+      documento: '',
+      telefono: '',
+      direccion: '',
+      contacto_emergencia: '',
+      telefono_emergencia: ''
+    };
 
   }
 

@@ -1,32 +1,279 @@
 <div class="patients-page">
 
-  <!-- HEADER -->
+  <!-- ENCABEZADO -->
   <header class="patients-header">
-
     <div>
-
-      <span class="page-eyebrow">
-        CUIDADO
-      </span>
-
-      <h1>
-        Pacientes
-      </h1>
-
-      <p>
-        Gestiona y consulta los pacientes bajo seguimiento.
-      </p>
-
+      <span class="page-eyebrow">CUIDADO</span>
+      <h1>Pacientes</h1>
+      <p>Gestiona y consulta los pacientes bajo seguimiento.</p>
     </div>
 
-    <button class="primary-button">
+    <button
+      class="primary-button"
+      type="button"
+      (click)="openPatientForm()"
+    >
       + Nuevo paciente
     </button>
-
   </header>
 
 
-  <!-- CARGANDO -->
+  <!-- FORMULARIO NUEVO PACIENTE -->
+  @if (showForm) {
+
+    <section class="patient-form-card">
+
+      <div class="form-header">
+        <div>
+          <span class="page-eyebrow">REGISTRO</span>
+          <h2>Registrar nuevo paciente</h2>
+          <p>
+            Ingresa la información básica de la persona que estará
+            bajo seguimiento.
+          </p>
+        </div>
+
+        <button
+          class="close-form-button"
+          type="button"
+          (click)="closePatientForm()"
+        >
+          ×
+        </button>
+      </div>
+
+
+      <!-- ERROR DEL FORMULARIO -->
+      @if (formError) {
+        <div class="form-error">
+          <span>!</span>
+          <div>
+            <strong>No se pudo registrar el paciente</strong>
+            <p>{{ formError }}</p>
+          </div>
+        </div>
+      }
+
+
+      <form
+        class="patient-form"
+        (submit)="createPatient(); $event.preventDefault()"
+      >
+
+        <!-- INFORMACIÓN PERSONAL -->
+        <div class="form-section">
+
+          <div class="form-section-title">
+            <span>01</span>
+            <div>
+              <h3>Información personal</h3>
+              <p>Datos principales del paciente.</p>
+            </div>
+          </div>
+
+
+          <div class="form-grid">
+
+            <div class="form-field">
+              <label for="nombres">
+                Nombres <span>*</span>
+              </label>
+
+              <input
+                id="nombres"
+                type="text"
+                name="nombres"
+                [(ngModel)]="newPatient.nombres"
+                placeholder="Ej. María Elena"
+                required
+              />
+            </div>
+
+
+            <div class="form-field">
+              <label for="apellidos">
+                Apellidos <span>*</span>
+              </label>
+
+              <input
+                id="apellidos"
+                type="text"
+                name="apellidos"
+                [(ngModel)]="newPatient.apellidos"
+                placeholder="Ej. Gómez Rodríguez"
+                required
+              />
+            </div>
+
+
+            <div class="form-field">
+              <label for="documento">
+                Documento <span>*</span>
+              </label>
+
+              <input
+                id="documento"
+                type="text"
+                name="documento"
+                [(ngModel)]="newPatient.documento"
+                placeholder="Ej. 1234567890"
+                required
+              />
+            </div>
+
+
+            <div class="form-field">
+              <label for="fecha_nacimiento">
+                Fecha de nacimiento <span>*</span>
+              </label>
+
+              <input
+                id="fecha_nacimiento"
+                type="date"
+                name="fecha_nacimiento"
+                [(ngModel)]="newPatient.fecha_nacimiento"
+                required
+              />
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- INFORMACIÓN DE CONTACTO -->
+        <div class="form-section">
+
+          <div class="form-section-title">
+            <span>02</span>
+            <div>
+              <h3>Información de contacto</h3>
+              <p>Información útil para el seguimiento.</p>
+            </div>
+          </div>
+
+
+          <div class="form-grid">
+
+            <div class="form-field">
+              <label for="telefono">
+                Teléfono
+              </label>
+
+              <input
+                id="telefono"
+                type="tel"
+                name="telefono"
+                [(ngModel)]="newPatient.telefono"
+                placeholder="Ej. 300 123 4567"
+              />
+            </div>
+
+
+            <div class="form-field form-field-full">
+              <label for="direccion">
+                Dirección
+              </label>
+
+              <input
+                id="direccion"
+                type="text"
+                name="direccion"
+                [(ngModel)]="newPatient.direccion"
+                placeholder="Ej. Calle 10 # 20-30"
+              />
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- CONTACTO DE EMERGENCIA -->
+        <div class="form-section">
+
+          <div class="form-section-title">
+            <span>03</span>
+            <div>
+              <h3>Contacto de emergencia</h3>
+              <p>Persona que puede ser contactada ante una situación urgente.</p>
+            </div>
+          </div>
+
+
+          <div class="form-grid">
+
+            <div class="form-field">
+              <label for="contacto_emergencia">
+                Nombre del contacto
+              </label>
+
+              <input
+                id="contacto_emergencia"
+                type="text"
+                name="contacto_emergencia"
+                [(ngModel)]="newPatient.contacto_emergencia"
+                placeholder="Ej. Carlos Gómez"
+              />
+            </div>
+
+
+            <div class="form-field">
+              <label for="telefono_emergencia">
+                Teléfono de emergencia
+              </label>
+
+              <input
+                id="telefono_emergencia"
+                type="tel"
+                name="telefono_emergencia"
+                [(ngModel)]="newPatient.telefono_emergencia"
+                placeholder="Ej. 310 456 7890"
+              />
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- ACCIONES -->
+        <div class="form-actions">
+
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="closePatientForm()"
+            [disabled]="creatingPatient"
+          >
+            Cancelar
+          </button>
+
+
+          <button
+            type="submit"
+            class="primary-button"
+            [disabled]="creatingPatient"
+          >
+
+            @if (creatingPatient) {
+              Registrando...
+            } @else {
+              Registrar paciente
+            }
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+  }
+
+
+  <!-- ESTADO DE CARGA -->
   @if (loading && patients.length === 0) {
 
     <section class="patients-state">
@@ -35,9 +282,7 @@
         ...
       </div>
 
-      <h3>
-        Cargando pacientes
-      </h3>
+      <h3>Cargando pacientes</h3>
 
       <p>
         Estamos obteniendo la información del sistema.
@@ -48,7 +293,7 @@
   }
 
 
-  <!-- ERROR -->
+  <!-- ERROR AL CARGAR -->
   @if (!loading && errorMessage) {
 
     <section class="patients-state error-state">
@@ -57,9 +302,7 @@
         !
       </div>
 
-      <h3>
-        No fue posible cargar los pacientes
-      </h3>
+      <h3>No fue posible cargar los pacientes</h3>
 
       <p>
         {{ errorMessage }}
@@ -70,57 +313,35 @@
   }
 
 
-  <!-- CONTENIDO -->
+  <!-- LISTA DE PACIENTES -->
   @if (patients.length > 0) {
 
     <section class="patients-content">
 
-      <!-- RESUMEN -->
       <div class="patients-summary">
 
         <div class="summary-box">
-
-          <span>
-            Pacientes registrados
-          </span>
-
-          <strong>
-            {{ patients.length }}
-          </strong>
-
+          <span>Pacientes registrados</span>
+          <strong>{{ patients.length }}</strong>
         </div>
 
-
         <div class="summary-box active-summary">
-
-          <span>
-            Seguimiento activo
-          </span>
-
-          <strong>
-            {{ patients.length }}
-          </strong>
-
+          <span>Seguimiento activo</span>
+          <strong>{{ patients.length }}</strong>
         </div>
 
       </div>
 
 
-      <!-- LISTA DE PACIENTES -->
       <div class="patients-card">
 
         <div class="patients-card-header">
 
           <div>
-
-            <h2>
-              Pacientes
-            </h2>
-
+            <h2>Pacientes</h2>
             <span>
               Personas registradas en CareGuardian
             </span>
-
           </div>
 
           <span class="patient-count">
@@ -132,22 +353,15 @@
 
         <div class="patient-list">
 
-          @for (
-            patient of patients;
-            track patient.id
-          ) {
+          @for (patient of patients; track patient.id) {
 
             <article class="patient-item">
 
-              <!-- AVATAR -->
               <div class="patient-avatar">
-
                 {{ patient.nombres.charAt(0) }}
-
               </div>
 
 
-              <!-- INFORMACIÓN -->
               <div class="patient-main">
 
                 <div class="patient-name-row">
@@ -157,13 +371,10 @@
                     {{ patient.apellidos }}
                   </h3>
 
-
                   @if (patient.activo) {
-
                     <span class="patient-status">
                       Activo
                     </span>
-
                   }
 
                 </div>
@@ -172,8 +383,7 @@
                 <div class="patient-details">
 
                   <span>
-                    Documento:
-                    {{ patient.documento }}
+                    Documento: {{ patient.documento }}
                   </span>
 
                   <span>
@@ -191,13 +401,12 @@
               </div>
 
 
-              <!-- ACCIÓN -->
-<a
-  class="view-button"
-  [routerLink]="['/dashboard', patient.id]"
->
-  Ver paciente
-</a>
+              <a
+                class="view-button"
+                [routerLink]="['/dashboard', patient.id]"
+              >
+                Ver paciente
+              </a>
 
             </article>
 
@@ -221,9 +430,7 @@
         ♥
       </div>
 
-      <h3>
-        No hay pacientes registrados
-      </h3>
+      <h3>No hay pacientes registrados</h3>
 
       <p>
         Todavía no existen pacientes disponibles para este cuidador.
