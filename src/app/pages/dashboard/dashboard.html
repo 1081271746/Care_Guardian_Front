@@ -132,8 +132,10 @@
     </section>
 
 
+
     <!-- LOADING -->
-    @if (loading) {
+    <!-- CARGANDO / CONTENIDO -->
+@if (loading) {
 
   <section class="loading-container">
     <p>Cargando información del paciente...</p>
@@ -141,7 +143,29 @@
 
 } @else {
 
-  <section style="padding: 40px;">
+  <section style="display: none;">
+
+    <p>
+      Paciente:
+      {{ patientData?.patient?.nombres }}
+      {{ patientData?.patient?.apellidos }}
+    </p>
+
+    <p>
+      Síntomas:
+      {{ patientData?.symptoms?.length }}
+    </p>
+
+    <p>
+      Medicamentos:
+      {{ patientData?.medications?.length }}
+    </p>
+
+  </section>
+
+}
+
+<section style="padding: 40px;">
 
     <div class="dashboard-intro">
   <div>
@@ -168,35 +192,12 @@
       {{ patientData?.medications?.length }}
     </p>
 
-  </section>
 
-}
-
-
-    <!-- ERROR -->
-    @if (!loading && errorMessage) {
-
-      <section class="error-container">
-
-        <strong>No pudimos cargar el dashboard</strong>
-
-        <p>
-          {{ errorMessage }}
-        </p>
-
-        <button
-          type="button"
-          (click)="loadDashboard()">
-          Intentar nuevamente
-        </button>
-
-      </section>
-
-    }
+    
 
 
     <!-- DASHBOARD -->
-    @if (!loading && !errorMessage && patientData) {
+    
 
       <!-- =====================================================
            PACIENTE
@@ -384,23 +385,24 @@
 
 
   <!-- Alertas -->
-  <article class="summary-card">
-    <div class="summary-icon alerts-icon">
-      🚨
-    </div>
+      <!-- Alertas -->
+<article class="summary-card">
+  <div class="summary-icon alerts-icon">
+    🚨
+  </div>
 
-    <div class="summary-content">
-      <span class="summary-label">Alertas activas</span>
+  <div class="summary-content">
+    <span class="summary-label">Alertas activas</span>
 
-      <strong class="summary-value">
-        {{ patientData?.alerts?.length || 0 }}
-      </strong>
+    <strong class="summary-value">
+      {{ patientData?.active_alerts?.length || 0 }}
+    </strong>
 
-      <span class="summary-description">
-        Requieren seguimiento
-      </span>
-    </div>
-  </article>
+    <span class="summary-description">
+      Requieren seguimiento
+    </span>
+  </div>
+</article>
 
 </section>
 
@@ -821,10 +823,14 @@
 
         </div>
 
-      </section>
+        </section>
 
-    }
+    
 
-  </main>
+</section>
+
+    
+
+</main>
 
 </div>

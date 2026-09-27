@@ -31,24 +31,26 @@ export class Dashboard implements OnInit {
     this.errorMessage = '';
 
     this.api.getPatientDashboard(1).subscribe({
-      
+
       next: (data) => {
 
-        console.log('✅ Dashboard recibido:', data);
+      console.log('========== DASHBOARD ==========');
+      console.log('DATOS COMPLETOS:', data);
+      console.log('CLAVES DEL OBJETO:', Object.keys(data));
+      console.log('PACIENTE:', data?.patient);
+      console.log('SINTOMAS:', data?.symptoms);
+      console.log('MEDICAMENTOS:', data?.medications);
+      console.log('ALERTAS:', data?.alerts);
+      console.log('================================');
 
         this.patientData = data;
 
-        console.log('✅ patientData asignado:', this.patientData);
-        console.log('✅ loading antes:', this.loading);
-
         this.loading = false;
-
-        console.log('✅ loading después:', this.loading);
       },
 
       error: (error) => {
 
-        console.error('❌ Error cargando dashboard:', error);
+        console.error('Error cargando dashboard:', error);
 
         this.errorMessage =
           error?.error?.detail ||
