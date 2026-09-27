@@ -15,4 +15,11 @@ export class Api {
       `${this.apiUrl}/dashboard/patients/${patientId}`
     );
   }
+
+  getPatients() {
+    return this.http.get<any[]>(
+      `${this.apiUrl}/patients/`
+    );
+  }
+
 }

@@ -1,1 +1,230 @@
-<p>pacientes works!</p>
+<div class="patients-page">
+
+  <!-- HEADER -->
+  <header class="patients-header">
+
+    <div>
+
+      <span class="page-eyebrow">
+        CUIDADO
+      </span>
+
+      <h1>
+        Pacientes
+      </h1>
+
+      <p>
+        Gestiona y consulta los pacientes bajo seguimiento.
+      </p>
+
+    </div>
+
+    <button class="primary-button">
+      + Nuevo paciente
+    </button>
+
+  </header>
+
+
+  <!-- LOADING -->
+  @if (loading) {
+
+    <section class="patients-state">
+
+      <div class="state-icon">
+        ...
+      </div>
+
+      <h3>
+        Cargando pacientes
+      </h3>
+
+      <p>
+        Estamos obteniendo la información del sistema.
+      </p>
+
+    </section>
+
+  }
+
+
+  <!-- ERROR -->
+  @if (!loading && errorMessage) {
+
+    <section class="patients-state error-state">
+
+      <div class="state-icon">
+        !
+      </div>
+
+      <h3>
+        No fue posible cargar los pacientes
+      </h3>
+
+      <p>
+        {{ errorMessage }}
+      </p>
+
+    </section>
+
+  }
+
+
+  <!-- CONTENIDO -->
+  @if (!loading && !errorMessage) {
+
+    <section class="patients-content">
+
+      <!-- RESUMEN -->
+      <div class="patients-summary">
+
+        <div class="summary-box">
+
+          <span>
+            Pacientes registrados
+          </span>
+
+          <strong>
+            {{ patients.length }}
+          </strong>
+
+        </div>
+
+        <div class="summary-box active-summary">
+
+          <span>
+            Seguimiento activo
+          </span>
+
+          <strong>
+            {{ patients.length }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <!-- LISTA -->
+      <div class="patients-card">
+
+        <div class="patients-card-header">
+
+          <div>
+
+            <h2>
+              Pacientes
+            </h2>
+
+            <span>
+              Personas registradas en CareGuardian
+            </span>
+
+          </div>
+
+          <span class="patient-count">
+            {{ patients.length }}
+          </span>
+
+        </div>
+
+
+        <div class="patient-list">
+
+          @for (
+            patient of patients;
+            track patient.id
+          ) {
+
+            <article class="patient-item">
+
+              <!-- AVATAR -->
+              <div class="patient-avatar">
+
+                {{ patient.nombres.charAt(0) }}
+
+              </div>
+
+
+              <!-- INFORMACIÓN -->
+              <div class="patient-main">
+
+                <div class="patient-name-row">
+
+                  <h3>
+                    {{ patient.nombres }}
+                    {{ patient.apellidos }}
+                  </h3>
+
+                  @if (patient.activo) {
+
+                    <span class="patient-status">
+                      Activo
+                    </span>
+
+                  }
+
+                </div>
+
+
+                <div class="patient-details">
+
+                  <span>
+                    Documento:
+                    {{ patient.documento }}
+                  </span>
+
+                  <span>
+                    Nacimiento:
+                    {{ patient.fecha_nacimiento | date:'dd/MM/yyyy' }}
+                  </span>
+
+                  <span>
+                    Teléfono:
+                    {{ patient.telefono || 'No registrado' }}
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              <!-- ACCIÓN -->
+              <button class="view-button">
+                Ver paciente
+              </button>
+
+            </article>
+
+          }
+
+
+          @if (patients.length === 0) {
+
+            <div class="empty-state">
+
+              <div class="empty-icon">
+                ♥
+              </div>
+
+              <h3>
+                No hay pacientes registrados
+              </h3>
+
+              <p>
+                Todavía no existen pacientes disponibles para este cuidador.
+              </p>
+
+            </div>
+
+          }
+
+        </div>
+
+      </div>
+
+    </section>
+
+  }
+
+</div>
