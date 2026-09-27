@@ -22,4 +22,12 @@ export class Api {
     );
   }
 
+  createPatient(patient: any) {
+  return this.http.post<any>(
+    `${this.apiUrl}/patients/`,
+    patient
+  );
 }
+
+}
+

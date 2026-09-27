@@ -1,12 +1,14 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Api } from '../../services/api';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-pacientes',
   standalone: true,
   imports: [
-    DatePipe
+    DatePipe,
+    RouterLink
   ],
   templateUrl: './pacientes.html',
   styleUrl: './pacientes.css'

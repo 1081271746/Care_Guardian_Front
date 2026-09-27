@@ -1,17 +1,21 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { DatePipe, UpperCasePipe } from '@angular/common';
 import { Api } from '../../services/api';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import {
+  ActivatedRoute,
+  RouterLink,
+  RouterLinkActive
+} from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-  DatePipe,
-  UpperCasePipe,
-  RouterLink,
-  RouterLinkActive
-],
+    DatePipe,
+    UpperCasePipe,
+    RouterLink,
+    RouterLinkActive
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
@@ -23,9 +27,10 @@ export class Dashboard implements OnInit {
   today = new Date();
 
   constructor(
-  private api: Api,
-  private cdr: ChangeDetectorRef
-) {}
+    private api: Api,
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     this.loadDashboard();
@@ -36,18 +41,27 @@ export class Dashboard implements OnInit {
     this.loading = true;
     this.errorMessage = '';
 
-    this.api.getPatientDashboard(1).subscribe({
+    const patientIdParam =
+      this.route.snapshot.paramMap.get('patientId');
+
+    const patientId = patientIdParam
+      ? Number(patientIdParam)
+      : 1;
+
+    console.log('ID DEL PACIENTE:', patientId);
+
+    this.api.getPatientDashboard(patientId).subscribe({
 
       next: (data) => {
 
-      console.log('========== DASHBOARD ==========');
-      console.log('DATOS COMPLETOS:', data);
-      console.log('CLAVES DEL OBJETO:', Object.keys(data));
-      console.log('PACIENTE:', data?.patient);
-      console.log('SINTOMAS:', data?.symptoms);
-      console.log('MEDICAMENTOS:', data?.medications);
-      console.log('ALERTAS:', data?.alerts);
-      console.log('================================');
+        console.log('========== DASHBOARD ==========');
+        console.log('DATOS COMPLETOS:', data);
+        console.log('CLAVES DEL OBJETO:', Object.keys(data));
+        console.log('PACIENTE:', data?.patient);
+        console.log('SINTOMAS:', data?.symptoms);
+        console.log('MEDICAMENTOS:', data?.medications);
+        console.log('ALERTAS:', data?.active_alerts);
+        console.log('================================');
 
         this.patientData = data;
 
@@ -65,6 +79,8 @@ export class Dashboard implements OnInit {
           'No fue posible cargar la información del paciente.';
 
         this.loading = false;
+
+        this.cdr.detectChanges();
       }
 
     });

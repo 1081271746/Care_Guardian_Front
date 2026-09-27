@@ -192,9 +192,12 @@
 
 
               <!-- ACCIÓN -->
-              <button class="view-button">
-                Ver paciente
-              </button>
+<a
+  class="view-button"
+  [routerLink]="['/dashboard', patient.id]"
+>
+  Ver paciente
+</a>
 
             </article>
 

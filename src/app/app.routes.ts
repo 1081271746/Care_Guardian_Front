@@ -28,6 +28,12 @@ export const routes: Routes = [
     component: Dashboard
   },
 
+    {
+    path: 'dashboard/:patientId',
+    component: Dashboard
+
+  },
+
   {
     path: 'pacientes',
     component: Pacientes
