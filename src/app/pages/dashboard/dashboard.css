@@ -1695,3 +1695,193 @@
   }
 
 }
+
+/* =========================================================
+   PRÓXIMAS CITAS
+   ========================================================= */
+
+.appointment-subtitle {
+  display: block;
+  margin-top: 4px;
+
+  color: #829397;
+  font-size: 11px;
+}
+
+.appointment-count {
+  min-width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  background: #e8f6f4;
+  color: #147d75;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+
+/* LISTA */
+
+.appointment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+
+/* TARJETA */
+
+.appointment-card {
+  display: flex;
+  align-items: stretch;
+  gap: 15px;
+
+  padding: 13px;
+
+  border: 1px solid #e5eeee;
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.appointment-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 7px 18px rgba(18, 65, 70, 0.08);
+}
+
+
+/* FECHA */
+
+.appointment-date {
+  width: 58px;
+  min-width: 58px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: #e7f5f3;
+  color: #147d75;
+}
+
+.appointment-date strong {
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.appointment-date span {
+  margin-top: 5px;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+}
+
+
+/* INFORMACIÓN */
+
+.appointment-info {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  min-width: 0;
+}
+
+.appointment-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.appointment-title-row strong {
+  color: #173f46;
+  font-size: 13px;
+}
+
+.appointment-status {
+  padding: 4px 8px;
+
+  border-radius: 20px;
+
+  background: #e8f6f4;
+  color: #147d75;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+.appointment-specialty {
+  margin-top: 3px;
+
+  color: #159b91;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+
+/* DETALLES */
+
+.appointment-detail {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  margin-top: 5px;
+
+  color: #71868a;
+  font-size: 10px;
+}
+
+.detail-icon {
+  width: 16px;
+
+  display: inline-flex;
+  justify-content: center;
+
+  color: #159b91;
+  font-size: 9px;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 600px) {
+
+  .appointment-card {
+    gap: 10px;
+  }
+
+  .appointment-date {
+    width: 50px;
+    min-width: 50px;
+  }
+
+  .appointment-title-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+}

@@ -807,12 +807,12 @@
         </span>
 
         <div class="analysis-score-value">
-          {{ patientData.historical_analysis.score }}
-        </div>
+  {{ patientData.historical_analysis.score }}
+</div>
 
-        <span class="analysis-score-description">
-          Puntuación actual
-        </span>
+<span class="analysis-score-description">
+  Riesgo {{ patientData.historical_analysis.nivel | uppercase }}
+</span>
 
       </div>
 
@@ -911,72 +911,114 @@
 
 
           <!-- CITAS -->
-          <article class="dashboard-card">
+<article class="dashboard-card">
 
-            <div class="card-header">
+  <div class="card-header">
 
-              <h3>
-                Próximas citas
-              </h3>
+    <div>
 
-              <span>
-                {{ patientData.upcoming_appointments.length }}
-              </span>
+      <h3>
+        Próximas citas
+      </h3>
 
-            </div>
+      <span class="appointment-subtitle">
+        Actividades médicas programadas
+      </span>
 
+    </div>
 
-            <div class="appointment-list">
+    <span class="appointment-count">
+      {{ patientData.upcoming_appointments.length }}
+    </span>
 
-              @for (
-                appointment of patientData.upcoming_appointments;
-                track appointment.id
-              ) {
-
-                <div class="appointment-item">
-
-                  <div class="appointment-date">
-
-                    <strong>
-                      {{ appointment.fecha | date:'dd' }}
-                    </strong>
-
-                    <span>
-                      {{ appointment.fecha | date:'MMM' }}
-                    </span>
-
-                  </div>
+  </div>
 
 
-                  <div class="appointment-info">
+  <div class="appointment-list">
 
-                    <strong>
-                      {{ appointment.titulo }}
-                    </strong>
+    @for (
+      appointment of patientData.upcoming_appointments;
+      track appointment.id
+    ) {
 
-                    <span>
-                      {{ appointment.especialidad }}
-                    </span>
+      <div class="appointment-card">
 
-                    <span>
-                      {{ appointment.profesional }}
-                    </span>
+        <!-- FECHA -->
+        <div class="appointment-date">
 
-                    <span>
-                      {{ appointment.hora }}
-                      ·
-                      {{ appointment.lugar || 'Lugar no registrado' }}
-                    </span>
+          <strong>
+            {{ appointment.fecha | date:'dd' }}
+          </strong>
 
-                  </div>
+          <span>
+            {{ appointment.fecha | date:'MMM' | uppercase }}
+          </span>
 
-                </div>
+        </div>
 
-              }
 
-            </div>
+        <!-- INFORMACIÓN -->
+        <div class="appointment-info">
 
-          </article>
+          <div class="appointment-title-row">
+
+            <strong>
+              {{ appointment.titulo }}
+            </strong>
+
+            <span class="appointment-status">
+              Próxima
+            </span>
+
+          </div>
+
+
+          <span class="appointment-specialty">
+            {{ appointment.especialidad }}
+          </span>
+
+
+          <div class="appointment-detail">
+
+            <span class="detail-icon">
+              ●
+            </span>
+
+            {{ appointment.profesional }}
+
+          </div>
+
+
+          <div class="appointment-detail">
+
+            <span class="detail-icon">
+              ◷
+            </span>
+
+            {{ appointment.hora }}
+
+          </div>
+
+
+          <div class="appointment-detail">
+
+            <span class="detail-icon">
+              ▪
+            </span>
+
+            {{ appointment.lugar || 'Lugar no registrado' }}
+
+          </div>
+
+        </div>
+
+      </div>
+
+    }
+
+  </div>
+
+</article>
 
         </div>
 
