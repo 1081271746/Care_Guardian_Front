@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Api } from '../../services/api';
 
@@ -17,7 +17,10 @@ export class Pacientes implements OnInit {
   loading = true;
   errorMessage = '';
 
-  constructor(private api: Api) {}
+  constructor(
+  private api: Api,
+  private cdr: ChangeDetectorRef
+) {}
 
   ngOnInit(): void {
     this.loadPatients();
@@ -45,6 +48,8 @@ export class Pacientes implements OnInit {
   console.log('DESPUÉS DE CAMBIAR LOADING:', this.loading);
   console.log('PACIENTES GUARDADOS:', this.patients);
 
+  this.cdr.detectChanges();
+  
   console.log('================================');
 
 },

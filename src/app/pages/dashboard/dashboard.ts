@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { DatePipe, UpperCasePipe } from '@angular/common';
 import { Api } from '../../services/api';
 import { RouterLink, RouterLinkActive } from '@angular/router';
@@ -22,7 +22,10 @@ export class Dashboard implements OnInit {
   errorMessage = '';
   today = new Date();
 
-  constructor(private api: Api) {}
+  constructor(
+  private api: Api,
+  private cdr: ChangeDetectorRef
+) {}
 
   ngOnInit(): void {
     this.loadDashboard();
@@ -49,6 +52,8 @@ export class Dashboard implements OnInit {
         this.patientData = data;
 
         this.loading = false;
+
+        this.cdr.detectChanges();
       },
 
       error: (error) => {
