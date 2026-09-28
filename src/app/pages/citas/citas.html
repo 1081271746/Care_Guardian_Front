@@ -1,1 +1,528 @@
-<p>citas works!</p>
+<div class="appointments-page">
+
+  <!-- ENCABEZADO -->
+  <header class="page-header">
+
+    <div>
+      <span class="eyebrow">
+        SEGUIMIENTO MÉDICO
+      </span>
+
+      <h1>
+        Citas
+      </h1>
+
+      <p>
+        Consulta y registra las citas médicas programadas para el paciente.
+      </p>
+    </div>
+
+    <button
+      class="primary-button"
+      type="button"
+      (click)="openForm()"
+    >
+      <span class="button-icon">+</span>
+      Registrar cita
+    </button>
+
+  </header>
+
+
+  <!-- MENSAJE DE ÉXITO -->
+  @if (successMessage) {
+
+    <div class="success-message">
+      <span class="message-icon">✓</span>
+      {{ successMessage }}
+    </div>
+
+  }
+
+
+  <!-- MENSAJE DE ERROR -->
+  @if (errorMessage) {
+
+    <div class="error-message">
+      <span class="message-icon">!</span>
+      {{ errorMessage }}
+    </div>
+
+  }
+
+
+  <!-- FORMULARIO -->
+  @if (showForm) {
+
+    <section class="form-card">
+
+      <div class="form-header">
+
+        <div>
+          <span class="section-label">
+            NUEVA CITA
+          </span>
+
+          <h2>
+            Registrar cita médica
+          </h2>
+
+          <p>
+            Ingresa la información de la cita programada para el paciente.
+          </p>
+        </div>
+
+        <button
+          class="close-button"
+          type="button"
+          (click)="closeForm()"
+          aria-label="Cerrar formulario"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <!-- CAMPOS PRINCIPALES -->
+      <div class="form-grid">
+
+        <!-- TÍTULO -->
+        <div class="form-group">
+
+          <label for="titulo">
+            Título de la cita
+          </label>
+
+          <input
+            id="titulo"
+            type="text"
+            placeholder="Ej. Control médico"
+            [(ngModel)]="newAppointment.titulo"
+            name="titulo"
+          />
+
+        </div>
+
+
+        <!-- ESPECIALIDAD -->
+        <div class="form-group">
+
+          <label for="especialidad">
+            Especialidad
+          </label>
+
+          <input
+            id="especialidad"
+            type="text"
+            placeholder="Ej. Medicina general"
+            [(ngModel)]="newAppointment.especialidad"
+            name="especialidad"
+          />
+
+        </div>
+
+
+        <!-- PROFESIONAL -->
+        <div class="form-group">
+
+          <label for="profesional">
+            Profesional
+          </label>
+
+          <input
+            id="profesional"
+            type="text"
+            placeholder="Ej. Dra. María Rodríguez"
+            [(ngModel)]="newAppointment.profesional"
+            name="profesional"
+          />
+
+        </div>
+
+
+        <!-- FECHA -->
+        <div class="form-group">
+
+          <label for="fecha">
+            Fecha
+          </label>
+
+          <input
+            id="fecha"
+            type="date"
+            [(ngModel)]="newAppointment.fecha"
+            name="fecha"
+          />
+
+          <small>
+            Fecha programada para la atención.
+          </small>
+
+        </div>
+
+
+        <!-- HORA -->
+        <div class="form-group">
+
+          <label for="hora">
+            Hora
+          </label>
+
+          <input
+            id="hora"
+            type="time"
+            [(ngModel)]="newAppointment.hora"
+            name="hora"
+          />
+
+          <small>
+            Hora programada para la cita.
+          </small>
+
+        </div>
+
+
+        <!-- LUGAR -->
+        <div class="form-group">
+
+          <label for="lugar">
+            Lugar
+          </label>
+
+          <input
+            id="lugar"
+            type="text"
+            placeholder="Ej. Clínica San José"
+            [(ngModel)]="newAppointment.lugar"
+            name="lugar"
+          />
+
+          <small>
+            Clínica, hospital o consultorio.
+          </small>
+
+        </div>
+
+      </div>
+
+
+      <!-- ESTADO -->
+      <div class="form-group full-width">
+
+        <label for="estado">
+          Estado de la cita
+        </label>
+
+        <select
+          id="estado"
+          [(ngModel)]="newAppointment.estado"
+          name="estado"
+        >
+
+          <option value="pendiente">
+            Pendiente
+          </option>
+
+          <option value="confirmada">
+            Confirmada
+          </option>
+
+          <option value="completada">
+            Completada
+          </option>
+
+          <option value="cancelada">
+            Cancelada
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <!-- NOTAS -->
+      <div class="form-group full-width">
+
+        <label for="notas">
+          Notas
+        </label>
+
+        <textarea
+          id="notas"
+          rows="4"
+          placeholder="Agrega recomendaciones, indicaciones o información importante..."
+          [(ngModel)]="newAppointment.notas"
+          name="notas"
+        ></textarea>
+
+        <small>
+          Registra cualquier información adicional relacionada con la cita.
+        </small>
+
+      </div>
+
+
+      <!-- ACCIONES -->
+      <div class="form-actions">
+
+        <button
+          class="secondary-button"
+          type="button"
+          (click)="closeForm()"
+          [disabled]="saving"
+        >
+          Cancelar
+        </button>
+
+        <button
+          class="primary-button"
+          type="button"
+          (click)="createAppointment()"
+          [disabled]="saving"
+        >
+
+          @if (saving) {
+            Guardando...
+          } @else {
+            Guardar cita
+          }
+
+        </button>
+
+      </div>
+
+    </section>
+
+  }
+
+
+  <!-- HISTORIAL -->
+  <section class="history-section">
+
+    <div class="section-heading">
+
+      <div>
+
+        <span class="section-label">
+          AGENDA MÉDICA
+        </span>
+
+        <h2>
+          Citas programadas
+        </h2>
+
+        <p>
+          Consulta las próximas citas y el historial de atención del paciente.
+        </p>
+
+      </div>
+
+      @if (!loading) {
+
+        <span class="record-count">
+          {{ appointments.length }}
+          {{ appointments.length === 1 ? 'cita' : 'citas' }}
+        </span>
+
+      }
+
+    </div>
+
+
+    <!-- CARGANDO -->
+    @if (loading) {
+
+      <div class="loading-state">
+
+        <div class="loading-spinner"></div>
+
+        <p>
+          Cargando citas...
+        </p>
+
+      </div>
+
+    }
+
+
+    <!-- SIN CITAS -->
+    @if (!loading && appointments.length === 0) {
+
+      <div class="empty-state">
+
+        <div class="empty-icon">
+          +
+        </div>
+
+        <h3>
+          No hay citas registradas
+        </h3>
+
+        <p>
+          Todavía no existen citas médicas para este paciente.
+          Puedes registrar la primera desde el botón superior.
+        </p>
+
+        <button
+          class="primary-button"
+          type="button"
+          (click)="openForm()"
+        >
+          Registrar primera cita
+        </button>
+
+      </div>
+
+    }
+
+
+    <!-- LISTA DE CITAS -->
+    @if (!loading && appointments.length > 0) {
+
+      <div class="appointments-list">
+
+        @for (
+          appointment of appointments;
+          track appointment.id
+        ) {
+
+          <article class="appointment-card">
+
+            <!-- CABECERA -->
+            <div class="appointment-header">
+
+              <div class="appointment-title">
+
+                <div class="appointment-icon">
+                  +
+                </div>
+
+                <div>
+
+                  <span class="appointment-label">
+                    CITA MÉDICA
+                  </span>
+
+                  <h3>
+                    {{ appointment.titulo }}
+                  </h3>
+
+                </div>
+
+              </div>
+
+
+              <span
+                class="status-badge"
+                [class]="getStatusClass(appointment.estado)"
+              >
+                {{ getStatusLabel(appointment.estado) }}
+              </span>
+
+            </div>
+
+
+            <!-- INFORMACIÓN -->
+            <div class="appointment-data">
+
+              <div class="data-item">
+
+                <span class="data-label">
+                  ESPECIALIDAD
+                </span>
+
+                <strong>
+                  {{ appointment.especialidad }}
+                </strong>
+
+              </div>
+
+
+              <div class="data-item">
+
+                <span class="data-label">
+                  PROFESIONAL
+                </span>
+
+                <strong>
+                  {{ appointment.profesional }}
+                </strong>
+
+              </div>
+
+
+              <div class="data-item">
+
+                <span class="data-label">
+                  FECHA
+                </span>
+
+                <strong>
+                  {{ appointment.fecha | date:'dd/MM/yyyy' }}
+                </strong>
+
+              </div>
+
+
+              <div class="data-item">
+
+                <span class="data-label">
+                  HORA
+                </span>
+
+                <strong>
+                  {{ formatTime(appointment.hora) }}
+                </strong>
+
+              </div>
+
+            </div>
+
+
+            <!-- LUGAR -->
+            @if (appointment.lugar) {
+
+              <div class="appointment-detail">
+
+                <span class="detail-label">
+                  LUGAR
+                </span>
+
+                <p>
+                  {{ appointment.lugar }}
+                </p>
+
+              </div>
+
+            }
+
+
+            <!-- NOTAS -->
+            @if (appointment.notas) {
+
+              <div class="appointment-detail">
+
+                <span class="detail-label">
+                  NOTAS
+                </span>
+
+                <p>
+                  {{ appointment.notas }}
+                </p>
+
+              </div>
+
+            }
+
+          </article>
+
+        }
+
+      </div>
+
+    }
+
+  </section>
+
+</div>

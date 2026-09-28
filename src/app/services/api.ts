@@ -74,4 +74,21 @@ export class Api {
     );
   }
 
+  // ================================
+// CITAS
+// ================================
+
+getPatientAppointments(patientId: number) {
+  return this.http.get<any[]>(
+    `${this.apiUrl}/appointments/patients/${patientId}`
+  );
+}
+
+createAppointment(patientId: number, appointment: any) {
+  return this.http.post<any>(
+    `${this.apiUrl}/appointments/patients/${patientId}`,
+    appointment
+  );
+}
+
 }
