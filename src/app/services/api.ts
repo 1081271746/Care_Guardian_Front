@@ -23,11 +23,23 @@ export class Api {
   }
 
   createPatient(patient: any) {
-  return this.http.post<any>(
-    `${this.apiUrl}/patients/`,
-    patient
-  );
-}
+    return this.http.post<any>(
+      `${this.apiUrl}/patients/`,
+      patient
+    );
+  }
+
+  getPatientSymptoms(patientId: number) {
+    return this.http.get<any[]>(
+      `${this.apiUrl}/symptoms/patients/${patientId}`
+    );
+  }
+
+  createSymptom(patientId: number, symptom: any) {
+    return this.http.post<any>(
+      `${this.apiUrl}/symptoms/patients/${patientId}`,
+      symptom
+    );
+  }
 
 }
-

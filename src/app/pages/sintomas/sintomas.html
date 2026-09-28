@@ -1,1 +1,564 @@
-<p>sintomas works!</p>
+<div class="symptoms-page">
+
+  <!-- ENCABEZADO -->
+  <section class="page-header">
+
+    <div>
+      <span class="eyebrow">SEGUIMIENTO CLÍNICO</span>
+
+      <h1>Registro de síntomas</h1>
+
+      <p>
+        Registra y consulta los cambios observados en el estado
+        del paciente para facilitar su seguimiento.
+      </p>
+    </div>
+
+    <button
+      class="primary-button"
+      type="button"
+      (click)="openForm()"
+    >
+      <span class="button-icon">+</span>
+      Registrar síntoma
+    </button>
+
+  </section>
+
+
+  <!-- MENSAJE DE ÉXITO -->
+  @if (successMessage) {
+
+    <div class="success-message">
+      <span class="message-icon">✓</span>
+
+      <span>
+        {{ successMessage }}
+      </span>
+
+    </div>
+
+  }
+
+
+  <!-- MENSAJE DE ERROR -->
+  @if (errorMessage) {
+
+    <div class="error-message">
+
+      <span class="message-icon">!</span>
+
+      <span>
+        {{ errorMessage }}
+      </span>
+
+    </div>
+
+  }
+
+
+  <!-- FORMULARIO -->
+  @if (showForm) {
+
+    <section class="form-card">
+
+      <div class="form-header">
+
+        <div>
+          <span class="section-label">
+            NUEVO REGISTRO
+          </span>
+
+          <h2>Registrar síntomas del paciente</h2>
+
+          <p>
+            Ingresa los datos observados durante el seguimiento.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="close-button"
+          (click)="closeForm()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <!-- CALIDAD DEL SUEÑO -->
+        <div class="form-group">
+
+          <label for="calidadSueno">
+            Calidad del sueño
+          </label>
+
+          <div class="input-with-suffix">
+
+            <input
+              id="calidadSueno"
+              type="number"
+              min="0"
+              max="10"
+              placeholder="0 - 10"
+              [(ngModel)]="newSymptom.calidad_sueno"
+            >
+
+            <span>/10</span>
+
+          </div>
+
+          <small>
+            0 representa un sueño muy deficiente y 10 un sueño óptimo.
+          </small>
+
+        </div>
+
+
+        <!-- ESTADO DE ÁNIMO -->
+        <div class="form-group">
+
+          <label for="estadoAnimo">
+            Estado de ánimo
+          </label>
+
+          <select
+            id="estadoAnimo"
+            [(ngModel)]="newSymptom.estado_animo"
+          >
+
+            <option value="">
+              Seleccionar estado
+            </option>
+
+            <option value="estable">
+              Estable
+            </option>
+
+            <option value="animado">
+              Animado
+            </option>
+
+            <option value="tranquilo">
+              Tranquilo
+            </option>
+
+            <option value="triste">
+              Triste
+            </option>
+
+            <option value="ansioso">
+              Ansioso
+            </option>
+
+            <option value="decaído">
+              Decaído
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- APETITO -->
+        <div class="form-group">
+
+          <label for="apetito">
+            Apetito
+          </label>
+
+          <select
+            id="apetito"
+            [(ngModel)]="newSymptom.apetito"
+          >
+
+            <option value="">
+              Seleccionar apetito
+            </option>
+
+            <option value="normal">
+              Normal
+            </option>
+
+            <option value="bueno">
+              Bueno
+            </option>
+
+            <option value="bajo">
+              Bajo
+            </option>
+
+            <option value="muy bajo">
+              Muy bajo
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- NIVEL DE DOLOR -->
+        <div class="form-group">
+
+          <label for="nivelDolor">
+            Nivel de dolor
+          </label>
+
+          <div class="input-with-suffix">
+
+            <input
+              id="nivelDolor"
+              type="number"
+              min="0"
+              max="10"
+              placeholder="0 - 10"
+              [(ngModel)]="newSymptom.nivel_dolor"
+            >
+
+            <span>/10</span>
+
+          </div>
+
+          <small>
+            0 significa ausencia de dolor y 10 dolor intenso.
+          </small>
+
+        </div>
+
+
+        <!-- TEMPERATURA -->
+        <div class="form-group">
+
+          <label for="temperatura">
+            Temperatura corporal
+          </label>
+
+          <div class="input-with-suffix">
+
+            <input
+              id="temperatura"
+              type="number"
+              min="30"
+              max="45"
+              step="0.1"
+              placeholder="Ej. 36.5"
+              [(ngModel)]="newSymptom.temperatura"
+            >
+
+            <span>°C</span>
+
+          </div>
+
+        </div>
+
+
+        <!-- GRAVEDAD -->
+        <div class="form-group">
+
+          <label for="nivelGravedad">
+            Nivel de gravedad
+          </label>
+
+          <select
+            id="nivelGravedad"
+            [(ngModel)]="newSymptom.nivel_gravedad"
+          >
+
+            <option value="bajo">
+              Bajo
+            </option>
+
+            <option value="moderado">
+              Moderado
+            </option>
+
+            <option value="grave">
+              Grave
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+
+      <!-- OBSERVACIONES -->
+      <div class="form-group full-width">
+
+        <label for="observaciones">
+          Observaciones
+        </label>
+
+        <textarea
+          id="observaciones"
+          rows="4"
+          maxlength="1000"
+          placeholder="Describe cualquier cambio, comportamiento o situación relevante..."
+          [(ngModel)]="newSymptom.observaciones"
+        ></textarea>
+
+        <small>
+          Puedes registrar información adicional observada durante el día.
+        </small>
+
+      </div>
+
+
+      <!-- ACCIONES -->
+      <div class="form-actions">
+
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="closeForm()"
+          [disabled]="saving"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="createSymptom()"
+          [disabled]="saving"
+        >
+
+          @if (saving) {
+            Guardando...
+          } @else {
+            Guardar registro
+          }
+
+        </button>
+
+      </div>
+
+    </section>
+
+  }
+
+
+  <!-- HISTORIAL -->
+  <section class="history-section">
+
+    <div class="section-heading">
+
+      <div>
+
+        <span class="section-label">
+          HISTORIAL
+        </span>
+
+        <h2>Registros recientes</h2>
+
+        <p>
+          Consulta los síntomas registrados durante el seguimiento.
+        </p>
+
+      </div>
+
+      <span class="record-count">
+        {{ symptoms.length }} registros
+      </span>
+
+    </div>
+
+
+    <!-- CARGANDO -->
+    @if (loading) {
+
+      <div class="loading-state">
+
+        <div class="loading-spinner"></div>
+
+        <p>
+          Cargando registros de síntomas...
+        </p>
+
+      </div>
+
+    }
+
+
+    <!-- SIN REGISTROS -->
+    @if (!loading && symptoms.length === 0) {
+
+      <div class="empty-state">
+
+        <div class="empty-icon">
+          +
+        </div>
+
+        <h3>
+          No hay registros todavía
+        </h3>
+
+        <p>
+          Registra el primer seguimiento de síntomas
+          para comenzar a construir el historial.
+        </p>
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="openForm()"
+        >
+          Registrar primer síntoma
+        </button>
+
+      </div>
+
+    }
+
+
+    <!-- LISTA DE REGISTROS -->
+    @if (!loading && symptoms.length > 0) {
+
+      <div class="symptoms-list">
+
+        @for (symptom of symptoms; track symptom.id) {
+
+          <article class="symptom-card">
+
+            <div class="symptom-card-header">
+
+              <div>
+
+                <span class="date-label">
+                  {{ symptom.fecha_registro | date:'dd/MM/yyyy HH:mm' }}
+                </span>
+
+                <h3>
+                  Registro de seguimiento
+                </h3>
+
+              </div>
+
+              <span
+                class="severity-badge"
+                [class]="getSeverityClass(symptom.nivel_gravedad)"
+              >
+                {{ getSeverityLabel(symptom.nivel_gravedad) }}
+              </span>
+
+            </div>
+
+
+            <div class="symptom-data">
+
+              <!-- SUEÑO -->
+              <div class="data-item">
+
+                <span class="data-label">
+                  Sueño
+                </span>
+
+                <strong>
+                  @if (symptom.calidad_sueno !== null) {
+                    {{ symptom.calidad_sueno }}/10
+                  } @else {
+                    No registrado
+                  }
+                </strong>
+
+              </div>
+
+
+              <!-- ÁNIMO -->
+              <div class="data-item">
+
+                <span class="data-label">
+                  Estado de ánimo
+                </span>
+
+                <strong>
+                  {{ symptom.estado_animo || 'No registrado' }}
+                </strong>
+
+              </div>
+
+
+              <!-- APETITO -->
+              <div class="data-item">
+
+                <span class="data-label">
+                  Apetito
+                </span>
+
+                <strong>
+                  {{ symptom.apetito || 'No registrado' }}
+                </strong>
+
+              </div>
+
+
+              <!-- DOLOR -->
+              <div class="data-item">
+
+                <span class="data-label">
+                  Dolor
+                </span>
+
+                <strong>
+                  @if (symptom.nivel_dolor !== null) {
+                    {{ symptom.nivel_dolor }}/10
+                  } @else {
+                    No registrado
+                  }
+                </strong>
+
+              </div>
+
+
+              <!-- TEMPERATURA -->
+              <div class="data-item">
+
+                <span class="data-label">
+                  Temperatura
+                </span>
+
+                <strong>
+                  @if (symptom.temperatura !== null) {
+                    {{ symptom.temperatura }} °C
+                  } @else {
+                    No registrada
+                  }
+                </strong>
+
+              </div>
+
+            </div>
+
+
+            <!-- OBSERVACIONES -->
+            @if (symptom.observaciones) {
+
+              <div class="observations">
+
+                <span class="data-label">
+                  Observaciones
+                </span>
+
+                <p>
+                  {{ symptom.observaciones }}
+                </p>
+
+              </div>
+
+            }
+
+          </article>
+
+        }
+
+      </div>
+
+    }
+
+  </section>
+
+</div>
