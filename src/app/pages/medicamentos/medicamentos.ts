@@ -25,13 +25,14 @@ export class Medicamentos implements OnInit {
 
   showForm = false;
 
-  newMedication = {
-    nombre: '',
-    dosis: '',
-    frecuencia: '',
-    hora: '',
-    indicaciones: ''
-  };
+newMedication = {
+  nombre: '',
+  dosis: '',
+  frecuencia: '',
+  hora: '',
+  fecha_inicio: '',
+  indicaciones: ''
+};
 
   constructor(
     private api: Api,
@@ -112,7 +113,8 @@ export class Medicamentos implements OnInit {
       !this.newMedication.nombre ||
       !this.newMedication.dosis ||
       !this.newMedication.frecuencia ||
-      !this.newMedication.hora
+      !this.newMedication.hora ||
+      !this.newMedication.fecha_inicio
     ) {
 
       this.errorMessage =
@@ -125,20 +127,15 @@ export class Medicamentos implements OnInit {
 
     this.saving = true;
 
-    const medicationData = {
-
-      nombre: this.newMedication.nombre,
-
-      dosis: this.newMedication.dosis,
-
-      frecuencia: this.newMedication.frecuencia,
-
-      hora: this.newMedication.hora,
-
-      indicaciones:
-        this.newMedication.indicaciones || null
-
-    };
+const medicationData = {
+  nombre: this.newMedication.nombre,
+  dosis: this.newMedication.dosis,
+  frecuencia: this.newMedication.frecuencia,
+  hora: this.newMedication.hora,
+  fecha_inicio: this.newMedication.fecha_inicio,
+  indicaciones:
+    this.newMedication.indicaciones || null
+};
 
     console.log(
       'Enviando medicamento:',
@@ -172,39 +169,47 @@ export class Medicamentos implements OnInit {
       },
 
       error: (error) => {
+  console.error('Error registrando medicamento:', error);
 
-        console.error(
-          'Error registrando medicamento:',
-          error
-        );
+  const detail = error?.error?.detail;
 
-        this.errorMessage =
-          error?.error?.detail ||
-          'No fue posible registrar el medicamento.';
+  if (Array.isArray(detail)) {
+    this.errorMessage = detail
+      .map((item: any) => {
+        if (typeof item === 'string') {
+          return item;
+        }
 
-        this.saving = false;
+        return item?.msg || 'Error de validación.';
+      })
+      .join(' | ');
+  } else if (typeof detail === 'string') {
+    this.errorMessage = detail;
+  } else if (detail) {
+    this.errorMessage = JSON.stringify(detail);
+  } else {
+    this.errorMessage =
+      'No fue posible registrar el medicamento.';
+  }
 
-        this.cdr.detectChanges();
-      }
+  this.saving = false;
+  this.cdr.detectChanges();
+}
 
     });
   }
 
   resetForm(): void {
 
-    this.newMedication = {
+this.newMedication = {
+  nombre: '',
+  dosis: '',
+  frecuencia: '',
+  hora: '',
+  fecha_inicio: '',
+  indicaciones: ''
+};
 
-      nombre: '',
-
-      dosis: '',
-
-      frecuencia: '',
-
-      hora: '',
-
-      indicaciones: ''
-
-    };
   }
 
 }
