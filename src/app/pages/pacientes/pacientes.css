@@ -230,13 +230,9 @@
 .patient-item {
   display: flex;
   align-items: center;
-
   gap: 15px;
-
   padding: 17px 20px;
-
   border-bottom: 1px solid #edf2f2;
-
   transition: background 0.2s ease;
 }
 
@@ -324,18 +320,12 @@
 .view-button {
   border: 1px solid #dcebea;
   border-radius: 9px;
-
   padding: 8px 12px;
-
   background: white;
-
   color: #147d75;
-
   font-size: 10px;
   font-weight: 700;
-
   cursor: pointer;
-
   transition:
     background 0.2s ease,
     border-color 0.2s ease;
@@ -418,6 +408,371 @@
   .patient-details {
     flex-direction: column;
     gap: 4px;
+  }
+
+}
+
+/* =========================================================
+   FORMULARIO DE NUEVO PACIENTE
+   ========================================================= */
+
+.patient-form-card {
+  margin-bottom: 28px;
+  padding: 26px;
+  background: white;
+  border: 1px solid #e2eeee;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(18, 63, 70, 0.06);
+}
+
+
+/* HEADER DEL FORMULARIO */
+
+.form-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #edf2f2;
+}
+
+.form-header h2 {
+  margin: 6px 0 6px;
+  color: #173f46;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.form-header p {
+  margin: 0;
+  color: #829397;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+
+/* BOTÓN CERRAR */
+
+.close-form-button {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #e1ebeb;
+  border-radius: 10px;
+
+  background: white;
+  color: #718588;
+
+  font-size: 20px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.close-form-button:hover {
+  background: #f1f7f6;
+  border-color: #cfe2e0;
+  color: #173f46;
+}
+
+
+/* ERROR DEL FORMULARIO */
+
+.form-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  margin-top: 20px;
+  padding: 13px 15px;
+
+  border: 1px solid #f2cccc;
+  border-radius: 12px;
+
+  background: #fff5f5;
+  color: #a83232;
+}
+
+.form-error > span {
+  width: 25px;
+  height: 25px;
+  min-width: 25px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #fbe0e0;
+  color: #b93636;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.form-error strong {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 11px;
+}
+
+.form-error p {
+  margin: 0;
+  color: #9b5c5c;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+
+/* FORMULARIO */
+
+.patient-form {
+  padding-top: 24px;
+}
+
+
+/* SECCIONES */
+
+.form-section {
+  padding: 22px 0;
+  border-bottom: 1px solid #edf2f2;
+}
+
+.form-section:first-child {
+  padding-top: 0;
+}
+
+.form-section:last-of-type {
+  border-bottom: none;
+}
+
+
+/* TÍTULO DE SECCIÓN */
+
+.form-section-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.form-section-title > span {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  background: #e8f6f4;
+  color: #147d75;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.form-section-title h3 {
+  margin: 0 0 4px;
+  color: #173f46;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.form-section-title p {
+  margin: 0;
+  color: #829397;
+  font-size: 10px;
+}
+
+
+/* GRID */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+
+/* CAMPO */
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.form-field-full {
+  grid-column: 1 / -1;
+}
+
+.form-field label {
+  color: #49666b;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.form-field label span {
+  color: #159b91;
+}
+
+
+/* INPUTS */
+
+.form-field input {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 11px 12px;
+
+  border: 1px solid #dce9e8;
+  border-radius: 10px;
+
+  background: #fbfdfd;
+  color: #173f46;
+
+  font-family: inherit;
+  font-size: 11px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.form-field input::placeholder {
+  color: #a4b2b4;
+}
+
+.form-field input:hover {
+  border-color: #c6dcda;
+}
+
+.form-field input:focus {
+  border-color: #159b91;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(21, 155, 145, 0.08);
+}
+
+
+/* FECHA */
+
+.form-field input[type="date"] {
+  color: #526c70;
+  cursor: pointer;
+}
+
+
+/* ACCIONES */
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+
+  padding-top: 24px;
+}
+
+
+/* BOTÓN SECUNDARIO */
+
+.secondary-button {
+  border: 1px solid #dce9e8;
+  border-radius: 11px;
+
+  padding: 11px 16px;
+
+  background: white;
+  color: #5c7478;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.secondary-button:hover {
+  background: #f5f9f9;
+  border-color: #c9dddb;
+  color: #173f46;
+}
+
+
+/* BOTÓN PRINCIPAL DEL FORMULARIO */
+
+.form-actions .primary-button {
+  min-width: 150px;
+}
+
+
+/* BOTONES DESHABILITADOS */
+
+.primary-button:disabled,
+.secondary-button:disabled,
+.close-form-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   RESPONSIVE DEL FORMULARIO
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .patient-form-card {
+    padding: 20px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-field-full {
+    grid-column: auto;
+  }
+
+  .form-header {
+    gap: 12px;
+  }
+
+  .form-header h2 {
+    font-size: 18px;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .form-actions button {
+    width: 100%;
   }
 
 }
