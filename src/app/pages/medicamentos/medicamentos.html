@@ -1,1 +1,433 @@
-<p>medicamentos works!</p>
+<div class="medications-page">
+
+  <!-- ENCABEZADO -->
+  <section class="page-header">
+
+    <div>
+      <span class="eyebrow">TRATAMIENTO</span>
+
+      <h1>Medicamentos</h1>
+
+      <p>
+        Consulta y registra los medicamentos utilizados
+        durante el cuidado del paciente.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="primary-button"
+      (click)="openForm()"
+    >
+      <span class="button-icon">+</span>
+      Registrar medicamento
+    </button>
+
+  </section>
+
+
+  <!-- MENSAJE DE ÉXITO -->
+  @if (successMessage) {
+
+    <div class="success-message">
+
+      <span class="message-icon">✓</span>
+
+      <span>
+        {{ successMessage }}
+      </span>
+
+    </div>
+
+  }
+
+
+  <!-- MENSAJE DE ERROR -->
+  @if (errorMessage) {
+
+    <div class="error-message">
+
+      <span class="message-icon">!</span>
+
+      <span>
+        {{ errorMessage }}
+      </span>
+
+    </div>
+
+  }
+
+
+  <!-- FORMULARIO -->
+  @if (showForm) {
+
+    <section class="form-card">
+
+      <div class="form-header">
+
+        <div>
+
+          <span class="section-label">
+            NUEVO TRATAMIENTO
+          </span>
+
+          <h2>Registrar medicamento</h2>
+
+          <p>
+            Ingresa la información del medicamento
+            indicado para el paciente.
+          </p>
+
+        </div>
+
+        <button
+          type="button"
+          class="close-button"
+          (click)="closeForm()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <!-- CAMPOS -->
+      <div class="form-grid">
+
+        <!-- NOMBRE -->
+        <div class="form-group">
+
+          <label for="nombre">
+            Nombre del medicamento
+          </label>
+
+          <input
+            id="nombre"
+            type="text"
+            placeholder="Ej. Acetaminofén"
+            [(ngModel)]="newMedication.nombre"
+          >
+
+        </div>
+
+
+        <!-- DOSIS -->
+        <div class="form-group">
+
+          <label for="dosis">
+            Dosis
+          </label>
+
+          <input
+            id="dosis"
+            type="text"
+            placeholder="Ej. 500 mg"
+            [(ngModel)]="newMedication.dosis"
+          >
+
+        </div>
+
+
+        <!-- FRECUENCIA -->
+        <div class="form-group">
+
+          <label for="frecuencia">
+            Frecuencia
+          </label>
+
+          <select
+            id="frecuencia"
+            [(ngModel)]="newMedication.frecuencia"
+          >
+
+            <option value="">
+              Seleccionar frecuencia
+            </option>
+
+            <option value="Una vez al día">
+              Una vez al día
+            </option>
+
+            <option value="Cada 8 horas">
+              Cada 8 horas
+            </option>
+
+            <option value="Cada 12 horas">
+              Cada 12 horas
+            </option>
+
+            <option value="Cada 24 horas">
+              Cada 24 horas
+            </option>
+
+            <option value="Según indicación médica">
+              Según indicación médica
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- HORA -->
+        <div class="form-group">
+
+          <label for="hora">
+            Hora de administración
+          </label>
+
+          <input
+            id="hora"
+            type="time"
+            [(ngModel)]="newMedication.hora"
+          >
+
+          <small>
+            Hora habitual en la que debe administrarse.
+          </small>
+
+        </div>
+
+      </div>
+
+
+      <!-- INDICACIONES -->
+      <div class="form-group full-width">
+
+        <label for="indicaciones">
+          Indicaciones
+        </label>
+
+        <textarea
+          id="indicaciones"
+          rows="4"
+          maxlength="1000"
+          placeholder="Ej. Administrar después del desayuno..."
+          [(ngModel)]="newMedication.indicaciones"
+        ></textarea>
+
+        <small>
+          Registra recomendaciones o instrucciones importantes.
+        </small>
+
+      </div>
+
+
+      <!-- ACCIONES -->
+      <div class="form-actions">
+
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="closeForm()"
+          [disabled]="saving"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="createMedication()"
+          [disabled]="saving"
+        >
+
+          @if (saving) {
+            Guardando...
+          } @else {
+            Guardar medicamento
+          }
+
+        </button>
+
+      </div>
+
+    </section>
+
+  }
+
+
+  <!-- HISTORIAL -->
+  <section class="history-section">
+
+    <div class="section-heading">
+
+      <div>
+
+        <span class="section-label">
+          TRATAMIENTO ACTUAL
+        </span>
+
+        <h2>Medicamentos registrados</h2>
+
+        <p>
+          Consulta los medicamentos activos del paciente.
+        </p>
+
+      </div>
+
+      <span class="record-count">
+        {{ medications.length }} medicamentos
+      </span>
+
+    </div>
+
+
+    <!-- CARGANDO -->
+    @if (loading) {
+
+      <div class="loading-state">
+
+        <div class="loading-spinner"></div>
+
+        <p>
+          Cargando medicamentos...
+        </p>
+
+      </div>
+
+    }
+
+
+    <!-- SIN MEDICAMENTOS -->
+    @if (!loading && medications.length === 0) {
+
+      <div class="empty-state">
+
+        <div class="empty-icon">
+          +
+        </div>
+
+        <h3>
+          No hay medicamentos registrados
+        </h3>
+
+        <p>
+          Registra el tratamiento actual del paciente
+          para mantener su seguimiento organizado.
+        </p>
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="openForm()"
+        >
+          Registrar medicamento
+        </button>
+
+      </div>
+
+    }
+
+
+    <!-- LISTA -->
+    @if (!loading && medications.length > 0) {
+
+      <div class="medications-list">
+
+        @for (medication of medications; track medication.id) {
+
+          <article class="medication-card">
+
+            <!-- CABECERA -->
+            <div class="medication-card-header">
+
+              <div class="medication-title">
+
+                <div class="medication-icon">
+                  +
+                </div>
+
+                <div>
+
+                  <span class="medication-label">
+                    MEDICAMENTO
+                  </span>
+
+                  <h3>
+                    {{ medication.nombre }}
+                  </h3>
+
+                </div>
+
+              </div>
+
+              <span class="active-badge">
+                Activo
+              </span>
+
+            </div>
+
+
+            <!-- INFORMACIÓN -->
+            <div class="medication-data">
+
+              <div class="data-item">
+
+                <span class="data-label">
+                  Dosis
+                </span>
+
+                <strong>
+                  {{ medication.dosis }}
+                </strong>
+
+              </div>
+
+
+              <div class="data-item">
+
+                <span class="data-label">
+                  Frecuencia
+                </span>
+
+                <strong>
+                  {{ medication.frecuencia }}
+                </strong>
+
+              </div>
+
+
+              <div class="data-item">
+
+                <span class="data-label">
+                  Hora
+                </span>
+
+                <strong>
+                  {{ medication.hora }}
+                </strong>
+
+              </div>
+
+            </div>
+
+
+            <!-- INDICACIONES -->
+            @if (medication.indicaciones) {
+
+              <div class="instructions">
+
+                <span class="data-label">
+                  Indicaciones
+                </span>
+
+                <p>
+                  {{ medication.indicaciones }}
+                </p>
+
+              </div>
+
+            }
+
+          </article>
+
+        }
+
+      </div>
+
+    }
+
+  </section>
+
+</div>

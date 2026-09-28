@@ -10,11 +10,20 @@ export class Api {
 
   constructor(private http: HttpClient) {}
 
+  // ================================
+  // DASHBOARD
+  // ================================
+
   getPatientDashboard(patientId: number) {
     return this.http.get<any>(
       `${this.apiUrl}/dashboard/patients/${patientId}`
     );
   }
+
+
+  // ================================
+  // PACIENTES
+  // ================================
 
   getPatients() {
     return this.http.get<any[]>(
@@ -29,6 +38,11 @@ export class Api {
     );
   }
 
+
+  // ================================
+  // SÍNTOMAS
+  // ================================
+
   getPatientSymptoms(patientId: number) {
     return this.http.get<any[]>(
       `${this.apiUrl}/symptoms/patients/${patientId}`
@@ -39,6 +53,24 @@ export class Api {
     return this.http.post<any>(
       `${this.apiUrl}/symptoms/patients/${patientId}`,
       symptom
+    );
+  }
+
+
+  // ================================
+  // MEDICAMENTOS
+  // ================================
+
+  getPatientMedications(patientId: number) {
+    return this.http.get<any[]>(
+      `${this.apiUrl}/medications/patients/${patientId}`
+    );
+  }
+
+  createMedication(patientId: number, medication: any) {
+    return this.http.post<any>(
+      `${this.apiUrl}/medications/patients/${patientId}`,
+      medication
     );
   }
 
