@@ -108,4 +108,21 @@ createNote(patientId: number, note: any) {
   );
 }
 
+// ================================
+// ALERTAS
+// ================================
+
+getPatientAlerts(patientId: number) {
+  return this.http.get<any[]>(
+    `${this.apiUrl}/alerts/patients/${patientId}`
+  );
+}
+
+updateAlert(alertId: number, alertData: any) {
+  return this.http.put<any>(
+    `${this.apiUrl}/alerts/${alertId}`,
+    alertData
+  );
+}
+
 }

@@ -1,1 +1,412 @@
-<p>alertas works!</p>
+<div class="alerts-page">
+
+  <!-- ==========================================
+       ENCABEZADO
+       ========================================== -->
+
+  <div class="page-header">
+
+    <div class="header-content">
+
+      <span class="section-label">
+        MONITOREO DEL PACIENTE
+      </span>
+
+      <h1>Alertas</h1>
+
+      <p>
+        Revisa situaciones detectadas durante el seguimiento
+        y gestiona las alertas del paciente.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- ==========================================
+       MENSAJE DE ÉXITO
+       ========================================== -->
+
+  @if (successMessage) {
+
+    <div class="message success-message">
+
+      <span class="message-icon">✓</span>
+
+      <span>
+        {{ successMessage }}
+      </span>
+
+    </div>
+
+  }
+
+
+  <!-- ==========================================
+       MENSAJE DE ERROR
+       ========================================== -->
+
+  @if (errorMessage) {
+
+    <div class="message error-message">
+
+      <span class="message-icon">!</span>
+
+      <span>
+        {{ errorMessage }}
+      </span>
+
+    </div>
+
+  }
+
+
+  <!-- ==========================================
+       RESUMEN DE ALERTAS
+       ========================================== -->
+
+  @if (!loading) {
+
+    <div class="alert-summary">
+
+      <div class="summary-card">
+
+        <div class="summary-icon total">
+          !
+        </div>
+
+        <div>
+
+          <span class="summary-label">
+            Alertas activas
+          </span>
+
+          <strong>
+            {{ alerts.length }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="summary-card high">
+
+        <div class="summary-icon">
+          !
+        </div>
+
+        <div>
+
+          <span class="summary-label">
+            Nivel alto
+          </span>
+
+          <strong>
+            {{ getHighAlerts() }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="summary-card medium">
+
+        <div class="summary-icon">
+          !
+        </div>
+
+        <div>
+
+          <span class="summary-label">
+            Nivel medio
+          </span>
+
+          <strong>
+            {{ getMediumAlerts() }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="summary-card low">
+
+        <div class="summary-icon">
+          !
+        </div>
+
+        <div>
+
+          <span class="summary-label">
+            Nivel bajo
+          </span>
+
+          <strong>
+            {{ getLowAlerts() }}
+          </strong>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  }
+
+
+  <!-- ==========================================
+       LISTADO DE ALERTAS
+       ========================================== -->
+
+  <div class="alerts-section">
+
+    <div class="section-header">
+
+      <div>
+
+        <span class="section-label">
+          SEGUIMIENTO
+        </span>
+
+        <h2>
+          Alertas recientes
+        </h2>
+
+        <p>
+          Situaciones detectadas automáticamente o registradas
+          durante el seguimiento.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         CARGANDO
+         ========================================== -->
+
+    @if (loading) {
+
+      <div class="loading-state">
+
+        <div class="loading-spinner"></div>
+
+        <h3>
+          Cargando alertas...
+        </h3>
+
+        <p>
+          Estamos consultando las alertas del paciente.
+        </p>
+
+      </div>
+
+    }
+
+
+    <!-- ==========================================
+         SIN ALERTAS
+         ========================================== -->
+
+    @if (!loading && alerts.length === 0) {
+
+      <div class="empty-state">
+
+        <div class="empty-icon">
+          ✓
+        </div>
+
+        <h3>
+          No hay alertas activas
+        </h3>
+
+        <p>
+          Actualmente no existen alertas pendientes para este paciente.
+        </p>
+
+      </div>
+
+    }
+
+
+    <!-- ==========================================
+         ALERTAS
+         ========================================== -->
+
+    @if (!loading && alerts.length > 0) {
+
+      <div class="alerts-list">
+
+        @for (alert of alerts; track alert.id) {
+
+          <article
+            class="alert-card"
+            [class.alert-high]="getAlertClass(alert.nivel) === 'alert-high'"
+            [class.alert-medium]="getAlertClass(alert.nivel) === 'alert-medium'"
+            [class.alert-low]="getAlertClass(alert.nivel) === 'alert-low'"
+          >
+
+            <!-- CABECERA DE ALERTA -->
+
+            <div class="alert-card-header">
+
+              <div class="alert-title-container">
+
+                <div class="alert-icon">
+                  !
+                </div>
+
+                <div>
+
+                  <h3>
+                    {{ alert.titulo }}
+                  </h3>
+
+                  <div class="alert-meta">
+
+                    <span>
+                      {{ getOriginLabel(alert.origen) }}
+                    </span>
+
+                    <span class="separator">
+                      •
+                    </span>
+
+                    <span>
+                      {{ alert.fecha_registro | date:'dd/MM/yyyy' }}
+                    </span>
+
+                    <span class="separator">
+                      •
+                    </span>
+
+                    <span>
+                      {{ alert.fecha_registro | date:'HH:mm' }}
+                    </span>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+
+              <span
+                class="level-badge"
+              >
+                {{ getLevelLabel(alert.nivel) }}
+              </span>
+
+            </div>
+
+
+            <!-- MENSAJE -->
+
+            <div class="alert-message">
+
+              <p>
+                {{ alert.mensaje }}
+              </p>
+
+            </div>
+
+
+            <!-- INFORMACIÓN -->
+
+            <div class="alert-information">
+
+              <div class="info-item">
+
+                <span class="info-label">
+                  Estado
+                </span>
+
+                <span class="status-badge">
+                  {{ getStatusLabel(alert.estado) }}
+                </span>
+
+              </div>
+
+
+              <div class="info-item">
+
+                <span class="info-label">
+                  Tipo
+                </span>
+
+                <span class="info-value">
+                  {{ alert.tipo }}
+                </span>
+
+              </div>
+
+
+              <div class="info-item">
+
+                <span class="info-label">
+                  ID
+                </span>
+
+                <span class="info-value">
+                  #{{ alert.id }}
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <!-- ACCIONES -->
+
+            @if (
+              alert.estado?.toLowerCase() === 'pendiente' &&
+              alert.activa
+            ) {
+
+              <div class="alert-actions">
+
+                <button
+                  type="button"
+                  class="btn-attend"
+                  (click)="markAsAttended(alert)"
+                  [disabled]="updating"
+                >
+
+                  @if (updating) {
+
+                    <span class="loading-spinner small"></span>
+
+                    Actualizando...
+
+                  } @else {
+
+                    <span>
+                      ✓
+                    </span>
+
+                    Marcar como atendida
+
+                  }
+
+                </button>
+
+              </div>
+
+            }
+
+          </article>
+
+        }
+
+      </div>
+
+    }
+
+  </div>
+
+</div>
