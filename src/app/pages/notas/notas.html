@@ -1,1 +1,307 @@
-<p>notas works!</p>
+<div class="notes-page">
+
+  <!-- ENCABEZADO -->
+  <div class="page-header">
+
+    <div class="header-content">
+      <span class="section-label">SEGUIMIENTO DEL PACIENTE</span>
+
+      <h1>Notas del cuidador</h1>
+
+      <p>
+        Registra observaciones importantes sobre el estado y evolución
+        del paciente.
+      </p>
+    </div>
+
+    <button
+      class="btn-primary"
+      type="button"
+      (click)="openNoteForm()"
+      [disabled]="saving"
+    >
+      <span class="btn-icon">+</span>
+      Registrar nota
+    </button>
+
+  </div>
+
+
+  <!-- MENSAJE DE ÉXITO -->
+  @if (successMessage) {
+    <div class="message success-message">
+      <span class="message-icon">✓</span>
+      <span>{{ successMessage }}</span>
+    </div>
+  }
+
+
+  <!-- MENSAJE DE ERROR -->
+  @if (errorMessage) {
+    <div class="message error-message">
+      <span class="message-icon">!</span>
+      <span>{{ errorMessage }}</span>
+    </div>
+  }
+
+
+  <!-- FORMULARIO -->
+  @if (showForm) {
+
+    <div class="form-card">
+
+      <div class="form-header">
+        <div>
+          <span class="form-label">NUEVA OBSERVACIÓN</span>
+          <h2>Registrar nota del cuidador</h2>
+          <p>
+            Describe cualquier cambio, comportamiento o situación
+            relevante del paciente.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="close-button"
+          (click)="closeNoteForm()"
+          [disabled]="saving"
+        >
+          ×
+        </button>
+      </div>
+
+
+      <form (ngSubmit)="createNote()">
+
+        <div class="form-group">
+
+          <label for="contenido">
+            Observación
+            <span class="required">*</span>
+          </label>
+
+          <textarea
+            id="contenido"
+            name="contenido"
+            [(ngModel)]="newNote.contenido"
+            rows="7"
+            maxlength="5000"
+            placeholder="Ejemplo: El paciente presentó dificultad para dormir durante la noche y manifestó sentirse más cansado de lo habitual."
+            [disabled]="saving"
+          ></textarea>
+
+          <div class="textarea-footer">
+
+            <span>
+              Describe la situación de forma clara y detallada.
+            </span>
+
+            <span
+              class="character-count"
+              [class.character-warning]="getCharacterCount() > 4500"
+            >
+              {{ getCharacterCount() }} / 5000
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- ERROR DEL FORMULARIO -->
+        @if (errorMessage && showForm) {
+          <div class="form-error">
+            {{ errorMessage }}
+          </div>
+        }
+
+
+        <div class="form-actions">
+
+          <button
+            type="button"
+            class="btn-secondary"
+            (click)="closeNoteForm()"
+            [disabled]="saving"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="saving"
+          >
+
+            @if (saving) {
+              <span class="loading-spinner"></span>
+              Guardando...
+            } @else {
+              <span>Guardar nota</span>
+            }
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  }
+
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="notes-section">
+
+    <div class="section-header">
+
+      <div>
+        <span class="section-label">REGISTRO CLÍNICO</span>
+
+        <h2>Observaciones recientes</h2>
+
+        <p>
+          Historial de notas registradas por los cuidadores.
+        </p>
+      </div>
+
+      @if (!loading) {
+        <div class="notes-counter">
+          {{ notes.length }}
+          {{ notes.length === 1 ? 'nota' : 'notas' }}
+        </div>
+      }
+
+    </div>
+
+
+    <!-- CARGANDO -->
+    @if (loading) {
+
+      <div class="loading-state">
+
+        <div class="loading-spinner large"></div>
+
+        <h3>Cargando notas...</h3>
+
+        <p>
+          Estamos consultando el historial del paciente.
+        </p>
+
+      </div>
+
+    }
+
+
+    <!-- SIN NOTAS -->
+    @if (!loading && notes.length === 0) {
+
+      <div class="empty-state">
+
+        <div class="empty-icon">
+          📝
+        </div>
+
+        <h3>No hay notas registradas</h3>
+
+        <p>
+          Todavía no existen observaciones para este paciente.
+          Registra la primera nota para comenzar el seguimiento.
+        </p>
+
+        <button
+          type="button"
+          class="btn-primary"
+          (click)="openNoteForm()"
+        >
+          Registrar primera nota
+        </button>
+
+      </div>
+
+    }
+
+
+    <!-- LISTADO DE NOTAS -->
+    @if (!loading && notes.length > 0) {
+
+      <div class="notes-list">
+
+        @for (note of notes; track note.id) {
+
+          <article
+            class="note-card"
+            [class.note-warning]="getNoteClass(note) === 'note-warning'"
+          >
+
+            <div class="note-card-header">
+
+              <div class="note-title">
+
+                <div class="note-icon">
+                  📝
+                </div>
+
+                <div>
+                  <h3>Observación del cuidador</h3>
+
+                  <span class="note-date">
+                    {{ note.fecha_registro | date:'dd/MM/yyyy' }}
+                    ·
+                    {{ note.fecha_registro | date:'HH:mm' }}
+                  </span>
+                </div>
+
+              </div>
+
+
+              @if (getNoteClass(note) === 'note-warning') {
+
+                <span class="note-badge">
+                  Atención
+                </span>
+
+              } @else {
+
+                <span class="note-badge normal">
+                  Registro
+                </span>
+
+              }
+
+            </div>
+
+
+            <div class="note-content">
+
+              <p>
+                {{ note.contenido }}
+              </p>
+
+            </div>
+
+
+            <div class="note-footer">
+
+              <span>
+                Registrada por cuidador
+              </span>
+
+              <span>
+                ID #{{ note.id }}
+              </span>
+
+            </div>
+
+          </article>
+
+        }
+
+      </div>
+
+    }
+
+  </div>
+
+</div>

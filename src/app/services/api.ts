@@ -91,4 +91,21 @@ createAppointment(patientId: number, appointment: any) {
   );
 }
 
+// ================================
+// NOTAS DEL CUIDADOR
+// ================================
+
+getPatientNotes(patientId: number) {
+  return this.http.get<any[]>(
+    `${this.apiUrl}/notes/patients/${patientId}`
+  );
+}
+
+createNote(patientId: number, note: any) {
+  return this.http.post<any>(
+    `${this.apiUrl}/notes/patients/${patientId}`,
+    note
+  );
+}
+
 }
