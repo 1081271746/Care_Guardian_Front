@@ -24,6 +24,7 @@ API_BASE_URL=http://127.0.0.1:8000 npm start
 
 No hay linter configurado en el repositorio original. No se añade uno ni se
 reformatea todo el código para este trabajo.
+Resultados y comprobaciones pendientes: [VERIFICACION.md](docs/VERIFICACION.md).
 
 ## Funcionalidades conservadas y completadas
 
