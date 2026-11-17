@@ -71,3 +71,14 @@ la versión y `generatedAt` cambian sin ejecutar un build.
 
 Pruebas unitarias del algoritmo: `npm run test:cache`.
 Referencia oficial: https://angular.dev/guide/ssr
+
+## Hosts y tamaño de estilos
+
+El servidor permite únicamente localhost, 127.0.0.1, el host configurado en
+`PUBLIC_ORIGIN`, `RAILWAY_PUBLIC_DOMAIN` y la lista explícita `NG_ALLOWED_HOSTS`.
+No se habilitan comodines ni confianza automática en cabeceras forwarded.
+
+El CSS original de dashboard pesa 20,70 kB minificado y ya excedía el límite
+de error de 8 kB del scaffold. Se conserva sin rediseñarlo. El presupuesto de
+estilos sigue activo: aviso a 8 kB y error a 24 kB. El presupuesto inicial
+permanece en aviso 500 kB/error 1 MB; las advertencias no se ocultan.
