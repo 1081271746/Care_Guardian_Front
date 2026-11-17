@@ -16,7 +16,7 @@ import { Api } from '../../services/api';
 })
 export class Sintomas implements OnInit {
 
-  patientId = 1;
+  patientId = 0;
 
   symptoms: any[] = [];
 
@@ -46,14 +46,15 @@ export class Sintomas implements OnInit {
 
   ngOnInit(): void {
 
-    const patientIdParam =
-      this.route.snapshot.queryParamMap.get('patientId');
-
-    if (patientIdParam) {
-      this.patientId = Number(patientIdParam);
-    }
-
-    this.loadSymptoms();
+    this.api.getPatients().subscribe({
+      next: patients => {
+        const requested = Number(this.route.snapshot.queryParamMap.get('patientId'));
+        this.patientId = patients.find(p => p.id === requested)?.id ?? patients[0]?.id ?? 0;
+        if (this.patientId) this.loadSymptoms();
+        else { this.loading = false; this.errorMessage = 'No tienes pacientes asignados.'; this.cdr.detectChanges(); }
+      },
+      error: () => { this.loading = false; this.errorMessage = 'No fue posible cargar tus pacientes.'; this.cdr.detectChanges(); }
+    });
   }
 
   loadSymptoms(): void {
@@ -65,9 +66,6 @@ export class Sintomas implements OnInit {
 
       next: (data) => {
 
-        console.log('========== SÍNTOMAS ==========');
-        console.log('PACIENTE:', this.patientId);
-        console.log('SÍNTOMAS:', data);
 
         this.symptoms = data;
 
@@ -75,16 +73,10 @@ export class Sintomas implements OnInit {
 
         this.cdr.detectChanges();
 
-        console.log('TOTAL:', this.symptoms.length);
-        console.log('==============================');
       },
 
       error: (error) => {
 
-        console.error(
-          'Error cargando síntomas:',
-          error
-        );
 
         this.errorMessage =
           error?.error?.detail ||
@@ -153,10 +145,6 @@ export class Sintomas implements OnInit {
         this.newSymptom.nivel_gravedad
     };
 
-    console.log(
-      'Enviando registro de síntomas:',
-      symptomData
-    );
 
     this.api.createSymptom(
       this.patientId,
@@ -165,10 +153,6 @@ export class Sintomas implements OnInit {
 
       next: (response) => {
 
-        console.log(
-          'Síntoma registrado:',
-          response
-        );
 
         this.saving = false;
 
@@ -186,10 +170,6 @@ export class Sintomas implements OnInit {
 
       error: (error) => {
 
-        console.error(
-          'Error registrando síntoma:',
-          error
-        );
 
         this.errorMessage =
           error?.error?.detail ||

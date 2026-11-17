@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { Api } from '../../services/api';
@@ -15,7 +16,8 @@ import { Api } from '../../services/api';
 })
 export class Citas implements OnInit {
 
-  patientId = 1;
+  patientId = 0;
+  private route = inject(ActivatedRoute);
 
   appointments: any[] = [];
 
@@ -44,7 +46,15 @@ export class Citas implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadAppointments();
+    this.api.getPatients().subscribe({
+      next: patients => {
+        const requested = Number(this.route.snapshot.queryParamMap.get('patientId'));
+        this.patientId = patients.find(p => p.id === requested)?.id ?? patients[0]?.id ?? 0;
+        if (this.patientId) this.loadAppointments();
+        else { this.loading = false; this.errorMessage = 'No tienes pacientes asignados.'; this.cdr.detectChanges(); }
+      },
+      error: () => { this.loading = false; this.errorMessage = 'No fue posible cargar tus pacientes.'; this.cdr.detectChanges(); }
+    });
   }
 
   loadAppointments(): void {
@@ -58,7 +68,6 @@ export class Citas implements OnInit {
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Error cargando citas:', error);
 
         const detail = error?.error?.detail;
 
@@ -142,7 +151,6 @@ export class Citas implements OnInit {
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Error registrando cita:', error);
 
         const detail = error?.error?.detail;
 

@@ -1,1 +1,106 @@
-<p>evolucion works!</p>
+<main>
+  <nav aria-label="Navegación"><strong>♥ CareGuardian</strong>
+    <a routerLink="/pacientes">Pacientes</a>
+    <a [routerLink]="patientId ? ['/dashboard', patientId] : ['/pacientes']">Panel de cuidado</a>
+    <a routerLink="/privacidad">Privacidad</a>
+  </nav>
+  <header><span>SEGUIMIENTO · CSR PRIVADO</span><h1>Evolución del adulto mayor</h1>
+    <p>Registros reales, cambios observados y resúmenes descriptivos para acompañar el cuidado.</p>
+  </header>
+  <form (ngSubmit)="load()" class="filters">
+    <label>Paciente<select name="patientId" [(ngModel)]="patientId" (ngModelChange)="load()">
+      @for (patient of patients(); track patient.id) {
+        <option [ngValue]="patient.id">{{ patient.nombres }} {{ patient.apellidos }}</option>
+      }
+    </select></label>
+    <label>Desde<input type="date" name="desde" [(ngModel)]="desde"></label>
+    <label>Hasta<input type="date" name="hasta" [(ngModel)]="hasta"></label>
+    <button type="submit" [disabled]="loading() || !patientId">Aplicar y actualizar</button>
+  </form>
+  @if (loading()) { <p role="status">Cargando evolución…</p> }
+  @if (error()) { <p role="alert" class="error">{{ error() }}</p> }
+  @if (!loading() && !patients().length && !error()) {
+    <section><h2>Aún no tienes pacientes asignados</h2><a routerLink="/pacientes">Registrar un paciente</a></section>
+  }
+  @if (data(); as evolution) {
+    <section><h2>Datos históricos</h2><p>{{ evolution.nota }}</p>
+      <div class="totals">
+        <p><strong>{{ evolution.totales.sintoma }}</strong> síntomas</p>
+        <p><strong>{{ evolution.totales.nota }}</strong> notas</p>
+        <p><strong>{{ evolution.totales.medicamento }}</strong> inicios de medicamentos</p>
+        <p><strong>{{ evolution.totales.cita }}</strong> citas</p>
+        <p><strong>{{ evolution.totales.alerta }}</strong> alertas activas</p>
+      </div>
+    </section>
+    @for (indicator of indicators; track indicator.key) {
+      @let metric = evolution.metricas[indicator.key];
+      <section>
+        <h2>{{ indicator.label }}</h2>
+        @if (metric.cantidad) {
+          <p>{{ metric.cantidad }} mediciones · Promedio: {{ metric.promedio | number:'1.0-2' }}{{ indicator.unit }}
+            · Último: {{ metric.ultimo }}{{ indicator.unit }}
+            @if (metric.cambio !== null) { · Cambio: {{ metric.cambio > 0 ? '+' : '' }}{{ metric.cambio }}{{ indicator.unit }} }
+          </p>
+          @let points = chartPoints(metric.puntos, indicator.key);
+          <svg viewBox="0 0 740 210" role="img" [attr.aria-label]="indicator.label + ': mediciones a lo largo del tiempo'">
+            <line x1="52" x2="700" y1="180" y2="180" stroke="currentColor"/>
+            <line x1="52" x2="52" y1="20" y2="180" stroke="currentColor"/>
+            <text x="5" y="30">{{ indicator.key === 'temperatura' ? '°C' : '10' }}</text>
+            <text x="12" y="175">{{ indicator.key === 'temperatura' ? '' : '0' }}</text>
+            <polyline [attr.points]="line(points)" fill="none" stroke="#61A9BD" stroke-width="3"/>
+            @for (point of points; track $index) {
+              <circle [attr.cx]="point.x" [attr.cy]="point.y" r="3" fill="#3C7686">
+                <title>{{ point.fecha | date:'dd/MM/yyyy HH:mm':'UTC' }} UTC: {{ point.valor }}{{ indicator.unit }}</title>
+              </circle>
+            }
+            <text x="52" y="205">{{ metric.puntos[0].fecha | date:'dd/MM/yy':'UTC' }}</text>
+            <text x="610" y="205">{{ metric.puntos[metric.puntos.length - 1].fecha | date:'dd/MM/yy':'UTC' }}</text>
+          </svg>
+          <details><summary>Ver mediciones y fechas exactas</summary>
+            <table><thead><tr><th>Fecha UTC</th><th>{{ indicator.label }}</th></tr></thead>
+              <tbody>@for (point of metric.puntos; track $index) {
+                <tr><td>{{ point.fecha | date:'dd/MM/yyyy HH:mm':'UTC' }}</td><td>{{ point.valor }}{{ indicator.unit }}</td></tr>
+              }</tbody>
+            </table>
+          </details>
+          @if (metric.cantidad < 2) { <p>No hay suficientes mediciones para comparar.</p> }
+        } @else { <p>No hay mediciones de este indicador en el período.</p> }
+      </section>
+    }
+    <section class="ai"><span>INTERPRETACIÓN GENERADA CON IA</span><h2>Resumen con Groq</h2>
+      <p>Groq recibe solo estadísticas y conteos sin nombres, documentos, fechas exactas ni textos de notas.
+        Selecciona hechos relevantes; CareGuardian muestra únicamente descripciones verificadas.
+        El resultado se guarda con la fecha y versión de esta autorización y puede verlo el equipo asignado.</p>
+      <p>No es un diagnóstico ni modifica tratamientos. La autorización debe corresponder a la persona
+        o a su representante autorizado.</p>
+      <label class="consent"><input type="checkbox" name="consent" [(ngModel)]="consent" [disabled]="analyzing()">
+        Confirmo que tengo autorización para este procesamiento externo y consiento enviar estos datos
+        minimizados a Groq para este análisis.</label>
+      <button (click)="analyze()" [disabled]="!consent || analyzing() || !evolution.datos_suficientes">
+        {{ analyzing() ? 'Analizando…' : 'Generar nuevo resumen' }}
+      </button>
+      @if (!evolution.datos_suficientes) { <p>Se necesitan al menos dos mediciones de un mismo indicador.</p> }
+      @if (aiError()) { <p role="alert" class="error">{{ aiError() }}</p> }
+      <h3>Resúmenes guardados del paciente</h3><p>Cada resumen indica su propio período; puede diferir del filtro actual.</p>
+      @for (analysis of analyses(); track analysis.id) {
+        <article>
+          <h4>{{ analysis.fecha | date:'dd/MM/yyyy HH:mm':'UTC' }} UTC · {{ analysis.modelo }}</h4>
+          <p>Período: {{ analysis.resultado.periodo.desde || 'Inicio' }} — {{ analysis.resultado.periodo.hasta || 'Actualidad' }}</p>
+          @for (fact of analysis.resultado.resumen; track $index) { <p>{{ fact }}</p> }
+          @if (analysis.resultado.revisar.length) {
+            <h4>Observaciones para comentar con un profesional</h4>
+            @for (fact of analysis.resultado.revisar; track $index) { <p>{{ fact }}</p> }
+          }
+          <small>{{ analysis.resultado.advertencia }}</small>
+        </article>
+      } @empty { <p>Aún no hay resúmenes generados.</p> }
+    </section>
+    <section><h2>Historial cronológico</h2><p>Fechas en UTC. Citas por fecha programada; medicamentos por fecha de inicio.</p>
+      @for (event of evolution.historial.slice(0, eventLimit); track event.id) {
+        <article><strong>{{ event.tipo }} · {{ event.fecha | date:'dd/MM/yyyy HH:mm':'UTC' }}</strong>
+          <p>{{ event.descripcion }}</p></article>
+      } @empty { <p>No hay registros en el período seleccionado.</p> }
+      @if (eventLimit < evolution.historial.length) { <button (click)="eventLimit = eventLimit + 50">Ver más registros</button> }
+    </section>
+  }
+</main>

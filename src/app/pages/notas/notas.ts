@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { Api } from '../../services/api';
@@ -19,7 +20,8 @@ export class Notas implements OnInit {
   // CONFIGURACIÓN DEL PACIENTE
   // ==========================================
 
-  patientId = 1;
+  patientId = 0;
+  private route = inject(ActivatedRoute);
 
   // ==========================================
   // DATOS
@@ -57,7 +59,15 @@ export class Notas implements OnInit {
   // ==========================================
 
   ngOnInit(): void {
-    this.loadNotes();
+    this.api.getPatients().subscribe({
+      next: patients => {
+        const requested = Number(this.route.snapshot.queryParamMap.get('patientId'));
+        this.patientId = patients.find(p => p.id === requested)?.id ?? patients[0]?.id ?? 0;
+        if (this.patientId) this.loadNotes();
+        else { this.loading = false; this.errorMessage = 'No tienes pacientes asignados.'; this.cdr.detectChanges(); }
+      },
+      error: () => { this.loading = false; this.errorMessage = 'No fue posible cargar tus pacientes.'; this.cdr.detectChanges(); }
+    });
   }
 
   // ==========================================
@@ -77,7 +87,6 @@ export class Notas implements OnInit {
       },
 
       error: (error) => {
-        console.error('Error cargando notas:', error);
 
         this.errorMessage =
           error?.error?.detail ||
@@ -166,7 +175,6 @@ export class Notas implements OnInit {
     ).subscribe({
 
       next: (note) => {
-        console.log('Nota registrada:', note);
 
         this.saving = false;
         this.showForm = false;
@@ -182,7 +190,6 @@ export class Notas implements OnInit {
       },
 
       error: (error) => {
-        console.error('Error creando nota:', error);
 
         this.errorMessage =
           error?.error?.detail ||

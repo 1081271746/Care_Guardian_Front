@@ -12,7 +12,7 @@ interface LoginResponse {
 })
 export class Auth {
 
-  private apiUrl = 'http://127.0.0.1:8000';
+  private apiUrl = '/api';
 
   constructor(private http: HttpClient) {}
 
@@ -31,7 +31,7 @@ export class Auth {
   }
 
   getToken(): string | null {
-    return localStorage.getItem('access_token');
+    return typeof localStorage !== 'undefined' ? localStorage.getItem('access_token') : null;
   }
 
   logout(): void {

@@ -56,28 +56,20 @@ export class Pacientes implements OnInit {
 
       next: (data) => {
 
-        console.log('========== PACIENTES ==========');
-        console.log('PACIENTES:', data);
-        console.log('TOTAL:', data.length);
 
         this.patients = data;
 
-        console.log('ANTES DE CAMBIAR LOADING:', this.loading);
 
         this.loading = false;
 
-        console.log('DESPUÉS DE CAMBIAR LOADING:', this.loading);
-        console.log('PACIENTES GUARDADOS:', this.patients);
 
         this.cdr.detectChanges();
 
-        console.log('================================');
 
       },
 
       error: (error) => {
 
-        console.error('Error cargando pacientes:', error);
 
         this.errorMessage =
           error?.error?.detail ||
@@ -138,7 +130,6 @@ export class Pacientes implements OnInit {
 
       next: (patient) => {
 
-        console.log('Paciente creado:', patient);
 
         this.creatingPatient = false;
         this.showForm = false;
@@ -153,7 +144,6 @@ export class Pacientes implements OnInit {
 
       error: (error) => {
 
-        console.error('Error creando paciente:', error);
 
         this.formError =
           error?.error?.detail ||

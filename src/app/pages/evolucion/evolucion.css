@@ -1,0 +1,13 @@
+main{max-width:1140px;margin:auto;padding:28px;color:#193e42;font-family:Arial,sans-serif}
+nav,.filters,.totals{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+nav{padding-bottom:24px;border-bottom:1px solid #d9e6e6}a{color:#17696d}
+header{margin:32px 0}header span,.ai>span{font-size:12px;letter-spacing:1.5px}
+h1{font-size:32px}h2{font-size:22px}p{line-height:1.65}
+section{border:1px solid #d9e6e6;border-radius:16px;padding:24px;margin:24px 0;background:#fff}
+label{display:grid;gap:8px}input,select,button{padding:12px;border:1px solid #a8c3c5;border-radius:8px;font:inherit}
+button{background:#17696d;color:white;cursor:pointer}button:disabled{opacity:.5;cursor:default}
+.totals strong{font-size:28px;display:block}.totals p{min-width:140px}
+.consent{display:flex;align-items:flex-start;margin:20px 0;line-height:1.6}.consent input{margin-top:6px}
+.error{color:#9b3030}.ai{background:#f1f8f8}article{border-top:1px solid #d9e6e6;margin-top:20px;padding-top:16px}
+svg{width:100%;max-height:280px}svg text{font-size:12px;fill:currentColor}table{width:100%;text-align:left}td,th{padding:10px}
+@media(max-width:600px){main{padding:16px}h1{font-size:26px}.filters{align-items:stretch;flex-direction:column}section{padding:16px}}
