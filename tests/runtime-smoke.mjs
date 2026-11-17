@@ -37,6 +37,38 @@ try {
   children.push(spawn(process.execPath, ['dist/careguardian_front/server/server.mjs'],
     { env: frontendEnv, stdio: 'inherit' }));
   await ready('http://127.0.0.1:4400/health');
+  const api = 'http://127.0.0.1:4400/api';
+  const password = randomBytes(32).toString('base64url');
+  const email = 'runtime-caregiver@example.org';
+  const post = (path, body, token) => fetch(api + path, {
+    method: 'POST', headers: { 'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    body: JSON.stringify(body),
+  });
+  assert.equal((await post('/users/', { nombre: 'Prueba aislada', email, password })).status, 200);
+  const login = await post('/auth/login', { email, password });
+  assert.equal(login.status, 200);
+  const { access_token: token } = await login.json();
+  assert.equal(typeof token, 'string'); // Never print credentials in test output.
+  const patientResponse = await post('/patients/', { nombres: 'Prueba', apellidos: 'Aislada',
+    fecha_nacimiento: '1950-01-01', documento: 'RUNTIME-TEST-ONLY' }, token);
+  assert.equal(patientResponse.status, 200);
+  const { id } = await patientResponse.json();
+  for (const nivel_dolor of [0, 6]) {
+    assert.equal((await post(`/symptoms/patients/${id}`, { nivel_dolor }, token)).status, 200);
+  }
+  const authorized = { headers: { Authorization: `Bearer ${token}` } };
+  const history = await fetch(`${api}/evolution/patients/${id}`, authorized);
+  assert.equal(history.status, 200);
+  const evolution = await history.json();
+  assert.equal(evolution.metricas.nivel_dolor.cantidad, 2);
+  assert.equal(evolution.metricas.nivel_dolor.promedio, 3);
+  assert.equal((await post(`/evolution/patients/${id}/analyses`, {
+    consentimiento: false, version_consentimiento: 'groq-minimized-v1' }, token)).status, 422);
+  assert.equal((await post(`/evolution/patients/${id}/analyses`, {
+    consentimiento: true, version_consentimiento: 'groq-minimized-v1' }, token)).status, 503);
+  assert.equal((await fetch(`${api}/evolution/patients/${id}/analyses`, authorized)).status, 200);
+  console.log('Login, assignment, real statistics, consent and missing-provider checks passed through proxy');
   const checks = spawn(process.execPath, ['tests/rendering-smoke.mjs'],
     { env: frontendEnv, stdio: 'inherit' });
   assert.equal(await new Promise(resolve => checks.once('exit', resolve)), 0);
