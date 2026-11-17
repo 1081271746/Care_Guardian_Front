@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { Api } from '../../services/api';
 
@@ -17,7 +18,8 @@ export class Alertas implements OnInit {
   // CONFIGURACIÓN DEL PACIENTE
   // ==========================================
 
-  patientId = 1;
+  patientId = 0;
+  private route = inject(ActivatedRoute);
 
   // ==========================================
   // DATOS
@@ -45,7 +47,15 @@ export class Alertas implements OnInit {
   // ==========================================
 
   ngOnInit(): void {
-    this.loadAlerts();
+    this.api.getPatients().subscribe({
+      next: patients => {
+        const requested = Number(this.route.snapshot.queryParamMap.get('patientId'));
+        this.patientId = patients.find(p => p.id === requested)?.id ?? patients[0]?.id ?? 0;
+        if (this.patientId) this.loadAlerts();
+        else { this.loading = false; this.errorMessage = 'No tienes pacientes asignados.'; this.cdr.detectChanges(); }
+      },
+      error: () => { this.loading = false; this.errorMessage = 'No fue posible cargar tus pacientes.'; this.cdr.detectChanges(); }
+    });
   }
 
   // ==========================================
@@ -68,7 +78,6 @@ export class Alertas implements OnInit {
 
       error: (error) => {
 
-        console.error('Error cargando alertas:', error);
 
         this.errorMessage =
           error?.error?.detail ||
@@ -107,10 +116,6 @@ export class Alertas implements OnInit {
 
       next: (updatedAlert) => {
 
-        console.log(
-          'Alerta actualizada:',
-          updatedAlert
-        );
 
         this.updating = false;
 
@@ -124,10 +129,6 @@ export class Alertas implements OnInit {
 
       error: (error) => {
 
-        console.error(
-          'Error actualizando alerta:',
-          error
-        );
 
         this.errorMessage =
           error?.error?.detail ||

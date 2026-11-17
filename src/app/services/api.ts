@@ -6,9 +6,26 @@ import { HttpClient } from '@angular/common/http';
 })
 export class Api {
 
-  private apiUrl = 'http://127.0.0.1:8000';
+  private apiUrl = '/api';
 
   constructor(private http: HttpClient) {}
+
+  getEvolution(patientId: number, desde = '', hasta = '') {
+    return this.http.get<any>(`${this.apiUrl}/evolution/patients/${patientId}`, {
+      params: { ...(desde ? { desde } : {}), ...(hasta ? { hasta } : {}) }
+    });
+  }
+
+  getEvolutionAnalyses(patientId: number) {
+    return this.http.get<any[]>(`${this.apiUrl}/evolution/patients/${patientId}/analyses`);
+  }
+
+  analyzeEvolution(patientId: number, desde = '', hasta = '') {
+    return this.http.post<any>(`${this.apiUrl}/evolution/patients/${patientId}/analyses`, {
+      consentimiento: true, version_consentimiento: 'groq-minimized-v1',
+      desde: desde || null, hasta: hasta || null
+    });
+  }
 
   // ================================
   // DASHBOARD

@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Api } from '../../services/api';
 
@@ -13,7 +14,8 @@ import { Api } from '../../services/api';
 })
 export class Medicamentos implements OnInit {
 
-  patientId = 1;
+  patientId = 0;
+  private route = inject(ActivatedRoute);
 
   medications: any[] = [];
 
@@ -40,7 +42,15 @@ newMedication = {
   ) {}
 
   ngOnInit(): void {
-    this.loadMedications();
+    this.api.getPatients().subscribe({
+      next: patients => {
+        const requested = Number(this.route.snapshot.queryParamMap.get('patientId'));
+        this.patientId = patients.find(p => p.id === requested)?.id ?? patients[0]?.id ?? 0;
+        if (this.patientId) this.loadMedications();
+        else { this.loading = false; this.errorMessage = 'No tienes pacientes asignados.'; this.cdr.detectChanges(); }
+      },
+      error: () => { this.loading = false; this.errorMessage = 'No fue posible cargar tus pacientes.'; this.cdr.detectChanges(); }
+    });
   }
 
   loadMedications(): void {
@@ -52,9 +62,6 @@ newMedication = {
 
       next: (data) => {
 
-        console.log('========== MEDICAMENTOS ==========');
-        console.log('PACIENTE:', this.patientId);
-        console.log('MEDICAMENTOS:', data);
 
         this.medications = data;
 
@@ -62,16 +69,10 @@ newMedication = {
 
         this.cdr.detectChanges();
 
-        console.log('TOTAL:', this.medications.length);
-        console.log('==================================');
       },
 
       error: (error) => {
 
-        console.error(
-          'Error cargando medicamentos:',
-          error
-        );
 
         this.errorMessage =
           error?.error?.detail ||
@@ -137,10 +138,6 @@ const medicationData = {
     this.newMedication.indicaciones || null
 };
 
-    console.log(
-      'Enviando medicamento:',
-      medicationData
-    );
 
     this.api.createMedication(
       this.patientId,
@@ -149,10 +146,6 @@ const medicationData = {
 
       next: (response) => {
 
-        console.log(
-          'Medicamento registrado:',
-          response
-        );
 
         this.saving = false;
 
@@ -169,7 +162,6 @@ const medicationData = {
       },
 
       error: (error) => {
-  console.error('Error registrando medicamento:', error);
 
   const detail = error?.error?.detail;
 

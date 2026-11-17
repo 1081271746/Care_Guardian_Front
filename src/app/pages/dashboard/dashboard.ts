@@ -33,35 +33,27 @@ export class Dashboard implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadDashboard();
+    const patientId = Number(this.route.snapshot.paramMap.get('patientId'));
+    if (patientId) this.loadDashboard(patientId);
+    else this.api.getPatients().subscribe({
+      next: patients => {
+        if (patients.length) this.loadDashboard(patients[0].id);
+        else { this.loading = false; this.errorMessage = 'No tienes pacientes asignados. Registra uno en Pacientes.'; this.cdr.detectChanges(); }
+      },
+      error: () => { this.loading = false; this.errorMessage = 'No fue posible cargar tus pacientes.'; this.cdr.detectChanges(); }
+    });
   }
 
-  loadDashboard(): void {
+  loadDashboard(patientId: number): void {
 
     this.loading = true;
     this.errorMessage = '';
 
-    const patientIdParam =
-      this.route.snapshot.paramMap.get('patientId');
-
-    const patientId = patientIdParam
-      ? Number(patientIdParam)
-      : 1;
-
-    console.log('ID DEL PACIENTE:', patientId);
 
     this.api.getPatientDashboard(patientId).subscribe({
 
       next: (data) => {
 
-        console.log('========== DASHBOARD ==========');
-        console.log('DATOS COMPLETOS:', data);
-        console.log('CLAVES DEL OBJETO:', Object.keys(data));
-        console.log('PACIENTE:', data?.patient);
-        console.log('SINTOMAS:', data?.symptoms);
-        console.log('MEDICAMENTOS:', data?.medications);
-        console.log('ALERTAS:', data?.active_alerts);
-        console.log('================================');
 
         this.patientData = data;
 
@@ -72,7 +64,6 @@ export class Dashboard implements OnInit {
 
       error: (error) => {
 
-        console.error('Error cargando dashboard:', error);
 
         this.errorMessage =
           error?.error?.detail ||
