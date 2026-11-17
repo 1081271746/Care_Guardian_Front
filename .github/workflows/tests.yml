@@ -14,3 +14,15 @@ jobs:
       - run: npm run test:cache
       - run: npm run build
       - run: test -f dist/careguardian_front/browser/privacidad/index.html
+      - uses: actions/checkout@v4
+        with:
+          repository: 1081271746/Care_Guardian_Back
+          ref: 961a852
+          path: backend-smoke
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install -r backend-smoke/requirements.txt
+      - run: node tests/runtime-smoke.mjs
+        env:
+          BACKEND_DIR: backend-smoke

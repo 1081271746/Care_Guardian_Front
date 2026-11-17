@@ -7,11 +7,16 @@ import { createPublicCache } from './isr-cache.mjs';
 
 const app = express();
 app.disable('x-powered-by');
-const angularApp = new AngularNodeAppEngine();
+const publicOrigin = process.env['PUBLIC_ORIGIN'] || 'http://localhost';
+const allowedHosts = [
+  'localhost', '127.0.0.1', new URL(publicOrigin).hostname,
+  process.env['RAILWAY_PUBLIC_DOMAIN'],
+  ...(process.env['NG_ALLOWED_HOSTS'] || '').split(','),
+].filter((host): host is string => !!host?.trim()).map(host => host.trim());
+const angularApp = new AngularNodeAppEngine({ allowedHosts });
 const browserDistFolder = resolve(dirname(fileURLToPath(import.meta.url)), '../browser');
 const ttl = Math.max(1, Number(process.env['PUBLIC_CACHE_TTL_SECONDS'] || 300)) * 1000;
 const cache = createPublicCache<{ html: string }>(ttl);
-const publicOrigin = process.env['PUBLIC_ORIGIN'] || 'http://localhost';
 
 async function publicContent() {
   const parsed = JSON.parse(await readFile(
