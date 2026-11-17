@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: 1081271746/Care_Guardian_Back
-          ref: 961a852aa628a5535da34b99662d3dcbb4709018
+          ref: afcd1da7136c358a7c0332ef533aa0a890733f9c
           path: backend-smoke
       - uses: actions/setup-python@v5
         with:

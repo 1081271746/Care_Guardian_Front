@@ -24,7 +24,7 @@ API_BASE_URL=http://127.0.0.1:8000 npm start
 
 No hay linter configurado en el repositorio original. No se añade uno ni se
 reformatea todo el código para este trabajo.
-Resultados y comprobaciones pendientes: [VERIFICACION.md](docs/VERIFICACION.md).
+Resultados y límites de verificación: [VERIFICACION.md](docs/VERIFICACION.md).
 
 ## Funcionalidades conservadas y completadas
 
@@ -60,6 +60,8 @@ que atiende SSR, caché pública y proxy de API.
 - Health: `/health`.
 - `API_BASE_URL`: origen del backend, por ejemplo el servicio existente en Railway.
 - `PUBLIC_ORIGIN`: origen público del frontend, sin barra final.
+- `NG_ALLOWED_HOSTS`: hosts adicionales explícitos, sin protocolo ni comodines.
+- `RAILWAY_PUBLIC_DOMAIN`: host que Railway proporciona automáticamente; se permite en SSR.
 - `PUBLIC_CACHE_TTL_SECONDS`: TTL de `/recursos`, 300 por defecto.
 - `PUBLIC_RESOURCES_FILE`: archivo público opcional montado en volumen.
 
