@@ -71,3 +71,50 @@
     --cg-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 }
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--cg-paper);
+    color: var(--cg-ink);
+    font-family: var(--cg-font-body);
+    font-size: var(--cg-text-md);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    margin: 0;
+    color: var(--cg-ink);
+    line-height: 1.2;
+    font-weight: 600;
+  }
+
+  h1 {
+    font-family: var(--cg-font-display);
+    font-size: var(--cg-text-2xl);
+    font-weight: 560;
+    letter-spacing: -0.01em;
+  }
+
+  h2 { font-size: var(--cg-text-xl); font-family: var(--cg-font-display); font-weight: 560; }
+  h3 { font-size: var(--cg-text-lg); }
+  p { margin: 0; }
+
+  a { color: var(--cg-primary); text-underline-offset: 3px; }
+  a:hover { color: var(--cg-primary-strong); }
+
+  :focus-visible { outline: none; box-shadow: var(--cg-focus); border-radius: var(--cg-radius-sm); }
+
+  img, svg { display: block; max-width: 100%; }
+
+  ::selection { background: var(--cg-primary-soft); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+}
