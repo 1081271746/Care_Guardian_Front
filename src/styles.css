@@ -345,3 +345,23 @@
   @keyframes cg-shimmer { to { background-position: -200% 0; } }
   @keyframes cg-spin { to { transform: rotate(360deg); } }
 }
+
+@layer utilities {
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+  .muted { color: var(--cg-ink-muted); }
+  .soft { color: var(--cg-ink-soft); }
+  .small { font-size: var(--cg-text-sm); }
+  .xsmall { font-size: var(--cg-text-xs); }
+  .strong { font-weight: 650; }
+  .nowrap { white-space: nowrap; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .stack { display: flex; flex-direction: column; gap: var(--cg-space-3); }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cg-space-3); }
+  .between { justify-content: space-between; }
+  .mt-2 { margin-top: var(--cg-space-2); }
+  .mt-4 { margin-top: var(--cg-space-4); }
+  .pre-line { white-space: pre-line; }
+}
