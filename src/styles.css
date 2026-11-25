@@ -288,4 +288,60 @@
     .table-responsive td.actions { justify-content: flex-end; }
     .table-responsive td.actions::before { display: none; }
   }
+
+  /* ---------- Page scaffolding ---------- */
+  .page { display: flex; flex-direction: column; gap: var(--cg-space-5); animation: cg-rise 0.35s var(--cg-ease) both; }
+  .page-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--cg-space-4); }
+  .page-header .eyebrow {
+    font-size: var(--cg-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cg-accent);
+    margin-bottom: 6px;
+  }
+  .page-header .lede { margin-top: 6px; color: var(--cg-ink-soft); max-width: 62ch; }
+  .page-header .header-actions { display: flex; flex-wrap: wrap; gap: var(--cg-space-2); }
+
+  .grid { display: grid; gap: var(--cg-space-4); }
+  .grid-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .grid-stats { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+
+  .toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--cg-space-3); }
+  .toolbar .field { min-width: 160px; }
+  .toolbar .grow { flex: 1 1 240px; }
+
+  /* ---------- Empty / loading ---------- */
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--cg-space-2);
+    padding: var(--cg-space-6) var(--cg-space-4);
+    text-align: center;
+    color: var(--cg-ink-soft);
+  }
+  .empty svg { width: 40px; height: 40px; color: var(--cg-line-strong); }
+  .empty strong { color: var(--cg-ink); }
+
+  .skeleton {
+    border-radius: var(--cg-radius-sm);
+    background: linear-gradient(90deg, #ece6de 0%, #f5f1eb 50%, #ece6de 100%);
+    background-size: 200% 100%;
+    animation: cg-shimmer 1.3s linear infinite;
+    min-height: 16px;
+  }
+
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: cg-spin 0.7s linear infinite;
+  }
+
+  @keyframes cg-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes cg-shimmer { to { background-position: -200% 0; } }
+  @keyframes cg-spin { to { transform: rotate(360deg); } }
 }
