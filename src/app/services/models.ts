@@ -113,3 +113,27 @@ export interface CaregiverNote {
   activo: boolean;
   autor_nombre?: string | null;
 }
+
+export type AlertLevel = 'bajo' | 'medio' | 'alto';
+export type AlertStatus = 'pendiente' | 'en_revision' | 'atendida' | 'descartada';
+
+export interface Alert {
+  id: number;
+  patient_id: number;
+  symptom_id: number | null;
+  note_id: number | null;
+  tipo: string;
+  nivel: AlertLevel;
+  titulo: string;
+  mensaje: string;
+  estado: AlertStatus;
+  origen: string;
+  fecha_registro: string;
+  activa: boolean;
+}
+
+export interface AlertInput {
+  titulo: string;
+  mensaje: string;
+  nivel: AlertLevel;
+}
