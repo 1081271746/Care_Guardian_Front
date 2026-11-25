@@ -118,3 +118,59 @@
     *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   }
 }
+
+@layer components {
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--cg-space-2);
+    min-height: 42px;
+    padding: 0 var(--cg-space-4);
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font: 600 var(--cg-text-sm) / 1 var(--cg-font-body);
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.18s var(--cg-ease), border-color 0.18s var(--cg-ease),
+      color 0.18s var(--cg-ease), transform 0.18s var(--cg-ease);
+  }
+  .btn:active:not(:disabled) { transform: translateY(1px); }
+  .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  .btn svg { width: 18px; height: 18px; flex: none; }
+
+  .btn-primary { background: var(--cg-primary); color: var(--cg-primary-ink); }
+  .btn-primary:hover:not(:disabled) { background: var(--cg-primary-strong); color: var(--cg-primary-ink); }
+
+  .btn-secondary { background: var(--cg-surface); border-color: var(--cg-line-strong); color: var(--cg-ink); }
+  .btn-secondary:hover:not(:disabled) { border-color: var(--cg-primary); color: var(--cg-primary); }
+
+  .btn-ghost { background: transparent; color: var(--cg-ink-soft); }
+  .btn-ghost:hover:not(:disabled) { background: var(--cg-surface-sunken); color: var(--cg-ink); }
+
+  .btn-danger { background: var(--cg-surface); border-color: #e7bdb9; color: var(--cg-danger); }
+  .btn-danger:hover:not(:disabled) { background: var(--cg-danger-soft); }
+
+  .btn-sm { min-height: 34px; padding: 0 var(--cg-space-3); font-size: var(--cg-text-xs); }
+  .btn-icon { width: 38px; min-height: 38px; padding: 0; }
+
+  /* ---------- Cards & surfaces ---------- */
+  .card {
+    background: var(--cg-surface);
+    border: 1px solid var(--cg-line);
+    border-radius: var(--cg-radius);
+    box-shadow: var(--cg-shadow-sm);
+    padding: var(--cg-space-5);
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--cg-space-3);
+    margin-bottom: var(--cg-space-4);
+  }
+  .card-header h2, .card-header h3 { font-size: var(--cg-text-lg); font-family: var(--cg-font-body); font-weight: 650; }
+  .card-subtle { background: var(--cg-surface-sunken); border-color: transparent; box-shadow: none; }
+}
