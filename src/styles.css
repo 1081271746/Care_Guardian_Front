@@ -1,1 +1,73 @@
-/* You can add global styles to this file, and also import other style files */
+/* =========================================================================
+   CareGuardian design system
+   Warm, calm and legible: a care product for families and caregivers of
+   older adults. Tokens first, then base elements, then shared components.
+   ========================================================================= */
+
+@layer tokens, base, components, utilities;
+
+@layer tokens {
+  :root {
+    /* Palette — deep teal for trust, warm paper background, terracotta accent */
+    --cg-ink: #1d2b2f;
+    --cg-ink-soft: #46585d;
+    --cg-ink-muted: #6f7f83;
+    --cg-paper: #f6f2ec;
+    --cg-surface: #ffffff;
+    --cg-surface-sunken: #efe9e1;
+    --cg-line: #e3dbd0;
+    --cg-line-strong: #cfc4b6;
+
+    --cg-primary: #145a5c;
+    --cg-primary-strong: #0d4345;
+    --cg-primary-soft: #e3efed;
+    --cg-primary-ink: #ffffff;
+
+    --cg-accent: #c8643b;
+    --cg-accent-soft: #f8e6dc;
+
+    --cg-ok: #2f7a4f;
+    --cg-ok-soft: #e1f1e6;
+    --cg-warn: #a86a0b;
+    --cg-warn-soft: #fbefd6;
+    --cg-danger: #b3362f;
+    --cg-danger-soft: #f8e1df;
+    --cg-info: #2d5f93;
+    --cg-info-soft: #e2ecf7;
+
+    /* Chart series (validated for contrast on white) */
+    --cg-series-1: #145a5c;
+    --cg-series-2: #c8643b;
+    --cg-series-3: #5a6fb0;
+
+    /* Typography */
+    --cg-font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --cg-font-body: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --cg-text-xs: 0.78rem;
+    --cg-text-sm: 0.875rem;
+    --cg-text-md: 1rem;
+    --cg-text-lg: 1.125rem;
+    --cg-text-xl: 1.4rem;
+    --cg-text-2xl: clamp(1.6rem, 1.2rem + 1.4vw, 2.15rem);
+
+    /* Spacing scale (4px base) */
+    --cg-space-1: 4px;
+    --cg-space-2: 8px;
+    --cg-space-3: 12px;
+    --cg-space-4: 16px;
+    --cg-space-5: 24px;
+    --cg-space-6: 32px;
+    --cg-space-7: 48px;
+
+    /* Shape & depth */
+    --cg-radius-sm: 8px;
+    --cg-radius: 14px;
+    --cg-radius-lg: 20px;
+    --cg-shadow-sm: 0 1px 2px rgba(29, 43, 47, 0.06);
+    --cg-shadow: 0 1px 2px rgba(29, 43, 47, 0.05), 0 8px 24px -12px rgba(29, 43, 47, 0.18);
+    --cg-focus: 0 0 0 3px rgba(20, 90, 92, 0.28);
+
+    --cg-sidebar-width: 256px;
+    --cg-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+}
