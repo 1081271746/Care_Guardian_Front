@@ -137,3 +137,43 @@ export interface AlertInput {
   mensaje: string;
   nivel: AlertLevel;
 }
+
+export interface DashboardSummary {
+  generado: string;
+  zona_horaria: string;
+  totales: {
+    pacientes: number;
+    pacientes_activos: number;
+    medicamentos_activos: number;
+    medicamentos_registrados: number;
+    citas_proximas: number;
+    sintomas_recientes: number;
+    notas_recientes: number;
+    alertas_pendientes: number;
+  };
+  ventanas: { citas_dias: number; recientes_dias: number };
+  alertas_por_nivel: Record<AlertLevel, number>;
+  sintomas_por_dia: { fecha: string; cantidad: number }[];
+  proximas_citas: (Pick<Appointment, 'id' | 'patient_id' | 'titulo' | 'especialidad' | 'profesional' |
+    'fecha' | 'hora' | 'lugar' | 'estado'> & { paciente: string })[];
+  pacientes: { id: number; nombre: string; activo: boolean; alertas_activas: number; ultimo_registro: string | null }[];
+  actividad_reciente: {
+    id: string;
+    tipo: 'sintoma' | 'nota' | 'alerta' | 'medicamento' | 'cita';
+    patient_id: number;
+    paciente: string;
+    descripcion: string;
+    fecha: string;
+  }[];
+}
+
+export interface PatientDashboard {
+  patient: Patient;
+  symptoms: SymptomRecord[];
+  medications: Medication[];
+  upcoming_appointments: Appointment[];
+  recent_notes: CaregiverNote[];
+  active_alerts: Alert[];
+  historical_analysis: { registros_analizados: number; score: number; nivel: AlertLevel; tendencias: string[]; recomendacion: string };
+  current_risk_level: AlertLevel;
+}
