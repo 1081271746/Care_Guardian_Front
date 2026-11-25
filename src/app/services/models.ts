@@ -177,3 +177,65 @@ export interface PatientDashboard {
   historical_analysis: { registros_analizados: number; score: number; nivel: AlertLevel; tendencias: string[]; recomendacion: string };
   current_risk_level: AlertLevel;
 }
+
+export type MetricKey = 'nivel_dolor' | 'calidad_sueno' | 'temperatura';
+export type EventKind = 'sintoma' | 'nota' | 'medicamento' | 'cita' | 'alerta';
+
+export interface MetricPoint { fecha: string; valor: number }
+
+export interface MetricSummary {
+  cantidad: number;
+  promedio?: number;
+  inicial?: number;
+  reciente?: number;
+  diferencia?: number;
+  puntos: MetricPoint[];
+}
+
+export interface TimelineEvent {
+  id: string;
+  tipo: EventKind;
+  fecha: string;
+  descripcion: string;
+  nivel?: string | null;
+}
+
+export interface Evolution {
+  patient_id: number;
+  periodo: { desde: string | null; hasta: string | null };
+  zona_horaria?: string;
+  totales: Record<EventKind, number>;
+  metricas: Record<MetricKey, MetricSummary>;
+  categorias?: Record<string, Record<string, number>>;
+  historial: TimelineEvent[];
+  hechos?: Record<string, string>;
+  datos_suficientes: boolean;
+  nota?: string;
+}
+
+export interface AnalysisResult {
+  resumen: string[];
+  revisar: string[];
+  advertencia: string;
+  periodo: { desde: string | null; hasta: string | null };
+  metodo?: string;
+}
+
+export interface SavedAnalysis {
+  id: number;
+  fecha: string;
+  modelo: string;
+  periodo?: { desde: string | null; hasta: string | null };
+  autor_id?: number;
+  resultado: AnalysisResult;
+}
+
+export interface AiStatus {
+  configurado: boolean;
+  proveedor: string;
+  modelo: string | null;
+  limite_por_minuto: number;
+  version_consentimiento: string;
+}
+
+export interface ApiMessage { mensaje: string }
