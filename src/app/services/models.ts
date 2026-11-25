@@ -43,3 +43,39 @@ export interface Caregiver {
   email: string;
   rol: 'cuidador' | 'familiar' | 'profesional' | string;
 }
+
+export interface Medication {
+  id: number;
+  patient_id: number;
+  nombre: string;
+  dosis: string;
+  frecuencia: string;
+  hora: string;
+  fecha_inicio: string;
+  fecha_fin: string | null;
+  indicaciones: string | null;
+  activo: boolean;
+  vigente: boolean;
+  fecha_registro: string;
+}
+
+export type MedicationInput = Pick<Medication,
+  'nombre' | 'dosis' | 'frecuencia' | 'hora' | 'fecha_inicio' | 'fecha_fin' | 'indicaciones'>;
+
+export type AppointmentStatus = 'pendiente' | 'confirmada' | 'completada' | 'cancelada';
+
+export interface Appointment {
+  id: number;
+  patient_id: number;
+  titulo: string;
+  especialidad: string;
+  profesional: string;
+  fecha: string;
+  hora: string;
+  lugar: string | null;
+  estado: AppointmentStatus;
+  notas: string | null;
+  fecha_registro: string;
+}
+
+export type AppointmentInput = Omit<Appointment, 'id' | 'patient_id' | 'fecha_registro'>;
