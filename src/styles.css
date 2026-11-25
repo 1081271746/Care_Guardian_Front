@@ -173,4 +173,46 @@
   }
   .card-header h2, .card-header h3 { font-size: var(--cg-text-lg); font-family: var(--cg-font-body); font-weight: 650; }
   .card-subtle { background: var(--cg-surface-sunken); border-color: transparent; box-shadow: none; }
+
+  /* ---------- Forms ---------- */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: var(--cg-space-4);
+  }
+  .form-grid .span-all { grid-column: 1 / -1; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .field label, .field .label {
+    font-size: var(--cg-text-sm);
+    font-weight: 600;
+    color: var(--cg-ink-soft);
+  }
+  .field .hint { font-size: var(--cg-text-xs); color: var(--cg-ink-muted); }
+  .field .error { font-size: var(--cg-text-xs); color: var(--cg-danger); font-weight: 600; }
+  .required::after { content: " *"; color: var(--cg-accent); }
+
+  .input, .select, .textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--cg-line-strong);
+    border-radius: var(--cg-radius-sm);
+    background: var(--cg-surface);
+    color: var(--cg-ink);
+    font: inherit;
+    transition: border-color 0.15s var(--cg-ease), box-shadow 0.15s var(--cg-ease);
+  }
+  .textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
+  .input:hover, .select:hover, .textarea:hover { border-color: var(--cg-ink-muted); }
+  .input:focus, .select:focus, .textarea:focus { outline: none; border-color: var(--cg-primary); box-shadow: var(--cg-focus); }
+  .input.ng-invalid.ng-touched, .select.ng-invalid.ng-touched, .textarea.ng-invalid.ng-touched {
+    border-color: var(--cg-danger);
+  }
+  .input:disabled, .select:disabled, .textarea:disabled { background: var(--cg-surface-sunken); color: var(--cg-ink-muted); }
+
+  .checkbox { display: flex; gap: var(--cg-space-3); align-items: flex-start; font-size: var(--cg-text-sm); }
+  .checkbox input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--cg-primary); flex: none; }
+
+  .form-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--cg-space-3); margin-top: var(--cg-space-5); }
 }
