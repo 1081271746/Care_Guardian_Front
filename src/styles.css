@@ -252,4 +252,40 @@
   .notice-success { background: var(--cg-ok-soft); color: #1f5737; border-color: #c4e3cf; }
   .notice-info { background: var(--cg-info-soft); color: #1f456d; border-color: #c9daee; }
   .notice-warn { background: var(--cg-warn-soft); color: #75490a; border-color: #f0d8a8; }
+
+  /* ---------- Tables & lists ---------- */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--cg-line); border-radius: var(--cg-radius); background: var(--cg-surface); }
+  .table { width: 100%; border-collapse: collapse; font-size: var(--cg-text-sm); }
+  .table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: var(--cg-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--cg-ink-muted);
+    background: #fbf9f6;
+    border-bottom: 1px solid var(--cg-line);
+    white-space: nowrap;
+  }
+  .table td { padding: 14px 16px; border-bottom: 1px solid var(--cg-line); vertical-align: top; }
+  .table tr:last-child td { border-bottom: 0; }
+  .table tbody tr { transition: background-color 0.15s var(--cg-ease); }
+  .table tbody tr:hover { background: #fcfaf7; }
+  .table .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .table .actions { text-align: right; white-space: nowrap; }
+
+  .list { list-style: none; margin: 0; padding: 0; }
+  .list > li { padding: var(--cg-space-3) 0; border-bottom: 1px solid var(--cg-line); }
+  .list > li:last-child { border-bottom: 0; }
+
+  /* Tables become stacked cards on narrow screens */
+  @media (max-width: 720px) {
+    .table-responsive thead { display: none; }
+    .table-responsive tr { display: block; padding: var(--cg-space-3) var(--cg-space-4); border-bottom: 1px solid var(--cg-line); }
+    .table-responsive td { display: flex; justify-content: space-between; gap: var(--cg-space-3); padding: 6px 0; border: 0; }
+    .table-responsive td::before { content: attr(data-label); font-weight: 650; color: var(--cg-ink-muted); font-size: var(--cg-text-xs); }
+    .table-responsive td.actions { justify-content: flex-end; }
+    .table-responsive td.actions::before { display: none; }
+  }
 }
