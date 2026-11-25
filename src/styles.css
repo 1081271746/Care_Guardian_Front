@@ -215,4 +215,41 @@
   .checkbox input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--cg-primary); flex: none; }
 
   .form-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--cg-space-3); margin-top: var(--cg-space-5); }
+
+  /* ---------- Badges & status ---------- */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: var(--cg-text-xs);
+    font-weight: 650;
+    background: var(--cg-surface-sunken);
+    color: var(--cg-ink-soft);
+    white-space: nowrap;
+  }
+  .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.8; }
+  .badge.plain::before { display: none; }
+  .badge-ok, .badge-bajo, .badge-completada, .badge-atendida { background: var(--cg-ok-soft); color: var(--cg-ok); }
+  .badge-warn, .badge-medio, .badge-moderado, .badge-pendiente, .badge-en_revision { background: var(--cg-warn-soft); color: var(--cg-warn); }
+  .badge-danger, .badge-alto, .badge-grave, .badge-cancelada { background: var(--cg-danger-soft); color: var(--cg-danger); }
+  .badge-info, .badge-confirmada { background: var(--cg-info-soft); color: var(--cg-info); }
+  .badge-muted, .badge-descartada, .badge-inactivo { background: var(--cg-surface-sunken); color: var(--cg-ink-muted); }
+
+  /* ---------- Notices ---------- */
+  .notice {
+    display: flex;
+    gap: var(--cg-space-3);
+    align-items: flex-start;
+    padding: var(--cg-space-3) var(--cg-space-4);
+    border-radius: var(--cg-radius-sm);
+    font-size: var(--cg-text-sm);
+    border: 1px solid transparent;
+  }
+  .notice svg { width: 18px; height: 18px; flex: none; margin-top: 2px; }
+  .notice-error { background: var(--cg-danger-soft); color: #7c241f; border-color: #efc7c3; }
+  .notice-success { background: var(--cg-ok-soft); color: #1f5737; border-color: #c4e3cf; }
+  .notice-info { background: var(--cg-info-soft); color: #1f456d; border-color: #c9daee; }
+  .notice-warn { background: var(--cg-warn-soft); color: #75490a; border-color: #f0d8a8; }
 }
