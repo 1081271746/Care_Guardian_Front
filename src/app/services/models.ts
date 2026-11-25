@@ -79,3 +79,37 @@ export interface Appointment {
 }
 
 export type AppointmentInput = Omit<Appointment, 'id' | 'patient_id' | 'fecha_registro'>;
+
+export type Severity = 'bajo' | 'moderado' | 'grave';
+
+export interface SymptomRecord {
+  id: number;
+  patient_id: number;
+  caregiver_id: number;
+  calidad_sueno: number | null;
+  estado_animo: string | null;
+  apetito: string | null;
+  nivel_dolor: number | null;
+  temperatura: number | null;
+  observaciones: string | null;
+  nivel_gravedad: Severity;
+  fecha_registro: string;
+  activo: boolean;
+  registrado_por_nombre?: string | null;
+}
+
+export type SymptomInput = Partial<Pick<SymptomRecord,
+  'calidad_sueno' | 'estado_animo' | 'apetito' | 'nivel_dolor' | 'temperatura' | 'observaciones'>> & {
+  nivel_gravedad: Severity;
+  fecha_registro?: string | null;
+};
+
+export interface CaregiverNote {
+  id: number;
+  patient_id: number;
+  caregiver_id: number;
+  contenido: string;
+  fecha_registro: string;
+  activo: boolean;
+  autor_nombre?: string | null;
+}
