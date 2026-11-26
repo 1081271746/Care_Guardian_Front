@@ -41,7 +41,7 @@
       <a routerLink="/citas" class="btn btn-secondary"><cg-icon name="calendar" /> Citas</a>
       <a routerLink="/notas" class="btn btn-secondary"><cg-icon name="note" /> Notas</a>
       <a routerLink="/alertas" class="btn btn-secondary"><cg-icon name="bell" /> Alertas</a>
-      <a routerLink="/evolucion" class="btn btn-primary"><cg-icon name="chart" /> Evolución</a>
+      <a routerLink="/evolucion" [queryParams]="{ patientId: panel.patient.id }" class="btn btn-primary"><cg-icon name="chart" /> Evolución</a>
     </nav>
 
     @if (panel.historical_analysis.tendencias.length) {
