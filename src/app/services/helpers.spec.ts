@@ -1,4 +1,4 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
@@ -14,6 +14,11 @@ describe('apiError', () => {
   it('names the field of a 422 validation error', () => {
     const error = new HttpErrorResponse({ status: 422, error: { detail: [{ loc: ['body', 'hora'], msg: 'String should match pattern' }] } });
     expect(apiError(error)).toBe('Hora: String should match pattern');
+  });
+  it('adds the Retry-After wait to rate-limit messages', () => {
+    const error = new HttpErrorResponse({ status: 429, error: { detail: 'Demasiados intentos' },
+      headers: new HttpHeaders({ 'Retry-After': '120' }) });
+    expect(apiError(error)).toBe('Demasiados intentos (podrás intentarlo en 2 min).');
   });
   it('explains network failures', () => {
     expect(apiError(new HttpErrorResponse({ status: 0 }))).toContain('No hay conexión');

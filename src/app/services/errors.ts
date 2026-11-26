@@ -20,6 +20,10 @@ export function apiError(error: unknown, fallback = 'No fue posible completar la
   }
   if (error.status === 0) return 'No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.';
   const detail = error.error?.detail;
+  const retry = Number(error.headers?.get('Retry-After'));
+  if (error.status === 429 && typeof detail === 'string' && retry > 0) {
+    return `${detail} (podrás intentarlo en ${retry < 60 ? `${retry} s` : `${Math.ceil(retry / 60)} min`}).`;
+  }
   if (typeof detail === 'string') return detail;
   if (Array.isArray(detail) && detail.length) {
     const first = detail[0] ?? {};
