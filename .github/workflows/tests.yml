@@ -13,6 +13,7 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - run: npm run typecheck
       - run: npm test -- --watch=false
       - run: npm run test:cache
       - run: npm run build
@@ -20,7 +21,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: 1081271746/Care_Guardian_Back
-          ref: afcd1da7136c358a7c0332ef533aa0a890733f9c
+          # Backend branch with the matching API (201 responses, /dashboard/summary,
+          # /evolution/ai-status). Switch to main once that PR is merged.
+          ref: mejoras/auditoria-produccion
           path: backend-smoke
       - uses: actions/setup-python@v5
         with:
@@ -29,3 +32,4 @@ jobs:
       - run: node tests/runtime-smoke.mjs
         env:
           BACKEND_DIR: backend-smoke
+          PYTHON: python
