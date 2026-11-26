@@ -4,6 +4,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './services/auth.interceptor';
+import { retryInterceptor } from './services/retry.interceptor';
 import { provideClientHydration, withNoHttpTransferCache } from '@angular/platform-browser';
 
 export const appConfig: ApplicationConfig = {
@@ -11,7 +12,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withNoHttpTransferCache()),
     provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(
-      withInterceptors([authInterceptor])
+      withInterceptors([authInterceptor, retryInterceptor])
     )
   ]
 };
