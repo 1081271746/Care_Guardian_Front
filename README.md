@@ -106,3 +106,28 @@ al backend local en el puerto 8000).
 | `PORT` | Railway | Puerto del servidor Node (4000 local). |
 
 En el backend, `CORS_ORIGINS` debe incluir la URL pública del frontend.
+
+## Páginas y navegación
+
+| Ruta | Qué hace | Endpoints |
+|---|---|---|
+| `/login` | Iniciar sesión o crear cuenta; mensajes de sesión expirada o cerrada | `POST /auth/login`, `POST /users/` |
+| `/dashboard` | Indicadores de todos tus pacientes, síntomas por día, próximas citas, alertas por nivel y actividad reciente | `GET /dashboard/summary` |
+| `/dashboard/:id` | Panel de un paciente: nivel por reglas, alertas, síntomas, medicamentos, citas y notas | `GET /dashboard/patients/{id}` |
+| `/pacientes` | Buscar, crear, editar, desactivar/reactivar y gestionar el equipo de cuidado | `GET/POST/PUT/DELETE /patients/…`, `/patients/{id}/caregivers` |
+| `/medicamentos` | Registrar, editar, suspender y reactivar; estado vigente | `/medications/…` |
+| `/citas` | Próximas e historial; confirmar, cancelar, completar, editar y eliminar | `/appointments/…` |
+| `/sintomas` | Mediciones, categorías, gravedad, momento de la observación; corregir y retirar | `/symptoms/…` |
+| `/notas` | Bitácora del equipo; solo el autor edita o retira | `/notes/…` |
+| `/alertas` | Activas por gravedad e historial; revisar, atender, descartar, reabrir y crear manuales | `/alerts/…` |
+| `/evolucion` | Período, gráficas de mediciones reales, categorías, historial y resúmenes con Groq | `/evolution/…` |
+| `/cuenta` | Datos de la cuenta y cambio de contraseña | `/auth/me`, `/users/{id}` |
+| `/acerca`, `/privacidad`, `/recursos` | Páginas públicas | — |
+
+- El paciente elegido se recuerda entre módulos (`PatientContext`).
+- Los pacientes inactivos se pueden consultar, pero sus formularios se deshabilitan
+  (la API también lo impide).
+- Rutas privadas protegidas por `authGuard`: sin sesión válida se redirige a
+  `/login?volver=<ruta>` y, tras entrar, se vuelve a la página pedida.
+- Si la API responde 401 (token vencido o revocado) se cierra la sesión y se
+  muestra “Tu sesión expiró”.
