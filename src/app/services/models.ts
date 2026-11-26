@@ -59,8 +59,8 @@ export interface Medication {
   fecha_registro: string;
 }
 
-export type MedicationInput = Pick<Medication,
-  'nombre' | 'dosis' | 'frecuencia' | 'hora' | 'fecha_inicio' | 'fecha_fin' | 'indicaciones'>;
+export type MedicationInput = Pick<Medication, 'nombre' | 'dosis' | 'frecuencia' | 'hora' | 'fecha_inicio'> &
+  Partial<Pick<Medication, 'fecha_fin' | 'indicaciones'>>;
 
 export type AppointmentStatus = 'pendiente' | 'confirmada' | 'completada' | 'cancelada';
 

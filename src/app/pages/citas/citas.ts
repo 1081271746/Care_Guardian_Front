@@ -1,3 +1,4 @@
+import { AppointmentStatus } from '../../services/models';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -133,7 +134,7 @@ export class Citas implements OnInit {
       fecha: this.newAppointment.fecha,
       hora: this.newAppointment.hora,
       lugar: this.newAppointment.lugar || null,
-      estado: this.newAppointment.estado,
+      estado: this.newAppointment.estado as AppointmentStatus,
       notas: this.newAppointment.notas || null
     };
 

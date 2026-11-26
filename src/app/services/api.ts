@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 
 import {
   Alert, ApiMessage, Appointment, Caregiver, CaregiverNote, Evolution, Medication, Patient,
-  PatientDashboard, PatientInput, SavedAnalysis, SymptomRecord,
+  MedicationInput, PatientDashboard, PatientInput, SavedAnalysis, SymptomRecord,
 } from './models';
 
 /** Same-origin prefix; src/server.ts proxies it to API_BASE_URL. */
@@ -79,8 +79,17 @@ export class Api {
     return this.http.get<Medication[]>(`${API}/medications/patients/${patientId}`);
   }
 
-  createMedication(patientId: number, medication: object) {
+  createMedication(patientId: number, medication: MedicationInput) {
     return this.http.post<Medication>(`${API}/medications/patients/${patientId}`, medication);
+  }
+
+  updateMedication(medicationId: number, changes: Partial<MedicationInput> & { activo?: boolean }) {
+    return this.http.put<Medication>(`${API}/medications/${medicationId}`, changes);
+  }
+
+  /** Suspends the medication (activo=false); it stays in the history. */
+  suspendMedication(medicationId: number) {
+    return this.http.delete<ApiMessage>(`${API}/medications/${medicationId}`);
   }
 
   // ---------------- Appointments ----------------
