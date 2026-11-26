@@ -41,7 +41,7 @@
     @if (error()) { <div class="notice notice-error" role="alert"><cg-icon name="warning" />{{ error() }}</div> }
 
     @if (loading() && !notes().length) {
-      <div class="card"><div class="skeleton" style="height:120px"></div></div>
+      <div class="card"><div class="skeleton" style="height:120px" role="status"><span class="sr-only">Cargando…</span></div></div>
     } @else if (!notes().length) {
       <section class="card"><cg-empty icon="note" title="Sin notas todavía" text="Las notas del equipo aparecerán aquí." /></section>
     } @else {

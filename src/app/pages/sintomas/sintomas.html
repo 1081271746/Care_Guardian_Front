@@ -92,7 +92,7 @@
         </div>
         @if (error()) { <div class="notice notice-error" role="alert"><cg-icon name="warning" />{{ error() }}</div> }
         @if (loading() && !records().length) {
-          <div class="skeleton" style="height:140px"></div>
+          <div class="skeleton" style="height:140px" role="status"><span class="sr-only">Cargando…</span></div>
         } @else if (!records().length) {
           <cg-empty icon="pulse" title="Sin registros todavía" text="El primer registro aparecerá aquí." />
         } @else {

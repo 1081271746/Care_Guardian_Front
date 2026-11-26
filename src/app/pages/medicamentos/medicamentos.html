@@ -83,7 +83,7 @@
 
   @if (context.selected()) {
     @if (loading() && !medications().length) {
-      <div class="card"><div class="skeleton" style="height:120px"></div></div>
+      <div class="card"><div class="skeleton" style="height:120px" role="status"><span class="sr-only">Cargando…</span></div></div>
     } @else if (!visible().length) {
       <section class="card"><cg-empty icon="pill" title="Sin medicamentos registrados"
         text="Registra los medicamentos indicados por el profesional de salud." /></section>

@@ -90,7 +90,7 @@
   }
 
   @if (loading() && !context.patients().length) {
-    <div class="card"><div class="skeleton" style="height:160px"></div></div>
+    <div class="card"><div class="skeleton" style="height:160px" role="status"><span class="sr-only">Cargando…</span></div></div>
   } @else if (!visible().length) {
     <section class="card">
       @if (context.patients().length) {
