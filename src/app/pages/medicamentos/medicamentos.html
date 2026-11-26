@@ -1,450 +1,126 @@
-<div class="medications-page">
-
-  <!-- ENCABEZADO -->
-  <section class="page-header">
-
+<div class="page">
+  <header class="page-header">
     <div>
-      <span class="eyebrow">TRATAMIENTO</span>
-
+      <p class="eyebrow">Cuidado diario</p>
       <h1>Medicamentos</h1>
-
-      <p>
-        Consulta y registra los medicamentos utilizados
-        durante el cuidado del paciente.
-      </p>
+      <p class="lede">Registro de lo que toma cada paciente según las indicaciones de su profesional de salud.</p>
     </div>
+    <div class="header-actions">
+      <button type="button" class="btn btn-primary" (click)="openNew()" [disabled]="!context.selected()?.activo">
+        <cg-icon name="plus" /> Registrar medicamento
+      </button>
+    </div>
+  </header>
 
-    <button
-      type="button"
-      class="primary-button"
-      (click)="openForm()"
-    >
-      <span class="button-icon">+</span>
-      Registrar medicamento
-    </button>
-
+  <section class="toolbar">
+    <div class="grow"><cg-patient-picker (changed)="load(); editing.set(null)" /></div>
+    @if (suspendedCount()) {
+      <label class="checkbox">
+        <input type="checkbox" [checked]="showSuspended()" (change)="showSuspended.set(!showSuspended())">
+        Mostrar suspendidos ({{ suspendedCount() }})
+      </label>
+    }
   </section>
 
-
-  <!-- MENSAJE DE ÉXITO -->
-  @if (successMessage) {
-
-    <div class="success-message">
-
-      <span class="message-icon">✓</span>
-
-      <span>
-        {{ successMessage }}
-      </span>
-
-    </div>
-
+  @if (context.selected() && !context.selected()!.activo) {
+    <div class="notice notice-warn"><cg-icon name="info" />Paciente inactivo: puedes consultar su historial pero no registrar cambios.</div>
   }
 
-
-  <!-- MENSAJE DE ERROR -->
-  @if (errorMessage) {
-
-    <div class="error-message">
-
-      <span class="message-icon">!</span>
-
-      <span>
-        {{ errorMessage }}
-      </span>
-
-    </div>
-
-  }
-
-
-  <!-- FORMULARIO -->
-  @if (showForm) {
-
-    <section class="form-card">
-
-      <div class="form-header">
-
-        <div>
-
-          <span class="section-label">
-            NUEVO TRATAMIENTO
-          </span>
-
-          <h2>Registrar medicamento</h2>
-
-          <p>
-            Ingresa la información del medicamento
-            indicado para el paciente.
-          </p>
-
-        </div>
-
-        <button
-          type="button"
-          class="close-button"
-          (click)="closeForm()"
-        >
-          ×
-        </button>
-
+  @if (editing() !== null) {
+    <section class="card form-card" aria-labelledby="med-form-title">
+      <div class="card-header">
+        <h2 id="med-form-title">{{ editing() ? 'Editar medicamento' : 'Nuevo medicamento' }}</h2>
+        <button type="button" class="btn btn-ghost btn-icon" (click)="editing.set(null)" aria-label="Cerrar"><cg-icon name="close" /></button>
       </div>
-
-
-      <!-- CAMPOS -->
-      <div class="form-grid">
-
-        <!-- NOMBRE -->
-        <div class="form-group">
-
-          <label for="nombre">
-            Nombre del medicamento
-          </label>
-
-          <input
-            id="nombre"
-            type="text"
-            placeholder="Ej. Acetaminofén"
-            [(ngModel)]="newMedication.nombre"
-          >
-
+      @if (formError()) { <div class="notice notice-error" role="alert"><cg-icon name="warning" />{{ formError() }}</div> }
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="form-grid mt-4">
+          <div class="field">
+            <label for="nombre" class="required">Nombre</label>
+            <input id="nombre" class="input" formControlName="nombre">
+            @if (invalid('nombre')) { <span class="error">Escribe el nombre.</span> }
+          </div>
+          <div class="field">
+            <label for="dosis" class="required">Dosis</label>
+            <input id="dosis" class="input" formControlName="dosis" placeholder="Ej. 1 tableta">
+            @if (invalid('dosis')) { <span class="error">Escribe la dosis indicada.</span> }
+          </div>
+          <div class="field">
+            <label for="frecuencia" class="required">Frecuencia</label>
+            <input id="frecuencia" class="input" formControlName="frecuencia" placeholder="Ej. cada 12 horas">
+            @if (invalid('frecuencia')) { <span class="error">Escribe la frecuencia.</span> }
+          </div>
+          <div class="field">
+            <label for="hora" class="required">Hora</label>
+            <input id="hora" class="input" type="time" formControlName="hora">
+          </div>
+          <div class="field">
+            <label for="fecha_inicio" class="required">Inicio</label>
+            <input id="fecha_inicio" class="input" type="date" formControlName="fecha_inicio">
+          </div>
+          <div class="field">
+            <label for="fecha_fin">Finalización</label>
+            <input id="fecha_fin" class="input" type="date" formControlName="fecha_fin" [min]="form.controls.fecha_inicio.value">
+            @if (rangeInvalid()) { <span class="error">Debe ser igual o posterior al inicio.</span> }
+          </div>
+          <div class="field span-all">
+            <label for="indicaciones">Indicaciones</label>
+            <textarea id="indicaciones" class="textarea" formControlName="indicaciones" maxlength="300"
+                      placeholder="Ej. tomar con alimentos"></textarea>
+          </div>
         </div>
-
-
-        <!-- DOSIS -->
-        <div class="form-group">
-
-          <label for="dosis">
-            Dosis
-          </label>
-
-          <input
-            id="dosis"
-            type="text"
-            placeholder="Ej. 500 mg"
-            [(ngModel)]="newMedication.dosis"
-          >
-
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="editing.set(null)">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+            @if (saving()) { <span class="spinner"></span> } Guardar
+          </button>
         </div>
-
-        <div class="form-group">
-  <label for="fecha_inicio">
-    Fecha de inicio
-  </label>
-
-  <input
-    id="fecha_inicio"
-    type="date"
-    [(ngModel)]="newMedication.fecha_inicio"
-    name="fecha_inicio"
-  />
-
-  <small>
-    Fecha desde la cual inicia el tratamiento.
-  </small>
-</div>
-
-
-        <!-- FRECUENCIA -->
-        <div class="form-group">
-
-          <label for="frecuencia">
-            Frecuencia
-          </label>
-
-          <select
-            id="frecuencia"
-            [(ngModel)]="newMedication.frecuencia"
-          >
-
-            <option value="">
-              Seleccionar frecuencia
-            </option>
-
-            <option value="Una vez al día">
-              Una vez al día
-            </option>
-
-            <option value="Cada 8 horas">
-              Cada 8 horas
-            </option>
-
-            <option value="Cada 12 horas">
-              Cada 12 horas
-            </option>
-
-            <option value="Cada 24 horas">
-              Cada 24 horas
-            </option>
-
-            <option value="Según indicación médica">
-              Según indicación médica
-            </option>
-
-          </select>
-
-        </div>
-
-
-        <!-- HORA -->
-        <div class="form-group">
-
-          <label for="hora">
-            Hora de administración
-          </label>
-
-          <input
-            id="hora"
-            type="time"
-            [(ngModel)]="newMedication.hora"
-          >
-
-          <small>
-            Hora habitual en la que debe administrarse.
-          </small>
-
-        </div>
-
-      </div>
-
-
-      <!-- INDICACIONES -->
-      <div class="form-group full-width">
-
-        <label for="indicaciones">
-          Indicaciones
-        </label>
-
-        <textarea
-          id="indicaciones"
-          rows="4"
-          maxlength="1000"
-          placeholder="Ej. Administrar después del desayuno..."
-          [(ngModel)]="newMedication.indicaciones"
-        ></textarea>
-
-        <small>
-          Registra recomendaciones o instrucciones importantes.
-        </small>
-
-      </div>
-
-
-      <!-- ACCIONES -->
-      <div class="form-actions">
-
-        <button
-          type="button"
-          class="secondary-button"
-          (click)="closeForm()"
-          [disabled]="saving"
-        >
-          Cancelar
-        </button>
-
-        <button
-          type="button"
-          class="primary-button"
-          (click)="createMedication()"
-          [disabled]="saving"
-        >
-
-          @if (saving) {
-            Guardando...
-          } @else {
-            Guardar medicamento
-          }
-
-        </button>
-
-      </div>
-
+      </form>
     </section>
-
   }
 
-
-  <!-- HISTORIAL -->
-  <section class="history-section">
-
-    <div class="section-heading">
-
-      <div>
-
-        <span class="section-label">
-          TRATAMIENTO ACTUAL
-        </span>
-
-        <h2>Medicamentos registrados</h2>
-
-        <p>
-          Consulta los medicamentos activos del paciente.
-        </p>
-
-      </div>
-
-      <span class="record-count">
-        {{ medications.length }} medicamentos
-      </span>
-
-    </div>
-
-
-    <!-- CARGANDO -->
-    @if (loading) {
-
-      <div class="loading-state">
-
-        <div class="loading-spinner"></div>
-
-        <p>
-          Cargando medicamentos...
-        </p>
-
-      </div>
-
-    }
-
-
-    <!-- SIN MEDICAMENTOS -->
-    @if (!loading && medications.length === 0) {
-
-      <div class="empty-state">
-
-        <div class="empty-icon">
-          +
-        </div>
-
-        <h3>
-          No hay medicamentos registrados
-        </h3>
-
-        <p>
-          Registra el tratamiento actual del paciente
-          para mantener su seguimiento organizado.
-        </p>
-
-        <button
-          type="button"
-          class="primary-button"
-          (click)="openForm()"
-        >
-          Registrar medicamento
-        </button>
-
-      </div>
-
-    }
-
-
-    <!-- LISTA -->
-    @if (!loading && medications.length > 0) {
-
-      <div class="medications-list">
-
-        @for (medication of medications; track medication.id) {
-
-          <article class="medication-card">
-
-            <!-- CABECERA -->
-            <div class="medication-card-header">
-
-              <div class="medication-title">
-
-                <div class="medication-icon">
-                  +
-                </div>
-
-                <div>
-
-                  <span class="medication-label">
-                    MEDICAMENTO
-                  </span>
-
-                  <h3>
-                    {{ medication.nombre }}
-                  </h3>
-
-                </div>
-
-              </div>
-
-              <span class="active-badge">
-                Activo
-              </span>
-
-            </div>
-
-
-            <!-- INFORMACIÓN -->
-            <div class="medication-data">
-
-              <div class="data-item">
-
-                <span class="data-label">
-                  Dosis
-                </span>
-
-                <strong>
-                  {{ medication.dosis }}
-                </strong>
-
-              </div>
-
-
-              <div class="data-item">
-
-                <span class="data-label">
-                  Frecuencia
-                </span>
-
-                <strong>
-                  {{ medication.frecuencia }}
-                </strong>
-
-              </div>
-
-
-              <div class="data-item">
-
-                <span class="data-label">
-                  Hora
-                </span>
-
-                <strong>
-                  {{ medication.hora }}
-                </strong>
-
-              </div>
-
-            </div>
-
-
-            <!-- INDICACIONES -->
-            @if (medication.indicaciones) {
-
-              <div class="instructions">
-
-                <span class="data-label">
-                  Indicaciones
-                </span>
-
-                <p>
-                  {{ medication.indicaciones }}
-                </p>
-
-              </div>
-
+  @if (error()) { <div class="notice notice-error" role="alert"><cg-icon name="warning" />{{ error() }}</div> }
+
+  @if (context.selected()) {
+    @if (loading() && !medications().length) {
+      <div class="card"><div class="skeleton" style="height:120px"></div></div>
+    } @else if (!visible().length) {
+      <section class="card"><cg-empty icon="pill" title="Sin medicamentos registrados"
+        text="Registra los medicamentos indicados por el profesional de salud." /></section>
+    } @else {
+      <div class="table-wrap">
+        <table class="table table-responsive">
+          <thead><tr><th>Medicamento</th><th>Dosis</th><th>Horario</th><th>Vigencia</th><th>Estado</th><th class="actions"><span class="sr-only">Acciones</span></th></tr></thead>
+          <tbody>
+            @for (med of visible(); track med.id) {
+              <tr [class.muted]="!med.activo">
+                <td data-label="Medicamento"><span class="strong">{{ med.nombre }}</span>
+                  @if (med.indicaciones) { <p class="xsmall muted">{{ med.indicaciones }}</p> }</td>
+                <td data-label="Dosis">{{ med.dosis }}</td>
+                <td data-label="Horario" class="nowrap">{{ formatTime(med.hora) }} · {{ med.frecuencia }}</td>
+                <td data-label="Vigencia" class="nowrap">{{ formatDate(med.fecha_inicio) }} → {{ med.fecha_fin ? formatDate(med.fecha_fin) : 'sin fecha' }}</td>
+                <td data-label="Estado">
+                  @if (!med.activo) { <span class="badge badge-muted">Suspendido</span> }
+                  @else if (med.vigente) { <span class="badge badge-ok">Vigente</span> }
+                  @else { <span class="badge badge-warn">Fuera de fechas</span> }
+                </td>
+                <td class="actions">
+                  @if (context.selected()!.activo) {
+                    <button type="button" class="btn btn-ghost btn-sm" (click)="openEdit(med)"><cg-icon name="edit" /> Editar</button>
+                    @if (med.activo) {
+                      <button type="button" class="btn btn-ghost btn-sm" (click)="suspend(med)"><cg-icon name="archive" /> Suspender</button>
+                    } @else {
+                      <button type="button" class="btn btn-ghost btn-sm" (click)="resume(med)"><cg-icon name="refresh" /> Reactivar</button>
+                    }
+                  }
+                </td>
+              </tr>
             }
-
-          </article>
-
-        }
-
+          </tbody>
+        </table>
       </div>
-
     }
+  }
 
-  </section>
-
+  <p class="xsmall muted">CareGuardian no recomienda medicamentos ni dosis. Sigue siempre las indicaciones del profesional de salud.</p>
 </div>

@@ -1,207 +1,140 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+
 import { Api } from '../../services/api';
+import { apiError } from '../../services/errors';
+import { formatDate, formatTime, todayISO } from '../../services/format';
+import { Medication, MedicationInput } from '../../services/models';
+import { Notifier } from '../../services/notifier';
+import { PatientContext } from '../../services/patient-context';
+import { EmptyState } from '../../shared/empty-state';
+import { Icon } from '../../shared/icon';
+import { PatientPicker } from '../../shared/patient-picker';
 
 @Component({
   selector: 'app-medicamentos',
-  standalone: true,
-  imports: [
-    FormsModule
-  ],
+  imports: [ReactiveFormsModule, Icon, EmptyState, PatientPicker],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './medicamentos.html',
-  styleUrl: './medicamentos.css'
+  styleUrl: './medicamentos.css',
 })
-export class Medicamentos implements OnInit {
+export class Medicamentos {
+  private api = inject(Api);
+  private fb = inject(FormBuilder);
+  private notifier = inject(Notifier);
+  protected context = inject(PatientContext);
 
-  patientId = 0;
-  private route = inject(ActivatedRoute);
+  readonly medications = signal<Medication[]>([]);
+  readonly loading = signal(false);
+  readonly saving = signal(false);
+  readonly error = signal('');
+  readonly formError = signal('');
+  readonly showSuspended = signal(false);
+  readonly editing = signal<number | null>(null);
 
-  medications: any[] = [];
+  protected formatDate = formatDate;
+  protected formatTime = formatTime;
 
-  loading = true;
-  saving = false;
+  readonly visible = computed(() => this.medications().filter(m => this.showSuspended() || m.activo));
+  readonly suspendedCount = computed(() => this.medications().filter(m => !m.activo).length);
 
-  errorMessage = '';
-  successMessage = '';
+  readonly form = this.fb.nonNullable.group({
+    nombre: ['', [Validators.required, Validators.maxLength(100)]],
+    dosis: ['', [Validators.required, Validators.maxLength(100)]],
+    frecuencia: ['', [Validators.required, Validators.maxLength(100)]],
+    hora: ['08:00', [Validators.required, Validators.pattern(/^([01]\d|2[0-3]):[0-5]\d$/)]],
+    fecha_inicio: [todayISO(), [Validators.required]],
+    fecha_fin: [''],
+    indicaciones: ['', [Validators.maxLength(300)]],
+  });
 
-  showForm = false;
+  constructor() {
+    this.context.load().subscribe({ next: () => this.load(), error: e => this.error.set(apiError(e)) });
+  }
 
-newMedication = {
-  nombre: '',
-  dosis: '',
-  frecuencia: '',
-  hora: '',
-  fecha_inicio: '',
-  indicaciones: ''
-};
-
-  constructor(
-    private api: Api,
-    private cdr: ChangeDetectorRef
-  ) {}
-
-  ngOnInit(): void {
-    this.api.getPatients().subscribe({
-      next: patients => {
-        const requested = Number(this.route.snapshot.queryParamMap.get('patientId'));
-        this.patientId = patients.find(p => p.id === requested)?.id ?? patients[0]?.id ?? 0;
-        if (this.patientId) this.loadMedications();
-        else { this.loading = false; this.errorMessage = 'No tienes pacientes asignados.'; this.cdr.detectChanges(); }
+  load(): void {
+    const id = this.context.selectedId();
+    if (!id) return;
+    this.loading.set(true);
+    this.error.set('');
+    this.api.getPatientMedications(id).subscribe({
+      next: list => {
+        this.medications.set(list);
+        this.loading.set(false);
       },
-      error: () => { this.loading = false; this.errorMessage = 'No fue posible cargar tus pacientes.'; this.cdr.detectChanges(); }
+      error: error => {
+        this.error.set(apiError(error, 'No fue posible cargar los medicamentos.'));
+        this.loading.set(false);
+      },
     });
   }
 
-  loadMedications(): void {
+  invalid(name: keyof typeof this.form.controls): boolean {
+    const control = this.form.controls[name];
+    return control.invalid && (control.touched || control.dirty);
+  }
 
-    this.loading = true;
-    this.errorMessage = '';
+  rangeInvalid(): boolean {
+    const { fecha_inicio, fecha_fin } = this.form.getRawValue();
+    return !!fecha_fin && fecha_fin < fecha_inicio;
+  }
 
-    this.api.getPatientMedications(this.patientId).subscribe({
+  openNew(): void {
+    this.form.reset({ hora: '08:00', fecha_inicio: todayISO() });
+    this.formError.set('');
+    this.editing.set(0);
+  }
 
-      next: (data) => {
-
-
-        this.medications = data;
-
-        this.loading = false;
-
-        this.cdr.detectChanges();
-
-      },
-
-      error: (error) => {
-
-
-        this.errorMessage =
-          error?.error?.detail ||
-          'No fue posible cargar los medicamentos.';
-
-        this.loading = false;
-
-        this.cdr.detectChanges();
-      }
-
+  openEdit(med: Medication): void {
+    this.form.reset({
+      nombre: med.nombre, dosis: med.dosis, frecuencia: med.frecuencia, hora: med.hora.slice(0, 5),
+      fecha_inicio: med.fecha_inicio, fecha_fin: med.fecha_fin ?? '', indicaciones: med.indicaciones ?? '',
     });
+    this.formError.set('');
+    this.editing.set(med.id);
   }
 
-  openForm(): void {
-
-    this.showForm = true;
-
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    this.cdr.detectChanges();
-  }
-
-  closeForm(): void {
-
-    this.showForm = false;
-
-    this.resetForm();
-
-    this.cdr.detectChanges();
-  }
-
-  createMedication(): void {
-
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    if (
-      !this.newMedication.nombre ||
-      !this.newMedication.dosis ||
-      !this.newMedication.frecuencia ||
-      !this.newMedication.hora ||
-      !this.newMedication.fecha_inicio
-    ) {
-
-      this.errorMessage =
-        'Completa los campos obligatorios antes de continuar.';
-
-      this.cdr.detectChanges();
-
+  save(): void {
+    const patientId = this.context.selectedId();
+    if (!patientId) return;
+    if (this.form.invalid || this.rangeInvalid()) {
+      this.form.markAllAsTouched();
       return;
     }
-
-    this.saving = true;
-
-const medicationData = {
-  nombre: this.newMedication.nombre,
-  dosis: this.newMedication.dosis,
-  frecuencia: this.newMedication.frecuencia,
-  hora: this.newMedication.hora,
-  fecha_inicio: this.newMedication.fecha_inicio,
-  indicaciones:
-    this.newMedication.indicaciones || null
-};
-
-
-    this.api.createMedication(
-      this.patientId,
-      medicationData
-    ).subscribe({
-
-      next: (response) => {
-
-
-        this.saving = false;
-
-        this.successMessage =
-          'Medicamento registrado correctamente.';
-
-        this.showForm = false;
-
-        this.resetForm();
-
-        this.loadMedications();
-
-        this.cdr.detectChanges();
+    const raw = this.form.getRawValue();
+    const payload: MedicationInput = {
+      ...raw, fecha_fin: raw.fecha_fin || null, indicaciones: raw.indicaciones.trim() || null,
+    };
+    const id = this.editing();
+    this.saving.set(true);
+    this.formError.set('');
+    const request = id ? this.api.updateMedication(id, payload) : this.api.createMedication(patientId, payload);
+    request.subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.editing.set(null);
+        this.notifier.success(id ? 'Medicamento actualizado.' : 'Medicamento registrado.');
+        this.load();
       },
-
-      error: (error) => {
-
-  const detail = error?.error?.detail;
-
-  if (Array.isArray(detail)) {
-    this.errorMessage = detail
-      .map((item: any) => {
-        if (typeof item === 'string') {
-          return item;
-        }
-
-        return item?.msg || 'Error de validación.';
-      })
-      .join(' | ');
-  } else if (typeof detail === 'string') {
-    this.errorMessage = detail;
-  } else if (detail) {
-    this.errorMessage = JSON.stringify(detail);
-  } else {
-    this.errorMessage =
-      'No fue posible registrar el medicamento.';
-  }
-
-  this.saving = false;
-  this.cdr.detectChanges();
-}
-
+      error: error => {
+        this.saving.set(false);
+        this.formError.set(apiError(error, 'No fue posible guardar el medicamento.'));
+      },
     });
   }
 
-  resetForm(): void {
-
-this.newMedication = {
-  nombre: '',
-  dosis: '',
-  frecuencia: '',
-  hora: '',
-  fecha_inicio: '',
-  indicaciones: ''
-};
-
+  suspend(med: Medication): void {
+    if (typeof window !== 'undefined' && !window.confirm(`¿Suspender ${med.nombre}? Quedará en el historial.`)) return;
+    this.api.suspendMedication(med.id).subscribe({
+      next: () => { this.notifier.success('Medicamento suspendido.'); this.load(); },
+      error: error => this.notifier.error(apiError(error)),
+    });
   }
 
+  resume(med: Medication): void {
+    this.api.updateMedication(med.id, { activo: true }).subscribe({
+      next: () => { this.notifier.success('Medicamento reactivado.'); this.load(); },
+      error: error => this.notifier.error(apiError(error)),
+    });
+  }
 }
