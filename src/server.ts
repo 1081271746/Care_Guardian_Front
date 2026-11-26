@@ -54,6 +54,12 @@ app.use('/api', express.raw({ type: () => true, limit: '1mb' }), async (req, res
     const headers: Record<string, string> = {};
     if (req.headers.authorization) headers['Authorization'] = req.headers.authorization;
     if (req.headers['content-type']) headers['Content-Type'] = req.headers['content-type'];
+    // The API throttles failed logins per client address: pass the real one along.
+    const forwarded = [req.headers['x-forwarded-for'], req.socket.remoteAddress]
+      .flat().filter((value): value is string => !!value).join(', ');
+    if (forwarded) headers['X-Forwarded-For'] = forwarded;
+    const requestId = req.headers['x-request-id'];
+    if (typeof requestId === 'string' && /^[A-Za-z0-9]{1,64}$/.test(requestId)) headers['X-Request-ID'] = requestId;
     const upstream = await fetch(target.origin + path, {
       method: req.method, headers,
       body: ['GET', 'HEAD'].includes(req.method) ? undefined : req.body,
@@ -61,8 +67,10 @@ app.use('/api', express.raw({ type: () => true, limit: '1mb' }), async (req, res
     });
     res.status(upstream.status);
     res.setHeader('Content-Type', upstream.headers.get('content-type') || 'application/json');
-    const retry = upstream.headers.get('retry-after');
-    if (retry) res.setHeader('Retry-After', retry);
+    for (const name of ['retry-after', 'x-request-id', 'www-authenticate']) {
+      const value = upstream.headers.get(name);
+      if (value) res.setHeader(name, value);
+    }
     res.send(Buffer.from(await upstream.arrayBuffer()));
   } catch { res.status(502).json({ detail: 'No fue posible contactar con el backend' }); }
 });
