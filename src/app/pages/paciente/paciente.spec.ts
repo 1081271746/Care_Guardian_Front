@@ -21,6 +21,9 @@ describe('Paciente', () => {
     expect(text).toContain('80 años');
     expect(text).toContain('solo lectura');
     expect(localStorage.getItem('careguardian.patient')).toBe('7');
+    const evolution = [...fixture.nativeElement.querySelectorAll('.shortcuts a')]
+      .find((a: HTMLAnchorElement) => a.textContent?.includes('Evolución')) as HTMLAnchorElement;
+    expect(evolution.getAttribute('href')).toBe('/evolucion?patientId=7');
   });
 
   it('shows forbidden access as an error', () => {
