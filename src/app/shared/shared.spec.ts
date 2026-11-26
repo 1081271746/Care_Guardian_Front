@@ -41,3 +41,13 @@ describe('shared UI', () => {
     expect(label(null)).toBe('—');
   });
 });
+
+describe('splitDemo', () => {
+  it('keeps demo records identified while hiding the long marker', async () => {
+    const { splitDemo } = await import('./record-text');
+    expect(splitDemo('CG-DEMO-carlos-demo-v1-notes-0003 · (demo) Caminó')).toEqual(
+      { demo: true, text: '(demo) Caminó', marker: 'CG-DEMO-carlos-demo-v1-notes-0003' });
+    expect(splitDemo('Texto real')).toEqual({ demo: false, text: 'Texto real', marker: '' });
+    expect(splitDemo(null).text).toBe('');
+  });
+});
