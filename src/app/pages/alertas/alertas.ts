@@ -35,6 +35,8 @@ export class Alertas {
   readonly creating = signal(false);
   readonly view = signal<'activas' | 'historial'>('activas');
   readonly level = signal<AlertLevel | ''>('');
+  /** Alert being updated: its buttons are disabled to avoid double submissions. */
+  readonly busy = signal<number | null>(null);
 
   protected label = label;
   protected formatDateTime = formatDateTime;
@@ -71,9 +73,15 @@ export class Alertas {
   }
 
   setStatus(alert: Alert, estado: AlertStatus): void {
+    if (this.busy()) return;
+    this.busy.set(alert.id);
     this.api.setAlertStatus(alert.id, estado).subscribe({
-      next: () => { this.notifier.success(`Alerta marcada como ${label(estado).toLowerCase()}.`); this.load(); },
-      error: error => this.notifier.error(apiError(error)),
+      next: () => {
+        this.busy.set(null);
+        this.notifier.success(`Alerta marcada como ${label(estado).toLowerCase()}.`);
+        this.load();
+      },
+      error: error => { this.busy.set(null); this.notifier.error(apiError(error)); },
     });
   }
 

@@ -88,15 +88,15 @@
             <h3>{{ alert.titulo }}</h3>
             <p class="small soft pre-line"><cg-record-text [value]="alert.mensaje" /></p>
             <p class="xsmall muted">{{ source(alert) }}</p>
-            <div class="row">
+            <div class="row" [attr.aria-busy]="busy() === alert.id">
               @if (alert.activa) {
                 @if (alert.estado === 'pendiente') {
-                  <button type="button" class="btn btn-secondary btn-sm" (click)="setStatus(alert, 'en_revision')">En revisión</button>
+                  <button type="button" class="btn btn-secondary btn-sm" [disabled]="busy() === alert.id" (click)="setStatus(alert, 'en_revision')">En revisión</button>
                 }
-                <button type="button" class="btn btn-primary btn-sm" (click)="setStatus(alert, 'atendida')"><cg-icon name="check" /> Atendida</button>
-                <button type="button" class="btn btn-ghost btn-sm" (click)="setStatus(alert, 'descartada')">Descartar</button>
+                <button type="button" class="btn btn-primary btn-sm" [disabled]="busy() === alert.id" (click)="setStatus(alert, 'atendida')"><cg-icon name="check" /> Atendida</button>
+                <button type="button" class="btn btn-ghost btn-sm" [disabled]="busy() === alert.id" (click)="setStatus(alert, 'descartada')">Descartar</button>
               } @else {
-                <button type="button" class="btn btn-ghost btn-sm" (click)="setStatus(alert, 'en_revision')"><cg-icon name="refresh" /> Reabrir</button>
+                <button type="button" class="btn btn-ghost btn-sm" [disabled]="busy() === alert.id" (click)="setStatus(alert, 'en_revision')"><cg-icon name="refresh" /> Reabrir</button>
               }
             </div>
           </li>

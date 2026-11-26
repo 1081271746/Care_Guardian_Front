@@ -23,7 +23,10 @@ describe('Alertas', () => {
     const { component, http } = createWithPatients(Alertas);
     http.expectOne('/api/alerts/patients/1?incluir_cerradas=true').flush(ALERTS);
     component.setStatus(ALERTS[0] as never, 'atendida');
-    expect(http.expectOne('/api/alerts/1').request.body).toEqual({ estado: 'atendida' });
+    component.setStatus(ALERTS[0] as never, 'atendida');
+    const sent = http.match('/api/alerts/1');
+    expect(sent.length).toBe(1);
+    expect(sent[0].request.body).toEqual({ estado: 'atendida' });
   });
 
   it('shows the duplicate warning returned by the API', () => {
