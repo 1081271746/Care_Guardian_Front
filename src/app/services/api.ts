@@ -2,7 +2,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
 import {
-  Alert, AlertInput, AlertLevel, AlertStatus, ApiMessage, Appointment, AppointmentInput, Caregiver, CaregiverNote, Evolution, Medication, Patient,
+  Alert, AlertInput, AlertLevel, AlertStatus, ApiMessage, Appointment, AppointmentInput, Caregiver, CaregiverNote,
+  DashboardSummary, Evolution, Medication, Patient,
   MedicationInput, PatientDashboard, PatientInput, SavedAnalysis, SymptomInput, SymptomRecord,
 } from './models';
 
@@ -25,6 +26,11 @@ export class Api {
   // ---------------- Dashboard ----------------
   getPatientDashboard(patientId: number) {
     return this.http.get<PatientDashboard>(`${API}/dashboard/patients/${patientId}`);
+  }
+
+  /** Caregiver-wide indicators computed by PostgreSQL on every request. */
+  getSummary() {
+    return this.http.get<DashboardSummary>(`${API}/dashboard/summary`);
   }
 
   // ---------------- Patients ----------------
