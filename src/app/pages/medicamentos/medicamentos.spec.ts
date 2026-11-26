@@ -55,4 +55,12 @@ describe('Medicamentos', () => {
     component.suspend(MED);
     expect(http.expectOne('/api/medications/5').request.method).toBe('DELETE');
   });
+
+  it('reactivates a suspended medication with PUT activo=true', () => {
+    const { component, http } = createWithPatients(Medicamentos);
+    http.expectOne('/api/medications/patients/1').flush([{ ...MED, activo: false, vigente: false }]);
+    component.resume({ ...MED, activo: false } as never);
+    const request = http.expectOne(r => r.method === 'PUT' && r.url === '/api/medications/5');
+    expect(request.request.body).toEqual({ activo: true });
+  });
 });
