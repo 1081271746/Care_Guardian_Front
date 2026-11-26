@@ -49,3 +49,13 @@ describe('Alertas', () => {
     http.expectOne('/api/alerts/patients/1?incluir_cerradas=true&nivel=alto').flush([]);
   });
 });
+
+describe('Alertas desde el panel', () => {
+  it('opens with the level requested in the URL', async () => {
+    const { TestBed } = await import('@angular/core/testing');
+    const { ActivatedRoute, convertToParamMap } = await import('@angular/router');
+    TestBed.overrideProvider(ActivatedRoute, { useValue: { snapshot: { queryParamMap: convertToParamMap({ nivel: 'alto' }) } } });
+    const { http } = createWithPatients(Alertas);
+    http.expectOne('/api/alerts/patients/1?incluir_cerradas=true&nivel=alto').flush([]);
+  });
+});

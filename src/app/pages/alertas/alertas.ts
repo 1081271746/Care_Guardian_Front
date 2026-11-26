@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import { ActivatedRoute } from '@angular/router';
+
 import { Api } from '../../services/api';
 import { apiError } from '../../services/errors';
 import { formatDateTime, formatRelative } from '../../services/format';
@@ -27,6 +29,7 @@ export class Alertas {
   private fb = inject(FormBuilder);
   private notifier = inject(Notifier);
   protected context = inject(PatientContext);
+  private route = inject(ActivatedRoute);
 
   readonly alerts = signal<Alert[]>([]);
   readonly loading = signal(false);
@@ -58,6 +61,9 @@ export class Alertas {
   });
 
   constructor() {
+    // /alertas?nivel=alto (from the panel) opens with that level selected.
+    const requested = this.route.snapshot.queryParamMap.get('nivel');
+    if (requested === 'alto' || requested === 'medio' || requested === 'bajo') this.level.set(requested);
     this.context.load().subscribe({ next: () => this.load(), error: e => this.error.set(apiError(e)) });
   }
 

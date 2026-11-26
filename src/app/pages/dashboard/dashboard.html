@@ -135,10 +135,10 @@
             @if (alertTotal()) {
               <div class="levels">
                 @for (level of ['alto', 'medio', 'bajo']; track level) {
-                  <div class="level" [class]="'level level-' + level">
+                  <a class="level" [class]="'level level-' + level" routerLink="/alertas" [queryParams]="{ nivel: level }">
                     <span class="tabular">{{ $any(data.alertas_por_nivel)[level] }}</span>
                     <small>{{ label(level) }}</small>
-                  </div>
+                  </a>
                 }
               </div>
             } @else {

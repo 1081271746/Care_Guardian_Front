@@ -33,7 +33,8 @@
 .patients cg-icon { color: var(--cg-ink-muted); }
 
 .levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--cg-space-2); }
-.level { display: flex; flex-direction: column; align-items: center; padding: var(--cg-space-3); border-radius: 12px; }
+.level { display: flex; flex-direction: column; align-items: center; padding: var(--cg-space-3); border-radius: 12px; text-decoration: none; transition: transform .15s var(--cg-ease); }
+.level:hover { transform: translateY(-2px); }
 .level span { font-family: var(--cg-font-display); font-size: 1.6rem; line-height: 1.1; }
 .level small { font-size: var(--cg-text-xs); font-weight: 600; }
 .level-alto { background: var(--cg-danger-soft); color: var(--cg-danger); }
