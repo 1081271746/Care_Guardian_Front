@@ -1,0 +1,13 @@
+{
+  "name": "CareGuardian",
+  "short_name": "CareGuardian",
+  "description": "Seguimiento del cuidado de adultos mayores",
+  "lang": "es",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#f6f2ec",
+  "theme_color": "#145a5c",
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
