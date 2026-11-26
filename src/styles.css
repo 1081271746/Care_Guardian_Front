@@ -109,6 +109,8 @@
   a:hover { color: var(--cg-primary-strong); }
 
   :focus-visible { outline: none; box-shadow: var(--cg-focus); border-radius: var(--cg-radius-sm); }
+  /* On the dark sidebar the teal ring is invisible: use a light outline there. */
+  cg-shell .sidebar :focus-visible { box-shadow: 0 0 0 2px #f2c6a8; }
 
   img, svg { display: block; max-width: 100%; }
 
