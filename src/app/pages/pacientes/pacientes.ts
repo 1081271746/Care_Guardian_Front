@@ -11,6 +11,7 @@ import { Notifier } from '../../services/notifier';
 import { PatientContext } from '../../services/patient-context';
 import { EmptyState } from '../../shared/empty-state';
 import { Icon } from '../../shared/icon';
+import { revealForm } from '../../shared/scroll';
 import { label } from '../../shared/labels';
 
 const PHONE = /^\+?[0-9 ()-]{7,20}$/;
@@ -93,6 +94,7 @@ export class Pacientes {
     this.form.reset();
     this.formError.set('');
     this.editing.set(0);
+    revealForm();
   }
 
   openEdit(patient: Patient): void {
@@ -103,6 +105,7 @@ export class Pacientes {
     });
     this.formError.set('');
     this.editing.set(patient.id);
+    revealForm();
   }
 
   close(): void {

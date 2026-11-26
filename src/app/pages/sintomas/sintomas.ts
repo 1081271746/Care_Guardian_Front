@@ -10,6 +10,7 @@ import { Notifier } from '../../services/notifier';
 import { PatientContext } from '../../services/patient-context';
 import { EmptyState } from '../../shared/empty-state';
 import { Icon } from '../../shared/icon';
+import { revealForm } from '../../shared/scroll';
 import { RecordText } from '../../shared/record-text';
 import { label } from '../../shared/labels';
 import { PatientPicker } from '../../shared/patient-picker';
@@ -105,7 +106,7 @@ export class Sintomas {
     });
     this.editing.set(record.id);
     this.formError.set('');
-    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+    revealForm();
   }
 
   save(): void {

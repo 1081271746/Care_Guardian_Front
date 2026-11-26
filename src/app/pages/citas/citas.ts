@@ -9,6 +9,7 @@ import { Notifier } from '../../services/notifier';
 import { PatientContext } from '../../services/patient-context';
 import { EmptyState } from '../../shared/empty-state';
 import { Icon } from '../../shared/icon';
+import { revealForm } from '../../shared/scroll';
 import { RecordText } from '../../shared/record-text';
 import { label } from '../../shared/labels';
 import { PatientPicker } from '../../shared/patient-picker';
@@ -87,6 +88,7 @@ export class Citas {
     this.form.reset({ fecha: addDays(this.today, 1), hora: '09:00', estado: 'pendiente' });
     this.formError.set('');
     this.editing.set(0);
+    revealForm();
   }
 
   openEdit(visit: Appointment): void {
@@ -96,6 +98,7 @@ export class Citas {
     });
     this.formError.set('');
     this.editing.set(visit.id);
+    revealForm();
   }
 
   save(): void {

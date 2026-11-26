@@ -9,6 +9,7 @@ import { Notifier } from '../../services/notifier';
 import { PatientContext } from '../../services/patient-context';
 import { EmptyState } from '../../shared/empty-state';
 import { Icon } from '../../shared/icon';
+import { revealForm } from '../../shared/scroll';
 import { RecordText } from '../../shared/record-text';
 import { PatientPicker } from '../../shared/patient-picker';
 
@@ -89,6 +90,7 @@ export class Medicamentos {
     this.form.reset({ hora: '08:00', fecha_inicio: todayISO() });
     this.formError.set('');
     this.editing.set(0);
+    revealForm();
   }
 
   openEdit(med: Medication): void {
@@ -98,6 +100,7 @@ export class Medicamentos {
     });
     this.formError.set('');
     this.editing.set(med.id);
+    revealForm();
   }
 
   save(): void {
