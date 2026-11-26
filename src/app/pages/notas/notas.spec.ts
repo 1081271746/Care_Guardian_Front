@@ -11,7 +11,7 @@ describe('Notas', () => {
   function setup() {
     TestBed.inject(Auth).user.set({ id: 1, nombre: 'Carlos', email: 'c@x.org', rol: 'cuidador', activo: true, fecha_creacion: '', pacientes_asignados: 1 });
     const result = createWithPatients(Notas);
-    result.http.expectOne('/api/notes/patients/1').flush([MINE, OTHER]);
+    result.http.expectOne(r => r.url === '/api/notes/patients/1' && r.method === 'GET').flush([MINE, OTHER]);
     result.fixture.detectChanges();
     return result;
   }
@@ -38,7 +38,7 @@ describe('Notas', () => {
     const request = http.expectOne(r => r.method === 'POST' && r.url === '/api/notes/patients/1');
     expect(request.request.body).toEqual({ contenido: 'Durmió bien toda la noche' });
     request.flush(MINE);
-    http.expectOne('/api/notes/patients/1').flush([MINE]);
+    http.expectOne(r => r.url === '/api/notes/patients/1' && r.method === 'GET').flush([MINE]);
   });
 
   it('edits through PUT /notes/{id}', () => {

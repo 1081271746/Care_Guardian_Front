@@ -76,6 +76,9 @@
           </li>
         }
       </ol>
+      @if (hasMore()) {
+        <button type="button" class="btn btn-secondary btn-sm" (click)="loadMore()" [disabled]="loading()">Cargar notas anteriores</button>
+      }
     }
   }
 </div>
