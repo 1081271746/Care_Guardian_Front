@@ -40,6 +40,11 @@ export class Auth {
     );
   }
 
+  /** Public registration (POST /users/); the API always assigns the caregiver role. */
+  register(nombre: string, email: string, password: string): Observable<unknown> {
+    return this.http.post(`${API}/users/`, { nombre: nombre.trim(), email: email.trim(), password });
+  }
+
   getToken(): string | null {
     return storage()?.getItem(TOKEN_KEY) ?? null;
   }
