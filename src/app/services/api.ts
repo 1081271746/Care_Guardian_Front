@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
 import {
-  AiStatus, Alert, AlertInput, AlertLevel, AlertStatus, ApiMessage, Appointment, AppointmentInput, Caregiver, CaregiverNote,
+  AiStatus, Alert, CurrentUser, AlertInput, AlertLevel, AlertStatus, ApiMessage, Appointment, AppointmentInput, Caregiver, CaregiverNote,
   DashboardSummary, Evolution, Medication, Patient,
   MedicationInput, PatientDashboard, PatientInput, SavedAnalysis, SymptomInput, SymptomRecord,
 } from './models';
@@ -32,6 +32,18 @@ export function params(values: Record<string, string | number | boolean | null |
 @Injectable({ providedIn: 'root' })
 export class Api {
   private http = inject(HttpClient);
+
+  // ---------------- Account ----------------
+  updateAccount(userId: number, changes: { nombre?: string; email?: string }) {
+    return this.http.put<CurrentUser>(`${API}/users/${userId}`, changes);
+  }
+
+  /** Changing the password revokes every previous session on the API. */
+  changePassword(userId: number, actual: string, nueva: string) {
+    return this.http.put<ApiMessage>(`${API}/users/${userId}/password`, {
+      password_actual: actual, password_nueva: nueva,
+    });
+  }
 
   // ---------------- Dashboard ----------------
   getPatientDashboard(patientId: number) {
