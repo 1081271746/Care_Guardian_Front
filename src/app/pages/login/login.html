@@ -40,7 +40,8 @@
         }
         <div class="field">
           <label for="email" class="required">Correo electrónico</label>
-          <input id="email" class="input" type="email" formControlName="email" autocomplete="email" inputmode="email">
+          <input id="email" class="input" type="email" formControlName="email" autocomplete="email" inputmode="email"
+                 autofocus spellcheck="false" autocapitalize="off">
           @if (invalid('email')) { <span class="error">Escribe un correo válido.</span> }
         </div>
         <div class="field">
