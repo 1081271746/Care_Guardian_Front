@@ -110,7 +110,7 @@
                   @if (record.estado_animo) { <span>Ánimo: {{ record.estado_animo }}</span> }
                   @if (record.apetito) { <span>Apetito: {{ record.apetito }}</span> }
                 </div>
-                @if (record.observaciones) { <p class="small soft pre-line">{{ record.observaciones }}</p> }
+                @if (record.observaciones) { <p class="small soft pre-line"><cg-record-text [value]="record.observaciones" /></p> }
                 <div class="row between">
                   <span class="xsmall muted">{{ record.registrado_por_nombre ?? '' }}</span>
                   @if (patient.activo) {

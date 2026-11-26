@@ -62,7 +62,7 @@
                 <button type="button" class="btn btn-secondary btn-sm" (click)="editing.set(null)">Cancelar</button>
               </div>
             } @else {
-              <p class="pre-line">{{ note.contenido }}</p>
+              <p class="pre-line"><cg-record-text [value]="note.contenido" /></p>
               @if (isMine(note) && patient.activo) {
                 <div class="row">
                   <button type="button" class="btn btn-ghost btn-sm" (click)="startEdit(note)"><cg-icon name="edit" /> Editar</button>

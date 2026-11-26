@@ -8,12 +8,13 @@ import { PatientDashboard } from '../../services/models';
 import { PatientContext } from '../../services/patient-context';
 import { EmptyState } from '../../shared/empty-state';
 import { Icon } from '../../shared/icon';
+import { RecordText } from '../../shared/record-text';
 import { label } from '../../shared/labels';
 
 /** Panel of one patient: /dashboard/:patientId (also linked from Pacientes). */
 @Component({
   selector: 'app-paciente',
-  imports: [RouterLink, Icon, EmptyState],
+  imports: [RouterLink, Icon, EmptyState, RecordText],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './paciente.html',
   styleUrl: './paciente.css',

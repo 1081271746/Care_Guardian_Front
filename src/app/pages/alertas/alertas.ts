@@ -9,6 +9,7 @@ import { Notifier } from '../../services/notifier';
 import { PatientContext } from '../../services/patient-context';
 import { EmptyState } from '../../shared/empty-state';
 import { Icon } from '../../shared/icon';
+import { RecordText } from '../../shared/record-text';
 import { label } from '../../shared/labels';
 import { PatientPicker } from '../../shared/patient-picker';
 
@@ -16,7 +17,7 @@ const LEVEL_ORDER: Record<AlertLevel, number> = { alto: 0, medio: 1, bajo: 2 };
 
 @Component({
   selector: 'app-alertas',
-  imports: [ReactiveFormsModule, Icon, EmptyState, PatientPicker],
+  imports: [ReactiveFormsModule, Icon, EmptyState, PatientPicker, RecordText],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './alertas.html',
   styleUrl: './alertas.css',

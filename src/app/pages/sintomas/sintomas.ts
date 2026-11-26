@@ -10,6 +10,7 @@ import { Notifier } from '../../services/notifier';
 import { PatientContext } from '../../services/patient-context';
 import { EmptyState } from '../../shared/empty-state';
 import { Icon } from '../../shared/icon';
+import { RecordText } from '../../shared/record-text';
 import { label } from '../../shared/labels';
 import { PatientPicker } from '../../shared/patient-picker';
 
@@ -21,7 +22,7 @@ const scale = [Validators.min(0), Validators.max(10)];
 
 @Component({
   selector: 'app-sintomas',
-  imports: [ReactiveFormsModule, RouterLink, Icon, EmptyState, PatientPicker],
+  imports: [ReactiveFormsModule, RouterLink, Icon, EmptyState, PatientPicker, RecordText],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './sintomas.html',
   styleUrl: './sintomas.css',

@@ -10,11 +10,12 @@ import { Notifier } from '../../services/notifier';
 import { PatientContext } from '../../services/patient-context';
 import { EmptyState } from '../../shared/empty-state';
 import { Icon } from '../../shared/icon';
+import { RecordText } from '../../shared/record-text';
 import { PatientPicker } from '../../shared/patient-picker';
 
 @Component({
   selector: 'app-notas',
-  imports: [ReactiveFormsModule, Icon, EmptyState, PatientPicker],
+  imports: [ReactiveFormsModule, Icon, EmptyState, PatientPicker, RecordText],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './notas.html',
   styleUrl: './notas.css',

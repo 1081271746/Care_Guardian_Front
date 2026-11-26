@@ -98,7 +98,7 @@
                   <p class="strong">{{ visit.titulo }}</p>
                   <p class="small soft">{{ visit.especialidad }} · {{ visit.profesional }}</p>
                   @if (visit.lugar) { <p class="xsmall muted">{{ visit.lugar }}</p> }
-                  @if (visit.notas) { <p class="xsmall muted pre-line">{{ visit.notas }}</p> }
+                  @if (visit.notas) { <p class="xsmall muted pre-line"><cg-record-text [value]="visit.notas" /></p> }
                 </div>
                 <div class="side">
                   <span [class]="'badge badge-' + visit.estado">{{ label(visit.estado) }}</span>

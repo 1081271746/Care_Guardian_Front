@@ -86,7 +86,7 @@
               <time class="xsmall muted" [title]="formatDateTime(alert.fecha_registro)">{{ formatRelative(alert.fecha_registro) }}</time>
             </div>
             <h3>{{ alert.titulo }}</h3>
-            <p class="small soft pre-line">{{ alert.mensaje }}</p>
+            <p class="small soft pre-line"><cg-record-text [value]="alert.mensaje" /></p>
             <p class="xsmall muted">{{ source(alert) }}</p>
             <div class="row">
               @if (alert.activa) {

@@ -10,6 +10,7 @@ import { AiStatus, EventKind, Evolution, MetricKey, SavedAnalysis } from '../../
 import { PatientContext } from '../../services/patient-context';
 import { EmptyState } from '../../shared/empty-state';
 import { Icon } from '../../shared/icon';
+import { RecordText } from '../../shared/record-text';
 import { METRIC_LABELS, label } from '../../shared/labels';
 import { LineChart } from '../../shared/line-chart';
 import { PatientPicker } from '../../shared/patient-picker';
@@ -28,7 +29,7 @@ const PAGE = 40;
 
 @Component({
   selector: 'app-evolucion',
-  imports: [RouterLink, Icon, EmptyState, LineChart, PatientPicker],
+  imports: [RouterLink, Icon, EmptyState, LineChart, PatientPicker, RecordText],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './evolucion.html',
   styleUrl: './evolucion.css',

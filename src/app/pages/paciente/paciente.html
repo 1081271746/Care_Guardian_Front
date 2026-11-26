@@ -125,7 +125,7 @@
       @if (panel.recent_notes.length) {
         <ul class="list">
           @for (note of panel.recent_notes; track note.id) {
-            <li><p class="small pre-line">{{ note.contenido }}</p>
+            <li><p class="small pre-line"><cg-record-text [value]="note.contenido" /></p>
               <p class="xsmall muted">{{ note.autor_nombre ?? 'Cuidador' }} · {{ formatRelative(note.fecha_registro) }}</p></li>
           }
         </ul>

@@ -95,7 +95,7 @@
             @for (med of visible(); track med.id) {
               <tr [class.muted]="!med.activo">
                 <td data-label="Medicamento"><span class="strong">{{ med.nombre }}</span>
-                  @if (med.indicaciones) { <p class="xsmall muted">{{ med.indicaciones }}</p> }</td>
+                  @if (med.indicaciones) { <p class="xsmall muted"><cg-record-text [value]="med.indicaciones" /></p> }</td>
                 <td data-label="Dosis">{{ med.dosis }}</td>
                 <td data-label="Horario" class="nowrap">{{ formatTime(med.hora) }} · {{ med.frecuencia }}</td>
                 <td data-label="Vigencia" class="nowrap">{{ formatDate(med.fecha_inicio) }} → {{ med.fecha_fin ? formatDate(med.fecha_fin) : 'sin fecha' }}</td>

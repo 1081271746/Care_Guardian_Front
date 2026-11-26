@@ -170,7 +170,7 @@
               <li>
                 <span class="dot" [class]="'dot ' + (event.nivel ?? '')"><cg-icon [name]="eventIcon(event.tipo)" [size]="14" /></span>
                 <div>
-                  <p class="small">{{ event.descripcion }}</p>
+                  <p class="small"><cg-record-text [value]="event.descripcion" /></p>
                   <p class="xsmall muted">{{ label(event.tipo) }} · {{ formatDateTime(event.fecha) }}</p>
                 </div>
               </li>
