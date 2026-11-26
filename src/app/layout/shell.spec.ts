@@ -44,3 +44,16 @@ describe('Shell', () => {
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
   });
 });
+
+describe('Shell keyboard', () => {
+  it('closes the mobile menu with Escape', () => {
+    localStorage.setItem('access_token', 'abc');
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    TestBed.inject(HttpTestingController).expectOne('/api/auth/me').flush({ id: 1, nombre: 'A', email: 'a@x.org' });
+    (fixture.nativeElement.querySelector('.topbar button') as HTMLButtonElement).click();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.sidebar').classList).not.toContain('open');
+  });
+});

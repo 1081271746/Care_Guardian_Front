@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, HostListener, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
@@ -43,6 +43,12 @@ export class Shell {
       filter(event => event instanceof NavigationEnd),
       takeUntilDestroyed(inject(DestroyRef)),
     ).subscribe(() => this.menuOpen.set(false));
+  }
+
+  /** Escape closes the mobile menu, as expected from a drawer. */
+  @HostListener('document:keydown.escape')
+  protected closeMenu(): void {
+    this.menuOpen.set(false);
   }
 
   protected logout(): void {
