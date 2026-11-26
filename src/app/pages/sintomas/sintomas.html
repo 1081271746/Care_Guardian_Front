@@ -123,6 +123,9 @@
               </li>
             }
           </ul>
+          @if (hasMore()) {
+            <button type="button" class="btn btn-secondary btn-sm mt-4" (click)="loadMore()" [disabled]="loading()">Cargar registros anteriores</button>
+          }
         }
       </section>
     </div>

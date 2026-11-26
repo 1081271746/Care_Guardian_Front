@@ -21,6 +21,8 @@ export const APPETITES = ['bueno', 'normal', 'regular', 'bajo', 'muy bajo', 'aum
 
 const scale = [Validators.min(0), Validators.max(10)];
 
+export const PAGE_SIZE = 50;
+
 @Component({
   selector: 'app-sintomas',
   imports: [ReactiveFormsModule, RouterLink, Icon, EmptyState, PatientPicker, RecordText],
@@ -36,6 +38,7 @@ export class Sintomas {
 
   readonly records = signal<SymptomRecord[]>([]);
   readonly loading = signal(false);
+  readonly hasMore = signal(false);
   readonly saving = signal(false);
   readonly error = signal('');
   readonly formError = signal('');
@@ -69,9 +72,24 @@ export class Sintomas {
     if (!id) return;
     this.loading.set(true);
     this.error.set('');
-    this.api.getPatientSymptoms(id).subscribe({
-      next: list => { this.records.set(list); this.loading.set(false); },
+    this.api.getPatientSymptoms(id, PAGE_SIZE, 0).subscribe({
+      next: list => { this.records.set(list); this.hasMore.set(list.length === PAGE_SIZE); this.loading.set(false); },
       error: error => { this.error.set(apiError(error, 'No fue posible cargar el historial.')); this.loading.set(false); },
+    });
+  }
+
+  /** Next page of older records (the API returns newest first). */
+  loadMore(): void {
+    const id = this.context.selectedId();
+    if (!id || this.loading()) return;
+    this.loading.set(true);
+    this.api.getPatientSymptoms(id, PAGE_SIZE, this.records().length).subscribe({
+      next: list => {
+        this.records.update(current => [...current, ...list]);
+        this.hasMore.set(list.length === PAGE_SIZE);
+        this.loading.set(false);
+      },
+      error: error => { this.error.set(apiError(error)); this.loading.set(false); },
     });
   }
 
