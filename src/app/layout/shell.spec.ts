@@ -59,3 +59,15 @@ describe('Shell keyboard', () => {
     expect(fixture.nativeElement.querySelector('.sidebar').classList).not.toContain('open');
   });
 });
+
+describe('Shell focus', () => {
+  it('moves focus to the main content after navigating', async () => {
+    localStorage.setItem('access_token', 'abc');
+    const fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    document.body.appendChild(fixture.nativeElement);
+    await TestBed.inject(Router).navigateByUrl('/');
+    expect(document.activeElement?.id).toBe('contenido');
+    fixture.nativeElement.remove();
+  });
+});
