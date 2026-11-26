@@ -29,6 +29,9 @@ nav a {
 nav a:hover { background: rgba(255,255,255,.06); color: #fff; }
 nav a.active { background: rgba(255,255,255,.1); color: #fff; box-shadow: inset 3px 0 0 #f2c6a8; }
 
+.nav-count { margin-left: auto; min-width: 22px; padding: 1px 7px; border-radius: 999px; text-align: center;
+  background: var(--cg-accent); color: #fff; font-size: 11px; font-weight: 700; }
+
 .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: var(--cg-space-3); }
 .privacy { display: flex; align-items: center; gap: 8px; color: #a9c2bd; font-size: var(--cg-text-xs); text-decoration: none; padding: 0 12px; }
 .privacy:hover { color: #fff; }

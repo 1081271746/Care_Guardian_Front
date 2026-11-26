@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 
+import { Api } from '../services/api';
 import { Auth } from '../services/auth';
 import { initials } from '../services/format';
 import { PatientContext } from '../services/patient-context';
@@ -31,21 +32,33 @@ export class Shell {
   private auth = inject(Auth);
   private router = inject(Router);
   private context = inject(PatientContext);
+  private api = inject(Api);
 
   protected nav = NAVIGATION;
   protected user = this.auth.user;
   protected menuOpen = signal(false);
+  /** Pending alerts across all assigned patients (from /dashboard/summary). */
+  protected pendingAlerts = signal(0);
   protected initials = initials;
 
   constructor() {
     this.auth.loadUser()?.subscribe({ error: () => {} });
+    this.refreshAlerts();
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       takeUntilDestroyed(inject(DestroyRef)),
     ).subscribe(() => {
       this.menuOpen.set(false);
+      this.refreshAlerts();
       // Screen-reader and keyboard users land on the new page content, not the old link.
       if (typeof document !== 'undefined') document.getElementById('contenido')?.focus({ preventScroll: true });
+    });
+  }
+
+  private refreshAlerts(): void {
+    this.api.getSummary().subscribe({
+      next: summary => this.pendingAlerts.set(summary.totales.alertas_pendientes),
+      error: () => {},
     });
   }
 

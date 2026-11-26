@@ -13,6 +13,7 @@ describe('Shell', () => {
     const http = TestBed.inject(HttpTestingController);
     http.expectOne('/api/auth/me').flush({ id: 1, nombre: 'Carlos Demo', email: 'carlos@x.org', rol: 'cuidador',
       activo: true, fecha_creacion: '', pacientes_asignados: 2 });
+    http.expectOne('/api/dashboard/summary').flush({ totales: { alertas_pendientes: 3 } });
     fixture.detectChanges();
     return { fixture, http };
   }
@@ -23,6 +24,7 @@ describe('Shell', () => {
     expect(links).toEqual(NAVIGATION.map(item => item.path));
     expect(fixture.nativeElement.textContent).toContain('Carlos Demo');
     expect(fixture.nativeElement.querySelector('.avatar').textContent.trim()).toBe('CD');
+    expect(fixture.nativeElement.querySelector('.nav-count').textContent.trim()).toBe('3');
   });
 
   it('logs out: clears token and patient selection, then goes to login', () => {
