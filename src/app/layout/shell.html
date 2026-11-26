@@ -1,0 +1,49 @@
+<a class="skip" href="#contenido">Saltar al contenido</a>
+
+<header class="topbar">
+  <button type="button" class="btn btn-ghost btn-icon" (click)="menuOpen.set(!menuOpen())"
+          [attr.aria-expanded]="menuOpen()" aria-controls="sidebar" aria-label="Abrir menú">
+    <cg-icon [name]="menuOpen() ? 'close' : 'menu'" />
+  </button>
+  <a routerLink="/dashboard" class="brand brand-compact">
+    <span class="mark"><cg-icon name="heart" [size]="18" /></span> CareGuardian
+  </a>
+</header>
+
+<aside id="sidebar" class="sidebar" [class.open]="menuOpen()">
+  <a routerLink="/dashboard" class="brand">
+    <span class="mark"><cg-icon name="heart" [size]="20" /></span>
+    <span>Care<b>Guardian</b></span>
+  </a>
+
+  <nav aria-label="Secciones">
+    @for (item of nav; track item.path) {
+      <a [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+        <cg-icon [name]="item.icon" />
+        <span>{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+
+  <div class="sidebar-footer">
+    <a routerLink="/privacidad" class="privacy"><cg-icon name="shield" [size]="18" /> Privacidad e IA</a>
+    <div class="profile">
+      <span class="avatar" aria-hidden="true">{{ user() ? initials(user()!.nombre) : '·' }}</span>
+      <div class="who">
+        <strong>{{ user()?.nombre ?? 'Cargando…' }}</strong>
+        <span>{{ user()?.email }}</span>
+      </div>
+    </div>
+    <button type="button" class="btn btn-secondary logout" (click)="logout()">
+      <cg-icon name="logout" /> Cerrar sesión
+    </button>
+  </div>
+</aside>
+
+@if (menuOpen()) {
+  <div class="scrim" (click)="menuOpen.set(false)" aria-hidden="true"></div>
+}
+
+<main id="contenido" class="content" tabindex="-1">
+  <router-outlet />
+</main>
