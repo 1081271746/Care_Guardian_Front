@@ -129,3 +129,25 @@ describe('Evolución con enlace compartido', () => {
       queryParams: { patientId: 1, desde: '2026-11-01', hasta: '2026-11-15' } }));
   });
 });
+
+describe('Evolución impresión', () => {
+  it('shows every timeline event before printing', () => {
+    vi.useFakeTimers();
+    localStorage.clear();
+    localStorage.setItem('careguardian.patient', '1');
+    const print = vi.spyOn(window, 'print').mockImplementation(() => {});
+    const fixture = TestBed.createComponent(Evolucion);
+    const http = TestBed.inject(HttpTestingController);
+    fixture.detectChanges();
+    http.expectOne('/api/patients/').flush(PATIENTS);
+    http.expectOne(r => r.url === '/api/evolution/patients/1').flush({ ...WITH_DATA,
+      historial: Array.from({ length: 60 }, (_, i) => ({ id: `n-${i}`, tipo: 'nota', fecha: '2026-11-03T12:00:00Z', descripcion: 'x' })) });
+    http.expectOne('/api/evolution/patients/1/analyses').flush([]);
+    const component = fixture.componentInstance;
+    component.print();
+    expect(component.shownEvents().length).toBe(60);
+    vi.runAllTimers();
+    expect(print).toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+});
