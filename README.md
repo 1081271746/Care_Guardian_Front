@@ -79,3 +79,30 @@ src/
 tests/                      pruebas de ejecución contra un backend real desechable
 content/recursos.json       contenido público (sin datos personales)
 ```
+
+## Instalación y ejecución local
+
+Requisitos: Node 24 y npm 11; el backend corriendo (por defecto en `http://127.0.0.1:8000`).
+
+```sh
+npm ci                      # usa el package-lock.json
+npm run build               # compila navegador + servidor SSR
+API_BASE_URL=http://127.0.0.1:8000 PUBLIC_ORIGIN=http://localhost:4000 npm start
+# abre http://localhost:4000
+```
+
+Desarrollo con recarga: `npm run dev` (usa `proxy.conf.json` para enviar `/api`
+al backend local en el puerto 8000).
+
+## Variables de entorno
+
+| Variable | Obligatoria | Descripción |
+|---|---|---|
+| `API_BASE_URL` | Sí | URL del backend, solo para el servidor Node. En Railway: `http://<servicio-backend>.railway.internal:<PORT>` (red privada) o la URL pública `https://...`. Sin ella, `/api` responde 503. |
+| `PUBLIC_ORIGIN` | Sí en producción | URL pública del frontend (`https://<frontend>.up.railway.app`). Se usa para validar el host y renderizar `/recursos`. |
+| `NG_ALLOWED_HOSTS` | No | Hosts adicionales permitidos, separados por comas (dominio propio). `RAILWAY_PUBLIC_DOMAIN` se agrega automáticamente. |
+| `PUBLIC_CACHE_TTL_SECONDS` | No | Vida de la caché de `/recursos` (300 por defecto). |
+| `PUBLIC_RESOURCES_FILE` | No | Ruta del JSON público de recursos (`content/recursos.json`). |
+| `PORT` | Railway | Puerto del servidor Node (4000 local). |
+
+En el backend, `CORS_ORIGINS` debe incluir la URL pública del frontend.
