@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
 import {
-  Alert, ApiMessage, Appointment, AppointmentInput, Caregiver, CaregiverNote, Evolution, Medication, Patient,
+  Alert, AlertInput, AlertLevel, AlertStatus, ApiMessage, Appointment, AppointmentInput, Caregiver, CaregiverNote, Evolution, Medication, Patient,
   MedicationInput, PatientDashboard, PatientInput, SavedAnalysis, SymptomInput, SymptomRecord,
 } from './models';
 
@@ -147,6 +147,20 @@ export class Api {
 
   updateAlert(alertId: number, alertData: object) {
     return this.http.put<Alert>(`${API}/alerts/${alertId}`, alertData);
+  }
+
+  getAlertHistory(patientId: number, nivel: AlertLevel | '' = '') {
+    return this.http.get<Alert[]>(`${API}/alerts/patients/${patientId}`, {
+      params: params({ incluir_cerradas: true, nivel }),
+    });
+  }
+
+  createAlert(patientId: number, alert: AlertInput) {
+    return this.http.post<Alert>(`${API}/alerts/patients/${patientId}`, alert);
+  }
+
+  setAlertStatus(alertId: number, estado: AlertStatus) {
+    return this.http.put<Alert>(`${API}/alerts/${alertId}`, { estado });
   }
 
   // ---------------- Evolution ----------------
