@@ -51,7 +51,8 @@ export class Dashboard {
     const days = this.summary()?.sintomas_por_dia ?? [];
     if (!days.some(day => day.cantidad > 0)) return [];
     return days.map(day => ({
-      label: day.fecha.slice(8, 10) + '/' + day.fecha.slice(5, 7),
+      // Day number only: fits 14 columns on phones; the tooltip has the full date.
+      label: String(Number(day.fecha.slice(8, 10))),
       value: day.cantidad,
       title: `${formatDate(day.fecha)}: ${day.cantidad} registro(s)`,
     }));
