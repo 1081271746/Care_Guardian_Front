@@ -5,7 +5,7 @@ import { Pacientes } from './pacientes';
 
 const ROSA = { id: 1, nombres: 'Rosa', apellidos: 'Demo', documento: 'D-1', fecha_nacimiento: '1945-01-01', edad: 81,
   telefono: null, direccion: null, contacto_emergencia: null, telefono_emergencia: null, activo: true, fecha_registro: '' };
-const LUIS = { ...ROSA, id: 2, nombres: 'Luis', documento: 'D-2', activo: false };
+const LUIS = { ...ROSA, id: 2, nombres: 'Luis', documento: 'D-2', activo: false, edad: 90 };
 
 describe('Pacientes', () => {
   function setup() {
@@ -27,6 +27,13 @@ describe('Pacientes', () => {
     component.query.set('d-2');
     fixture.detectChanges();
     expect(component.visible().map(p => p.id)).toEqual([2]);
+  });
+
+  it('sorts by age when requested', () => {
+    const { component } = setup();
+    component.status.set('todos');
+    component.sort.set('edad');
+    expect(component.visible().map(p => p.id)).toEqual([2, 1]);
   });
 
   it('creates a patient sending nulls for empty optional fields', () => {

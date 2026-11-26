@@ -82,6 +82,14 @@
         <option value="todos">Todos</option>
       </select>
     </div>
+    <div class="field">
+      <label for="sort">Ordenar por</label>
+      <select id="sort" class="select" [value]="sort()" (change)="sort.set($any($event.target).value)">
+        <option value="apellidos">Apellidos</option>
+        <option value="edad">Mayor edad primero</option>
+        <option value="recientes">Registrados recientemente</option>
+      </select>
+    </div>
   </section>
 
   @if (error()) {

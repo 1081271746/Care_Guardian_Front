@@ -35,6 +35,7 @@ export class Pacientes {
   readonly formError = signal('');
   readonly query = signal('');
   readonly status = signal<'todos' | 'activos' | 'inactivos'>('activos');
+  readonly sort = signal<'apellidos' | 'edad' | 'recientes'>('apellidos');
   /** null = closed, 0 = new patient, id = editing that patient. */
   readonly editing = signal<number | null>(null);
   readonly teamFor = signal<Patient | null>(null);
@@ -50,7 +51,13 @@ export class Pacientes {
     const term = this.query().trim().toLowerCase();
     return this.context.patients()
       .filter(p => this.status() === 'todos' || (this.status() === 'activos') === p.activo)
-      .filter(p => !term || `${p.nombres} ${p.apellidos} ${p.documento}`.toLowerCase().includes(term));
+      .filter(p => !term || `${p.nombres} ${p.apellidos} ${p.documento}`.toLowerCase().includes(term))
+      .slice()
+      .sort((a, b) => {
+        if (this.sort() === 'edad') return b.edad - a.edad;
+        if (this.sort() === 'recientes') return b.fecha_registro.localeCompare(a.fecha_registro);
+        return `${a.apellidos} ${a.nombres}`.localeCompare(`${b.apellidos} ${b.nombres}`, 'es');
+      });
   });
 
   readonly form = this.fb.nonNullable.group({
