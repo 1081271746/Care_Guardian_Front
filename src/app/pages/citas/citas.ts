@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { Api } from '../../services/api';
 import { apiError } from '../../services/errors';
-import { addDays, formatDate, formatTime, todayISO } from '../../services/format';
+import { addDays, formatDate, formatTime, todayISO, monthShort } from '../../services/format';
 import { Appointment, AppointmentInput, AppointmentStatus } from '../../services/models';
 import { Notifier } from '../../services/notifier';
 import { PatientContext } from '../../services/patient-context';
@@ -36,6 +36,7 @@ export class Citas {
   protected label = label;
   protected formatDate = formatDate;
   protected formatTime = formatTime;
+  protected monthShort = monthShort;
   protected statuses: AppointmentStatus[] = ['pendiente', 'confirmada', 'completada', 'cancelada'];
 
   /** Upcoming first (soonest on top), then past visits (most recent on top). */

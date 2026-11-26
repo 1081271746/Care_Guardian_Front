@@ -84,7 +84,7 @@
                   <li>
                     <div class="date-chip">
                       <strong>{{ visit.fecha.slice(8, 10) }}</strong>
-                      <span>{{ formatDate(visit.fecha).split(' ')[1] }}</span>
+                      <span>{{ monthShort(visit.fecha) }}</span>
                     </div>
                     <div class="grow">
                       <p class="strong">{{ visit.titulo }}</p>

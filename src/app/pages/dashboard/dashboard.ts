@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { Api } from '../../services/api';
 import { Auth } from '../../services/auth';
 import { apiError } from '../../services/errors';
-import { formatDate, formatRelative, formatTime } from '../../services/format';
+import { formatDate, formatRelative, formatTime, monthShort } from '../../services/format';
 import { DashboardSummary } from '../../services/models';
 import { PatientContext } from '../../services/patient-context';
 import { BarChart } from '../../shared/bar-chart';
@@ -35,6 +35,7 @@ export class Dashboard {
   protected label = label;
   protected formatDate = formatDate;
   protected formatTime = formatTime;
+  protected monthShort = monthShort;
   protected formatRelative = formatRelative;
   protected activityIcon = (kind: string) => ACTIVITY_ICONS[kind] ?? 'info';
 

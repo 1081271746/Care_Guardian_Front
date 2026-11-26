@@ -3,7 +3,7 @@ import { HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
 import { apiError } from './errors';
-import { addDays, formatDate, formatRelative, formatTime, fullName, initials, localInputToISO, todayISO } from './format';
+import { addDays, formatDate, formatRelative, formatTime, fullName, initials, localInputToISO, monthShort, todayISO } from './format';
 import { Notifier } from './notifier';
 import { PatientContext } from './patient-context';
 
@@ -76,5 +76,12 @@ describe('Notifier', () => {
     expect(notifier.toasts().length).toBe(4);
     notifier.dismiss(notifier.toasts()[0].id);
     expect(notifier.toasts().length).toBe(3);
+  });
+});
+
+describe('chip helpers', () => {
+  it('builds initials only from letters and short month names', () => {
+    expect(initials('Carlos (cuenta demo)')).toBe('CC');
+    expect(monthShort('2026-11-27')).toMatch(/^nov/);
   });
 });

@@ -79,6 +79,16 @@ export function fullName(patient: { nombres: string; apellidos: string } | null 
   return patient ? `${patient.nombres} ${patient.apellidos}`.trim() : '';
 }
 
+/** First letter of the first two words that start with a letter ("Carlos (demo)" → "CD"). */
 export function initials(name: string): string {
-  return name.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]?.toUpperCase() ?? '').join('');
+  return name.split(/\s+/)
+    .map(part => part.replace(/[^\p{L}]/gu, ''))
+    .filter(Boolean).slice(0, 2).map(part => part[0].toUpperCase()).join('');
+}
+
+/** "2026-11-27" → "nov" (locale formats differ in punctuation, so build it from parts). */
+export function monthShort(iso: string): string {
+  const [y, m] = iso.split('-').map(Number);
+  if (!y || !m) return '';
+  return new Date(y, m - 1, 1).toLocaleDateString(LOCALE, { month: 'short' }).replace('.', '');
 }

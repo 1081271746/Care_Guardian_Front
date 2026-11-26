@@ -91,7 +91,7 @@
               <li class="visit">
                 <div class="when">
                   <strong>{{ visit.fecha.slice(8, 10) }}</strong>
-                  <span>{{ formatDate(visit.fecha).split(' ')[1] }}</span>
+                  <span>{{ monthShort(visit.fecha) }}</span>
                   <small>{{ formatTime(visit.hora) }}</small>
                 </div>
                 <div class="what">
