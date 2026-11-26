@@ -38,24 +38,25 @@ try {
     { env: frontendEnv, stdio: 'inherit' }));
   await ready('http://127.0.0.1:4400/health');
   const api = 'http://127.0.0.1:4400/api';
-  const password = randomBytes(32).toString('base64url');
+  // The API requires letters and digits; the suffix guarantees both.
+  const password = randomBytes(32).toString('base64url') + 'Aa1';
   const email = 'runtime-caregiver@example.org';
   const post = (path, body, token) => fetch(api + path, {
     method: 'POST', headers: { 'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     body: JSON.stringify(body),
   });
-  assert.equal((await post('/users/', { nombre: 'Prueba aislada', email, password })).status, 200);
+  assert.equal((await post('/users/', { nombre: 'Prueba aislada', email, password })).status, 201);
   const login = await post('/auth/login', { email, password });
   assert.equal(login.status, 200);
   const { access_token: token } = await login.json();
   assert.equal(typeof token, 'string'); // Never print credentials in test output.
   const patientResponse = await post('/patients/', { nombres: 'Prueba', apellidos: 'Aislada',
     fecha_nacimiento: '1950-01-01', documento: 'RUNTIME-TEST-ONLY' }, token);
-  assert.equal(patientResponse.status, 200);
+  assert.equal(patientResponse.status, 201);
   const { id } = await patientResponse.json();
   for (const nivel_dolor of [0, 6]) {
-    assert.equal((await post(`/symptoms/patients/${id}`, { nivel_dolor }, token)).status, 200);
+    assert.equal((await post(`/symptoms/patients/${id}`, { nivel_dolor }, token)).status, 201);
   }
   const authorized = { headers: { Authorization: `Bearer ${token}` } };
   const history = await fetch(`${api}/evolution/patients/${id}`, authorized);
@@ -68,6 +69,17 @@ try {
   assert.equal((await post(`/evolution/patients/${id}/analyses`, {
     consentimiento: true, version_consentimiento: 'groq-minimized-v1' }, token)).status, 503);
   assert.equal((await fetch(`${api}/evolution/patients/${id}/analyses`, authorized)).status, 200);
+  const status = await (await fetch(`${api}/evolution/ai-status`, authorized)).json();
+  assert.equal(status.configurado, false);
+  const summary = await fetch(`${api}/dashboard/summary`, authorized);
+  assert.equal(summary.status, 200);
+  assert.equal((await summary.json()).totales.pacientes, 1);
+  // PUT and DELETE travel through the proxy too.
+  const update = await fetch(`${api}/patients/${id}`, { method: 'PUT', headers: { ...authorized.headers,
+    'Content-Type': 'application/json' }, body: JSON.stringify({ telefono: '+57 300 0000000' }) });
+  assert.equal(update.status, 200);
+  assert.equal((await fetch(`${api}/patients/${id}`, { method: 'DELETE', ...authorized })).status, 200);
+  assert.equal((await fetch(`${api}/patients/`, { headers: {} })).status, 401);
   console.log('Login, assignment, real statistics, consent and missing-provider checks passed through proxy');
   const checks = spawn(process.execPath, ['tests/rendering-smoke.mjs'],
     { env: frontendEnv, stdio: 'inherit' });
