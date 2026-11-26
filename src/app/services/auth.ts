@@ -56,6 +56,12 @@ export class Auth {
     return true;
   }
 
+  /** Loads the authenticated profile once per session (name for the shell, team counts). */
+  loadUser(force = false): Observable<CurrentUser> | null {
+    if (!force && this.user()) return null;
+    return this.http.get<CurrentUser>(`${API}/auth/me`).pipe(tap(user => this.user.set(user)));
+  }
+
   logout(): void {
     storage()?.removeItem(TOKEN_KEY);
     this.user.set(null);
