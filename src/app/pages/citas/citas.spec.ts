@@ -18,6 +18,13 @@ describe('Citas', () => {
     expect(fixture.nativeElement.textContent).toContain('Control (demo)');
   });
 
+  it('highlights visits scheduled for today', () => {
+    const { fixture, http } = createWithPatients(Citas);
+    http.expectOne('/api/appointments/patients/1').flush([{ ...VISIT, fecha: TODAY }]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.today')?.textContent).toContain('Hoy');
+  });
+
   it('does not submit a pending visit in the past', () => {
     const { component, http } = createWithPatients(Citas);
     http.expectOne('/api/appointments/patients/1').flush([]);

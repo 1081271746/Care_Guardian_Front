@@ -13,3 +13,4 @@
   .visit { grid-template-columns: 60px 1fr; }
   .side { grid-column: 1 / -1; align-items: flex-start; }
 }
+.today { margin-left: 6px; vertical-align: 2px; }

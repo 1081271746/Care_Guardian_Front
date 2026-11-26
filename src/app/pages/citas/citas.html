@@ -95,7 +95,9 @@
                   <small>{{ formatTime(visit.hora) }}</small>
                 </div>
                 <div class="what">
-                  <p class="strong">{{ visit.titulo }}</p>
+                  <p class="strong">{{ visit.titulo }}
+                    @if (visit.fecha === today) { <span class="badge plain badge-info today">Hoy</span> }
+                  </p>
                   <p class="small soft">{{ visit.especialidad }} · {{ visit.profesional }}</p>
                   @if (visit.lugar) { <p class="xsmall muted">{{ visit.lugar }}</p> }
                   @if (visit.notas) { <p class="xsmall muted pre-line"><cg-record-text [value]="visit.notas" /></p> }
