@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
 import {
-  Alert, ApiMessage, Appointment, Caregiver, CaregiverNote, Evolution, Medication, Patient,
+  Alert, ApiMessage, Appointment, AppointmentInput, Caregiver, CaregiverNote, Evolution, Medication, Patient,
   MedicationInput, PatientDashboard, PatientInput, SavedAnalysis, SymptomRecord,
 } from './models';
 
@@ -97,8 +97,22 @@ export class Api {
     return this.http.get<Appointment[]>(`${API}/appointments/patients/${patientId}`);
   }
 
-  createAppointment(patientId: number, appointment: object) {
+  createAppointment(patientId: number, appointment: AppointmentInput) {
     return this.http.post<Appointment>(`${API}/appointments/patients/${patientId}`, appointment);
+  }
+
+  getUpcomingAppointments(patientId: number) {
+    return this.http.get<Appointment[]>(`${API}/appointments/patients/${patientId}`, {
+      params: params({ proximas: true }),
+    });
+  }
+
+  updateAppointment(appointmentId: number, changes: Partial<AppointmentInput>) {
+    return this.http.put<Appointment>(`${API}/appointments/${appointmentId}`, changes);
+  }
+
+  deleteAppointment(appointmentId: number) {
+    return this.http.delete<ApiMessage>(`${API}/appointments/${appointmentId}`);
   }
 
   // ---------------- Notes ----------------
