@@ -19,9 +19,12 @@
             <label for="contenido" class="required">¿Qué observaste hoy?</label>
             <textarea id="contenido" class="textarea" formControlName="contenido" maxlength="5000"
                       placeholder="Ej. Caminó por el patio, almorzó completo y conversó con su nieta."></textarea>
-            @if (form.controls.contenido.invalid && form.controls.contenido.touched) {
-              <span class="error">Escribe al menos 5 caracteres.</span>
-            }
+            <div class="row between">
+              @if (form.controls.contenido.invalid && form.controls.contenido.touched) {
+                <span class="error">Escribe al menos 5 caracteres.</span>
+              } @else { <span></span> }
+              <span class="xsmall muted tabular" aria-live="polite">{{ form.controls.contenido.value.length }} / 5000</span>
+            </div>
           </div>
           <div class="row between">
             <div class="field moment">
