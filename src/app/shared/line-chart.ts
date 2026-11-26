@@ -5,7 +5,7 @@ import { formatDateTime } from '../services/format';
 export interface ChartPoint { fecha: string; valor: number }
 export interface PlottedPoint { x: number; y: number; label: string; valor: number }
 
-export const CHART = { width: 640, height: 220, left: 40, right: 16, top: 16, bottom: 34 };
+export const CHART = { width: 420, height: 230, left: 34, right: 12, top: 14, bottom: 30 };
 
 /**
  * Plots real measurements only. X is proportional to the actual time between
@@ -37,7 +37,7 @@ export function plot(points: ChartPoint[], min: number, max: number): PlottedPoi
     :host { display: block; }
     svg { width: 100%; height: auto; overflow: visible; }
     .grid line { stroke: var(--cg-line); stroke-dasharray: 3 4; }
-    .axis { font: 11px var(--cg-font-body); fill: var(--cg-ink-muted); }
+    .axis { font: 12px var(--cg-font-body); fill: var(--cg-ink-muted); }
     .link { fill: none; stroke-width: 2; opacity: 0.45; }
     .dot { stroke: #fff; stroke-width: 2; }
   `,

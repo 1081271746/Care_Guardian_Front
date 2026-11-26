@@ -10,8 +10,8 @@
 .total strong { font-family: var(--cg-font-display); font-size: 1.5rem; }
 
 .charts h2 { font-size: var(--cg-text-md); }
-.figures { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: var(--cg-space-3) 0 6px; }
-.figures div { padding: 8px; border-radius: 10px; background: var(--cg-surface-sunken); text-align: center; }
+.figures { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: var(--cg-space-3) 0 6px; }
+.figures div { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; padding: 8px 10px; border-radius: 10px; background: var(--cg-surface-sunken); }
 .figures dt { font-size: 11px; color: var(--cg-ink-muted); }
 .figures dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
 
@@ -39,4 +39,3 @@
 .dot.bajo { border-color: #9fcfb2; color: var(--cg-ok); }
 
 @media (max-width: 1080px) { .layout { grid-template-columns: 1fr; } }
-@media (max-width: 520px) { .figures { grid-template-columns: repeat(2, 1fr); } }
