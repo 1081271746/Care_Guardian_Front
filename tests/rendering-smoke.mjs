@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 const origin = process.env.FRONTEND_TEST_ORIGIN || 'http://127.0.0.1:4000';
 for (const [path, title, mode] of [
   ['/acerca', 'Acompañamiento para cuidadores', 'SSR'],
-  ['/privacidad', 'Privacidad y uso responsable de IA', 'SSG'],
+  ['/privacidad', 'Privacidad y uso responsable de la IA', 'SSG'],
   ['/recursos', 'Recursos para el cuidado', 'ISR-equivalent'],
 ]) {
   const response = await fetch(origin + path);
@@ -19,7 +19,8 @@ for (const path of ['/evolucion?patientId=900', '/dashboard/900', '/pacientes'])
   assert.equal(response.status, 200, path);
   assert.equal(response.headers.get('x-rendering-mode'), 'CSR');
   assert.ok(!html.includes('PRIVATE-FREE-TEXT'));
-  assert.ok(!html.includes('Evolución del adulto mayor'), 'private component is not server-rendered');
+  assert.ok(!html.includes('Historial cronológico'), 'private component is not server-rendered');
+  assert.ok(!html.includes('Cerrar sesión'), 'private shell is not server-rendered');
 }
 const first = await fetch(origin + '/recursos');
 const second = await fetch(origin + '/recursos?ignored=1', {
