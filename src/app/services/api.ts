@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
 import {
-  Alert, Appointment, CaregiverNote, Evolution, Medication, Patient,
+  Alert, ApiMessage, Appointment, Caregiver, CaregiverNote, Evolution, Medication, Patient,
   PatientDashboard, PatientInput, SavedAnalysis, SymptomRecord,
 } from './models';
 
@@ -34,6 +34,35 @@ export class Api {
 
   createPatient(patient: PatientInput) {
     return this.http.post<Patient>(`${API}/patients/`, patient);
+  }
+
+  searchPatients(filters: { q?: string; activos?: boolean | null }) {
+    return this.http.get<Patient[]>(`${API}/patients/`, { params: params(filters) });
+  }
+
+  getPatient(patientId: number) {
+    return this.http.get<Patient>(`${API}/patients/${patientId}`);
+  }
+
+  updatePatient(patientId: number, changes: Partial<PatientInput> & { activo?: boolean }) {
+    return this.http.put<Patient>(`${API}/patients/${patientId}`, changes);
+  }
+
+  /** The API deactivates (never deletes) so the clinical history is kept. */
+  deactivatePatient(patientId: number) {
+    return this.http.delete<ApiMessage>(`${API}/patients/${patientId}`);
+  }
+
+  getCaregivers(patientId: number) {
+    return this.http.get<Caregiver[]>(`${API}/patients/${patientId}/caregivers`);
+  }
+
+  assignCaregiver(patientId: number, email: string, rol: string) {
+    return this.http.post<ApiMessage>(`${API}/patients/${patientId}/caregivers`, { email, rol });
+  }
+
+  removeCaregiver(patientId: number, userId: number) {
+    return this.http.delete<ApiMessage>(`${API}/patients/${patientId}/caregivers/${userId}`);
   }
 
   // ---------------- Symptoms ----------------
