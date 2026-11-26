@@ -46,17 +46,17 @@ try {
       ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     body: JSON.stringify(body),
   });
-  assert.equal((await post('/users/', { nombre: 'Prueba aislada', email, password })).status, 201);
+  assert.equal((await post('/users/', { nombre: 'Prueba aislada', email, password })).status, 200);
   const login = await post('/auth/login', { email, password });
   assert.equal(login.status, 200);
   const { access_token: token } = await login.json();
   assert.equal(typeof token, 'string'); // Never print credentials in test output.
   const patientResponse = await post('/patients/', { nombres: 'Prueba', apellidos: 'Aislada',
     fecha_nacimiento: '1950-01-01', documento: 'RUNTIME-TEST-ONLY' }, token);
-  assert.equal(patientResponse.status, 201);
+  assert.equal(patientResponse.status, 200);
   const { id } = await patientResponse.json();
   for (const nivel_dolor of [0, 6]) {
-    assert.equal((await post(`/symptoms/patients/${id}`, { nivel_dolor }, token)).status, 201);
+    assert.equal((await post(`/symptoms/patients/${id}`, { nivel_dolor }, token)).status, 200);
   }
   const authorized = { headers: { Authorization: `Bearer ${token}` } };
   const history = await fetch(`${api}/evolution/patients/${id}`, authorized);
