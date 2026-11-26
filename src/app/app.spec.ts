@@ -24,6 +24,17 @@ describe('App', () => {
     expect(router.url).toBe('/login?volver=%2Fevolucion');
   });
 
+  it('shows a 404 page for unknown addresses instead of silently redirecting', async () => {
+    const router = TestBed.inject(Router);
+    const fixture = TestBed.createComponent(App);
+    await router.navigateByUrl('/no-existe');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(router.url).toBe('/no-existe');
+    expect(fixture.nativeElement.textContent).toContain('No encontramos esa página');
+  });
+
   it('declares a lazy route for every private module', () => {
     const shell = routes.find(route => route.children)!;
     expect(shell.children!.map(child => child.path)).toEqual([

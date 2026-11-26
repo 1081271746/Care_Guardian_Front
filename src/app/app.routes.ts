@@ -40,5 +40,6 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/evolucion/evolucion').then(m => m.Evolucion) },
     ],
   },
-  { path: '**', redirectTo: 'login' },
+  { path: '**', title: 'Página no encontrada · CareGuardian',
+    loadComponent: () => import('./pages/not-found/not-found').then(m => m.NotFound) },
 ];
