@@ -90,3 +90,11 @@ describe('chip helpers', () => {
     expect(monthShort('2026-11-27')).toMatch(/^nov/);
   });
 });
+
+describe('instants without offset', () => {
+  it('treats legacy timestamps without timezone as UTC', async () => {
+    const { formatDateTime } = await import('./format');
+    expect(formatDateTime('2026-11-25T15:00:00')).toBe(formatDateTime('2026-11-25T15:00:00Z'));
+    expect(formatDateTime(null)).toBe('—');
+  });
+});
