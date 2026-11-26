@@ -54,4 +54,12 @@ describe('Citas', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Paciente inactivo');
   });
+
+  it('deletes a past visit after confirmation', () => {
+    const { component, http } = createWithPatients(Citas);
+    const old = { ...VISIT, id: 8, fecha: addDays(TODAY, -10), estado: 'completada' };
+    http.expectOne('/api/appointments/patients/1').flush([old]);
+    component.remove(old as never);
+    expect(http.expectOne('/api/appointments/8').request.method).toBe('DELETE');
+  });
 });
