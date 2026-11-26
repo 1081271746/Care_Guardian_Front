@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 
 import {
   Alert, ApiMessage, Appointment, AppointmentInput, Caregiver, CaregiverNote, Evolution, Medication, Patient,
-  MedicationInput, PatientDashboard, PatientInput, SavedAnalysis, SymptomRecord,
+  MedicationInput, PatientDashboard, PatientInput, SavedAnalysis, SymptomInput, SymptomRecord,
 } from './models';
 
 /** Same-origin prefix; src/server.ts proxies it to API_BASE_URL. */
@@ -70,8 +70,16 @@ export class Api {
     return this.http.get<SymptomRecord[]>(`${API}/symptoms/patients/${patientId}`);
   }
 
-  createSymptom(patientId: number, symptom: object) {
+  createSymptom(patientId: number, symptom: SymptomInput) {
     return this.http.post<SymptomRecord>(`${API}/symptoms/patients/${patientId}`, symptom);
+  }
+
+  updateSymptom(symptomId: number, changes: Partial<SymptomInput>) {
+    return this.http.put<SymptomRecord>(`${API}/symptoms/${symptomId}`, changes);
+  }
+
+  deactivateSymptom(symptomId: number) {
+    return this.http.delete<ApiMessage>(`${API}/symptoms/${symptomId}`);
   }
 
   // ---------------- Medications ----------------

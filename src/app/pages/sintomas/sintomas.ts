@@ -1,3 +1,4 @@
+import { Severity } from '../../services/models';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -142,7 +143,7 @@ export class Sintomas implements OnInit {
         this.newSymptom.observaciones || null,
 
       nivel_gravedad:
-        this.newSymptom.nivel_gravedad
+        this.newSymptom.nivel_gravedad as Severity
     };
 
 
