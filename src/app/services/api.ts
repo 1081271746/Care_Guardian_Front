@@ -132,6 +132,14 @@ export class Api {
     return this.http.post<CaregiverNote>(`${API}/notes/patients/${patientId}`, note);
   }
 
+  updateNote(noteId: number, contenido: string) {
+    return this.http.put<CaregiverNote>(`${API}/notes/${noteId}`, { contenido });
+  }
+
+  deactivateNote(noteId: number) {
+    return this.http.delete<ApiMessage>(`${API}/notes/${noteId}`);
+  }
+
   // ---------------- Alerts ----------------
   getPatientAlerts(patientId: number) {
     return this.http.get<Alert[]>(`${API}/alerts/patients/${patientId}`);
