@@ -32,6 +32,11 @@ async function publicContent() {
 app.use((_req, res, next) => {
   res.setHeader('Cache-Control', 'private, no-store');
   res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'same-origin');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  // Clickjacking protection for browsers that ignore X-Frame-Options.
+  res.setHeader('Content-Security-Policy', "frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
   next();
 });
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
@@ -72,7 +77,13 @@ app.use('/api', express.raw({ type: () => true, limit: '1mb' }), async (req, res
       if (value) res.setHeader(name, value);
     }
     res.send(Buffer.from(await upstream.arrayBuffer()));
-  } catch { res.status(502).json({ detail: 'No fue posible contactar con el backend' }); }
+  } catch (error) {
+    if (error instanceof Error && error.name === 'TimeoutError') {
+      res.status(504).json({ detail: 'El backend tardó demasiado en responder' });
+    } else {
+      res.status(502).json({ detail: 'No fue posible contactar con el backend' });
+    }
+  }
 });
 app.get('/recursos', async (_req, res) => {
   try {
