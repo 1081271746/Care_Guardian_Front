@@ -1,5 +1,24 @@
 # Verificación de la entrega
 
+## Noviembre de 2026 (rama `mejoras/auditoria-produccion`)
+
+Ejecutado localmente sobre el código de esta rama:
+
+| Comprobación | Resultado |
+|---|---|
+| `npm ci` con el lockfile existente | Aprobado |
+| `npm run typecheck` (app y pruebas) | Sin errores |
+| `ng test` (Vitest) | 19 archivos, 96 pruebas aprobadas, 0 fallidas |
+| `npm run test:cache` | 2 pruebas aprobadas |
+| `ng build` producción (SSR + prerender de `/privacidad`) | Aprobado, sin advertencias; paquete inicial 406 kB (109 kB transferidos) |
+| `tests/runtime-smoke.mjs` con el backend de la rama | Aprobado: registro, login, 201 en creaciones, estadísticas reales, consentimiento, IA no configurada (503), resumen del panel, PUT/DELETE por el proxy, 401 sin token, SSR/SSG/ISR y caché |
+| Recorrido visual con Chrome (escritorio 1440 px y móvil 390 px) contra FastAPI + PostgreSQL 16 con la carga de demostración | Todas las páginas cargan datos reales; sin errores de consola salvo las fuentes de Google bloqueadas por el entorno sin internet |
+
+No verificado aquí: llamada real a Groq (no había clave en el entorno) y
+despliegue en Railway.
+
+## Entrega anterior
+
 ## Resultado observado
 
 - Instalación de dependencias y resolución compatible de Angular 22.2.0.
