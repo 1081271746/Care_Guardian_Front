@@ -42,7 +42,11 @@ export class Shell {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       takeUntilDestroyed(inject(DestroyRef)),
-    ).subscribe(() => this.menuOpen.set(false));
+    ).subscribe(() => {
+      this.menuOpen.set(false);
+      // Screen-reader and keyboard users land on the new page content, not the old link.
+      if (typeof document !== 'undefined') document.getElementById('contenido')?.focus({ preventScroll: true });
+    });
   }
 
   /** Escape closes the mobile menu, as expected from a drawer. */
