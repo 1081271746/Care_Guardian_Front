@@ -1,1162 +1,172 @@
-<div class="dashboard-page">
-
-  <!-- HEADER -->
-    <div class="dashboard-page">
-
-  <!-- SIDEBAR -->
-  <aside class="dashboard-sidebar">
-
-    <!-- LOGO -->
-    <div class="sidebar-brand">
-
-      <div class="sidebar-logo">
-        ♥
-      </div>
-
-      <div>
-        <h1>CareGuardian</h1>
-        <span>Acompañamiento inteligente</span>
-      </div>
-
+<div class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Panel general</p>
+      <h1>{{ greeting() }}</h1>
+      <p class="lede">Resumen de todos tus pacientes, calculado ahora mismo a partir de los registros guardados.</p>
     </div>
-
-
-    <!-- NAVEGACIÓN -->
-    <nav class="sidebar-nav">
-
-  <p class="nav-title">
-    PRINCIPAL
-  </p>
-
-  <a
-    class="nav-item"
-    routerLink="/dashboard"
-    routerLinkActive="active"
-    [routerLinkActiveOptions]="{ exact: true }">
-
-    <span class="nav-icon">
-      ⌂
-    </span>
-
-    <span>
-      Dashboard
-    </span>
-
-  </a>
-
-
-  <p class="nav-title">
-    CUIDADO
-  </p>
-
-
-  <a
-    class="nav-item"
-    routerLink="/pacientes"
-    routerLinkActive="active">
-
-    <span class="nav-icon">
-      ♥
-    </span>
-
-    <span>
-      Pacientes
-    </span>
-
-  </a>
-
-
-  <a
-    class="nav-item"
-    routerLink="/sintomas"
-    [queryParams]="{patientId: patientData?.patient?.id}"
-    routerLinkActive="active">
-
-    <span class="nav-icon">
-      ◉
-    </span>
-
-    <span>
-      Síntomas
-    </span>
-
-  </a>
-
-
-  <a
-    class="nav-item"
-    routerLink="/medicamentos"
-    [queryParams]="{patientId: patientData?.patient?.id}"
-    routerLinkActive="active">
-
-    <span class="nav-icon">
-      +
-    </span>
-
-    <span>
-      Medicamentos
-    </span>
-
-  </a>
-
-
-  <a
-    class="nav-item"
-    routerLink="/citas"
-    [queryParams]="{patientId: patientData?.patient?.id}"
-    routerLinkActive="active">
-
-    <span class="nav-icon">
-      □
-    </span>
-
-    <span>
-      Citas
-    </span>
-
-  </a>
-
-
-  <a
-    class="nav-item"
-    routerLink="/notas"
-    [queryParams]="{patientId: patientData?.patient?.id}"
-    routerLinkActive="active">
-
-    <span class="nav-icon">
-      ✎
-    </span>
-
-    <span>
-      Notas
-    </span>
-
-  </a>
-
-
-  <p class="nav-title">
-    SEGUIMIENTO
-  </p>
-
-
-  <a
-    class="nav-item"
-    routerLink="/alertas"
-    [queryParams]="{patientId: patientData?.patient?.id}"
-    routerLinkActive="active">
-
-    <span class="nav-icon">
-      !
-    </span>
-
-    <span>
-      Alertas
-    </span>
-
-  </a>
-
-
-  <a
-    class="nav-item"
-    routerLink="/evolucion"
-    [queryParams]="{patientId: patientData?.patient?.id}"
-    routerLinkActive="active">
-
-    <span class="nav-icon">
-      ◔
-    </span>
-
-    <span>
-      Evolución
-    </span>
-
-  </a>
-
-</nav>
-
-    <!-- USUARIO -->
-    <div class="sidebar-user">
-
-      <div class="sidebar-user-avatar">
-        C
-      </div>
-
-      <div class="sidebar-user-info">
-        <strong>Cuidador</strong>
-        <span>Usuario activo</span>
-      </div>
-
+    <div class="header-actions">
+      <button type="button" class="btn btn-secondary" (click)="load()" [disabled]="loading()">
+        <cg-icon name="refresh" /> Actualizar
+      </button>
+      <a routerLink="/sintomas" class="btn btn-primary"><cg-icon name="plus" /> Registrar síntomas</a>
     </div>
+  </header>
 
-  </aside>
+  @if (error()) {
+    <div class="notice notice-error" role="alert"><cg-icon name="warning" />{{ error() }}</div>
+  }
 
-
-  <!-- CONTENIDO PRINCIPAL -->
-  <div class="dashboard-content">
-
-    <header class="dashboard-header">
-
-      <div class="header-title">
-        <span>Panel de cuidado</span>
-      </div>
-
-      <div class="header-user">
-
-        <div class="user-avatar">
-          C
-        </div>
-
-        <div class="user-info">
-          <strong>Cuidador</strong>
-          <span>Usuario activo</span>
-        </div>
-
-      </div>
-
-    </header>
-
-
-  <!-- CONTENIDO -->
-  <main class="dashboard-container">
-
-    <!-- BIENVENIDA -->
-    <section class="welcome-section">
-
-      <h2>Resumen del paciente</h2>
-
-      <p>
-        Información centralizada para acompañar la evolución y el cuidado.
-      </p>
-
-    </section>
-
-
-
-    <!-- LOADING -->
-    <!-- CARGANDO / CONTENIDO -->
-@if (loading) {
-
-  <section class="loading-container">
-    <p>Cargando información del paciente...</p>
-  </section>
-
-} @else {
-
-  <section style="display: none;">
-
-    <p>
-      Paciente:
-      {{ patientData?.patient?.nombres }}
-      {{ patientData?.patient?.apellidos }}
-    </p>
-
-    <p>
-      Síntomas:
-      {{ patientData?.symptoms?.length }}
-    </p>
-
-    <p>
-      Medicamentos:
-      {{ patientData?.medications?.length }}
-    </p>
-
-  </section>
-
-}
-
-@if (!loading && errorMessage) { <p role="alert">{{ errorMessage }}</p> }
-@if (patientData) {
-<section style="padding: 40px;">
-
-    <div class="dashboard-intro">
-  <div>
-    <span class="eyebrow">SEGUIMIENTO DEL PACIENTE</span>
-
-    <h2>
-      Bienvenido al panel de cuidado
-    </h2>
-
-    <p>
-      Consulta el estado actual, evolución y actividades de cuidado
-      de tu paciente desde un solo lugar.
-    </p>
-  </div>
-
-  <div class="intro-date">
-    <span>Hoy</span>
-    <strong>{{ today | date:'dd/MM/yyyy' }}</strong>
-  </div>
-</div>
-
-    <p>
-      
-      {{ patientData?.medications?.length }}
-    </p>
-
-
-    
-
-
-    <!-- DASHBOARD -->
-    
-
-      <!-- =====================================================
-           PACIENTE
-           ===================================================== -->
-
-      <section class="dashboard-card">
-
-  <div class="patient-profile">
-
-    <div class="patient-avatar">
-      {{ patientData?.patient?.nombres?.charAt(0) || '?' }}
+  @if (loading() && !summary()) {
+    <div class="grid grid-stats">
+      @for (i of [1, 2, 3, 4, 5]; track i) { <div class="card"><div class="skeleton" style="height:64px"></div></div> }
     </div>
-
-    <div class="patient-info">
-
-      <h2>
-        {{ patientData?.patient?.nombres || '' }}
-        {{ patientData?.patient?.apellidos || '' }}
-      </h2>
-
-      <p>
-        Documento: {{ patientData?.patient?.documento || 'No registrado' }}
-      </p>
-
-    </div>
-  </div>
-
-
-  <div class="patient-details">
-
-    <div class="detail-item">
-
-      <span>Fecha de nacimiento</span>
-
-      <strong>
-        {{ patientData?.patient?.fecha_nacimiento | date:'dd/MM/yyyy' }}
-      </strong>
-
-    </div>
-
-
-    <div class="detail-item">
-
-      <span>Teléfono</span>
-
-      <strong>
-        {{ patientData?.patient?.telefono || 'No registrado' }}
-      </strong>
-
-    </div>
-
-
-    <div class="detail-item">
-
-      <span>Dirección</span>
-
-      <strong>
-        {{ patientData?.patient?.direccion || 'No registrada' }}
-      </strong>
-
-    </div>
-
-
-    <div class="detail-item">
-
-      <span>Contacto de emergencia</span>
-
-      <strong>
-        {{ patientData?.patient?.contacto_emergencia || 'No registrado' }}
-      </strong>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-      <!-- =====================================================
-           RIESGO ACTUAL
-           ===================================================== -->
-
-      <section
-        class="risk-banner"
-        [class.high]="patientData.current_risk_level === 'alto'"
-        [class.medium]="patientData.current_risk_level === 'medio'"
-        [class.low]="patientData.current_risk_level === 'bajo'">
-
-        <div class="risk-content">
-
-          <div class="risk-icon">
-            !
-          </div>
-
-          <div class="risk-text">
-
-            <h3>
-              Nivel de riesgo actual
-            </h3>
-
-            <p>
-              Basado en los registros recientes del paciente.
-            </p>
-
-          </div>
-
-        </div>
-
-
-        <div class="risk-level">
-
-          {{ patientData.current_risk_level | uppercase }}
-
-        </div>
-
+  } @else if (summary(); as data) {
+    @if (!data.totales.pacientes) {
+      <section class="card">
+        <cg-empty icon="users" title="Todavía no tienes pacientes asignados"
+                  text="Registra al primer adulto mayor para empezar a llevar su seguimiento.">
+          <a routerLink="/pacientes" class="btn btn-primary mt-2"><cg-icon name="plus" /> Registrar paciente</a>
+        </cg-empty>
+      </section>
+    } @else {
+      <section class="grid grid-stats" aria-label="Indicadores">
+        <a routerLink="/pacientes" class="stat">
+          <span class="stat-icon teal"><cg-icon name="users" /></span>
+          <span class="stat-value tabular">{{ data.totales.pacientes }}</span>
+          <span class="stat-label">Pacientes · {{ data.totales.pacientes_activos }} activos</span>
+        </a>
+        <a routerLink="/medicamentos" class="stat">
+          <span class="stat-icon blue"><cg-icon name="pill" /></span>
+          <span class="stat-value tabular">{{ data.totales.medicamentos_activos }}</span>
+          <span class="stat-label">Medicamentos activos · {{ data.totales.medicamentos_registrados }} registrados</span>
+        </a>
+        <a routerLink="/citas" class="stat">
+          <span class="stat-icon sand"><cg-icon name="calendar" /></span>
+          <span class="stat-value tabular">{{ data.totales.citas_proximas }}</span>
+          <span class="stat-label">Citas en los próximos {{ data.ventanas.citas_dias }} días</span>
+        </a>
+        <a routerLink="/sintomas" class="stat">
+          <span class="stat-icon green"><cg-icon name="pulse" /></span>
+          <span class="stat-value tabular">{{ data.totales.sintomas_recientes }}</span>
+          <span class="stat-label">Registros de síntomas · últimos {{ data.ventanas.recientes_dias }} días</span>
+        </a>
+        <a routerLink="/alertas" class="stat" [class.attention]="data.totales.alertas_pendientes">
+          <span class="stat-icon coral"><cg-icon name="bell" /></span>
+          <span class="stat-value tabular">{{ data.totales.alertas_pendientes }}</span>
+          <span class="stat-label">Alertas pendientes</span>
+        </a>
       </section>
 
-
-      <!-- =====================================================
-           RESUMEN
-           ===================================================== -->
-
-        <!-- TARJETAS DE RESUMEN -->
-<section class="summary-cards">
-
-  <!-- Síntomas -->
-  <article class="summary-card">
-    <div class="summary-icon symptoms-icon">
-      🩺
-    </div>
-
-    <div class="summary-content">
-      <span class="summary-label">Síntomas registrados</span>
-
-      <strong class="summary-value">
-        {{ patientData?.symptoms?.length || 0 }}
-      </strong>
-
-      <span class="summary-description">
-        Registros disponibles
-      </span>
-    </div>
-  </article>
-
-
-  <!-- Medicamentos -->
-  <article class="summary-card">
-    <div class="summary-icon medications-icon">
-      💊
-    </div>
-
-    <div class="summary-content">
-      <span class="summary-label">Medicamentos activos</span>
-
-      <strong class="summary-value">
-        {{ patientData?.medications?.length || 0 }}
-      </strong>
-
-      <span class="summary-description">
-        Tratamientos registrados
-      </span>
-    </div>
-  </article>
-
-
-  <!-- Citas -->
-  <article class="summary-card">
-    <div class="summary-icon appointments-icon">
-      📅
-    </div>
-
-    <div class="summary-content">
-      <span class="summary-label">Próximas citas</span>
-
-      <strong class="summary-value">
-        {{ patientData?.upcoming_appointments?.length || 0 }}
-      </strong>
-
-      <span class="summary-description">
-        Actividades programadas
-      </span>
-    </div>
-  </article>
-
-
-  <!-- Alertas -->
-      <!-- Alertas -->
-<article class="summary-card">
-  <div class="summary-icon alerts-icon">
-    🚨
-  </div>
-
-  <div class="summary-content">
-    <span class="summary-label">Alertas activas</span>
-
-    <strong class="summary-value">
-      {{ patientData?.active_alerts?.length || 0 }}
-    </strong>
-
-    <span class="summary-description">
-      Requieren seguimiento
-    </span>
-  </div>
-</article>
-
-</section>
-
-
-      <!-- =====================================================
-           CONTENIDO PRINCIPAL
-           ===================================================== -->
-
-      <section class="main-grid">
-
-
-        <!-- ===================================================
-             COLUMNA IZQUIERDA
-             =================================================== -->
-
-        <div>
-
-
-          <!-- SÍNTOMAS -->
-          <article class="dashboard-card">
-
+      <div class="layout">
+        <div class="stack-lg">
+          <section class="card">
             <div class="card-header">
-
-              <h3>
-                Últimos síntomas
-              </h3>
-
-              <span>
-                {{ patientData.symptoms.length }} registros
-              </span>
-
+              <h2>Síntomas registrados por día</h2>
+              <span class="xsmall muted">Últimos 14 días</span>
             </div>
+            @if (dailyBars().length) {
+              <cg-bar-chart [bars]="dailyBars()" description="Registros de síntomas por día" />
+            } @else {
+              <cg-empty icon="chart" title="Sin registros en los últimos 14 días"
+                        text="La gráfica aparece cuando existan registros reales." />
+            }
+          </section>
 
-
-            @for (symptom of patientData.symptoms; track symptom.id) {
-
-  <div
-    class="symptom-card"
-    [class.severity-high]="symptom.nivel_gravedad === 'grave'"
-    [class.severity-medium]="symptom.nivel_gravedad === 'moderado'"
-    [class.severity-low]="symptom.nivel_gravedad === 'bajo'">
-
-    <!-- CABECERA -->
-    <div class="symptom-header">
-
-      <div class="symptom-date">
-
-        <div class="symptom-calendar">
-          +
-        </div>
-
-        <div>
-          <strong>
-            Registro de síntomas
-          </strong>
-
-          <span>
-            {{ symptom.fecha_registro | date:'dd/MM/yyyy HH:mm' }}
-          </span>
-        </div>
-
-      </div>
-
-      <span class="symptom-severity">
-        {{ symptom.nivel_gravedad | uppercase }}
-      </span>
-
-    </div>
-
-
-    <!-- DATOS PRINCIPALES -->
-    <div class="symptom-metrics">
-
-      <!-- ÁNIMO -->
-      <div class="symptom-metric">
-
-        <span class="metric-label">
-          Ánimo
-        </span>
-
-        <strong>
-          {{ symptom.estado_animo || 'No registrado' }}
-        </strong>
-
-      </div>
-
-
-      <!-- DOLOR -->
-      <div class="symptom-metric">
-
-        <span class="metric-label">
-          Dolor
-        </span>
-
-        <strong>
-          {{ symptom.nivel_dolor !== null && symptom.nivel_dolor !== undefined
-            ? symptom.nivel_dolor + '/10'
-            : 'No registrado' }}
-        </strong>
-
-      </div>
-
-
-      <!-- SUEÑO -->
-      <div class="symptom-metric">
-
-        <span class="metric-label">
-          Sueño
-        </span>
-
-        <strong>
-          {{ symptom.calidad_sueno !== null && symptom.calidad_sueno !== undefined
-            ? symptom.calidad_sueno + '/10'
-            : 'No registrado' }}
-        </strong>
-
-      </div>
-
-
-      <!-- APETITO -->
-      <div class="symptom-metric">
-
-        <span class="metric-label">
-          Apetito
-        </span>
-
-        <strong>
-          {{ symptom.apetito || 'No registrado' }}
-        </strong>
-
-      </div>
-
-
-      <!-- TEMPERATURA -->
-      <div class="symptom-metric">
-
-        <span class="metric-label">
-          Temperatura
-        </span>
-
-        <strong>
-          {{ symptom.temperatura !== null && symptom.temperatura !== undefined
-            ? symptom.temperatura + ' °C'
-            : 'No registrada' }}
-        </strong>
-
-      </div>
-
-    </div>
-
-
-    <!-- OBSERVACIONES -->
-    @if (symptom.observaciones) {
-
-      <div class="symptom-observation">
-
-        <span>
-          Observaciones
-        </span>
-
-        <p>
-          {{ symptom.observaciones }}
-        </p>
-
-      </div>
-
-    }
-
-  </div>
-
-}
-
-          </article>
-
-
-          <!-- MEDICAMENTOS -->
-          <article class="dashboard-card">
-
+          <section class="card">
             <div class="card-header">
-
-              <h3>
-                Medicamentos
-              </h3>
-
-              <span>
-                {{ patientData.medications.length }}
-              </span>
-
+              <h2>Próximas citas</h2>
+              <a routerLink="/citas" class="small">Ver todas</a>
             </div>
-
-
-            <div class="medication-list">
-
-              @for (
-                medication of patientData.medications;
-                track medication.id
-              ) {
-
-                <div class="medication-item">
-
-                  <div class="medication-info">
-
-                    <div class="medication-icon">
-                      +
+            @if (data.proximas_citas.length) {
+              <ul class="list visits">
+                @for (visit of data.proximas_citas; track visit.id) {
+                  <li>
+                    <div class="date-chip">
+                      <strong>{{ visit.fecha.slice(8, 10) }}</strong>
+                      <span>{{ formatDate(visit.fecha).split(' ')[1] }}</span>
                     </div>
+                    <div class="grow">
+                      <p class="strong">{{ visit.titulo }}</p>
+                      <p class="small soft">{{ visit.paciente }} · {{ visit.especialidad }} · {{ formatTime(visit.hora) }}</p>
+                    </div>
+                    <span class="badge" [class]="'badge badge-' + visit.estado">{{ label(visit.estado) }}</span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <cg-empty icon="calendar" title="No hay citas próximas" />
+            }
+          </section>
+        </div>
 
-                    <div>
-
-                      <strong>
-                        {{ medication.nombre }}
-                      </strong>
-
-                      <span>
-                        {{ medication.dosis }}
-                        ·
-                        {{ medication.frecuencia }}
+        <div class="stack-lg">
+          <section class="card">
+            <div class="card-header">
+              <h2>Pacientes</h2>
+              <a routerLink="/pacientes" class="small">Gestionar</a>
+            </div>
+            <ul class="list patients">
+              @for (patient of data.pacientes; track patient.id) {
+                <li>
+                  <a [routerLink]="['/dashboard', patient.id]" (click)="focus(patient.id)">
+                    <span class="grow">
+                      <span class="strong">{{ patient.nombre }}</span>
+                      <span class="xsmall muted">
+                        {{ patient.ultimo_registro ? 'Último registro ' + formatRelative(patient.ultimo_registro) : 'Sin registros de síntomas' }}
                       </span>
-
-                    </div>
-
-                  </div>
-
-
-                  <div class="medication-time">
-
-                    {{ medication.hora }}
-
-                  </div>
-
-                </div>
-
+                    </span>
+                    @if (!patient.activo) { <span class="badge badge-inactivo">Inactivo</span> }
+                    @if (patient.alertas_activas) {
+                      <span class="badge badge-alto">{{ patient.alertas_activas }} alerta(s)</span>
+                    }
+                    <cg-icon name="chevron" [size]="18" />
+                  </a>
+                </li>
               }
+            </ul>
+          </section>
 
-            </div>
-
-          </article>
-
-
-         <!-- NOTAS -->
-<article class="dashboard-card">
-
-  <div class="card-header">
-
-    <div>
-
-      <h3>
-        Notas recientes
-      </h3>
-
-      <span class="notes-subtitle">
-        Registro y observaciones del cuidador
-      </span>
-
-    </div>
-
-    <span class="notes-count">
-      {{ patientData.recent_notes.length }}
-    </span>
-
-  </div>
-
-
-  <div class="note-list">
-
-    @for (
-      note of patientData.recent_notes;
-      track note.id
-    ) {
-
-      <div class="note-card">
-
-        <!-- ICONO -->
-        <div class="note-icon">
-          ✎
-        </div>
-
-
-        <!-- CONTENIDO -->
-        <div class="note-content">
-
-          <div class="note-header">
-
-            <strong>
-              Registro del cuidador
-            </strong>
-
-            <span class="note-date">
-              {{ note.fecha_registro | date:'dd/MM/yyyy HH:mm' }}
-            </span>
-
-          </div>
-
-
-          <p>
-            {{ note.contenido }}
-          </p>
-
-        </div>
-
-      </div>
-
-    }
-
-  </div>
-
-</article>
-        </div>
-
-
-        <!-- ===================================================
-             COLUMNA DERECHA
-             =================================================== -->
-
-        <div>
-
-
-          <!-- ALERTAS -->
-          <article class="dashboard-card">
-
+          <section class="card">
             <div class="card-header">
-
-              <h3>
-                Alertas activas
-              </h3>
-
-              <span>
-                {{ patientData.active_alerts.length }}
-              </span>
-
+              <h2>Alertas activas</h2>
+              <a routerLink="/alertas" class="small">Revisar</a>
             </div>
+            @if (alertTotal()) {
+              <div class="levels">
+                @for (level of ['alto', 'medio', 'bajo']; track level) {
+                  <div class="level" [class]="'level level-' + level">
+                    <span class="tabular">{{ $any(data.alertas_por_nivel)[level] }}</span>
+                    <small>{{ label(level) }}</small>
+                  </div>
+                }
+              </div>
+            } @else {
+              <cg-empty icon="check" title="Sin alertas pendientes" />
+            }
+          </section>
 
-
-            <div class="alert-list">
-
-              @for (
-                alert of patientData.active_alerts;
-                track alert.id
-              ) {
-
-               <div
-  class="alert-item"
-  [class.high]="alert.nivel === 'alto'"
-  [class.medium]="alert.nivel === 'medio'"
-  [class.low]="alert.nivel === 'bajo'">
-
-  <div class="alert-header">
-
-    <div class="alert-title-group">
-
-      <div class="alert-indicator">
-        !
-      </div>
-
-      <div>
-        <strong>
-          {{ alert.titulo }}
-        </strong>
-
-        <span class="alert-origin">
-          {{ alert.origen || 'Sistema de seguimiento' }}
-        </span>
-      </div>
-
-    </div>
-
-    <span class="alert-level">
-      {{ alert.nivel | uppercase }}
-    </span>
-
-  </div>
-
-  <p class="alert-message">
-    {{ alert.mensaje }}
-  </p>
-
-  <div class="alert-footer">
-
-    <span>
-      Estado: {{ alert.estado || 'Pendiente' }}
-    </span>
-
-    <span>
-      {{ alert.fecha_creacion | date:'dd/MM/yyyy HH:mm' }}
-    </span>
-
-  </div>
-
-</div>
-
-              }
-
-            </div>
-
-          </article>
-
-
-          <!-- ANÁLISIS HISTÓRICO -->
-<article class="dashboard-card">
-
-  <div class="card-header">
-
-    <div>
-      <h3>
-        Evolución del paciente
-      </h3>
-
-      <span class="analysis-subtitle">
-        Seguimiento basado en registros recientes
-      </span>
-    </div>
-
-    <span class="analysis-badge">
-      ✦ Análisis inteligente
-    </span>
-
-  </div>
-
-
-  <div class="analysis-box">
-
-    <!-- RESUMEN -->
-    <div class="analysis-summary">
-
-      <div class="analysis-score-card">
-
-        <span class="analysis-label">
-          Nivel de riesgo
-        </span>
-
-        <div class="analysis-score-value">
-  {{ patientData.historical_analysis.score }}
-</div>
-
-<span class="analysis-score-description">
-  Riesgo {{ patientData.historical_analysis.nivel | uppercase }}
-</span>
-
-      </div>
-
-
-      <div class="analysis-records-card">
-
-        <span class="analysis-label">
-          Registros analizados
-        </span>
-
-        <div class="analysis-records-value">
-          {{ patientData.historical_analysis.registros_analizados }}
+          <section class="card">
+            <div class="card-header"><h2>Actividad reciente</h2></div>
+            @if (data.actividad_reciente.length) {
+              <ul class="list activity">
+                @for (item of data.actividad_reciente; track item.id) {
+                  <li>
+                    <span class="activity-icon"><cg-icon [name]="activityIcon(item.tipo)" [size]="16" /></span>
+                    <div class="grow">
+                      <p class="small">{{ item.descripcion }}</p>
+                      <p class="xsmall muted">{{ item.paciente }} · {{ formatRelative(item.fecha) }}</p>
+                    </div>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <cg-empty icon="clock" title="Sin actividad registrada" />
+            }
+          </section>
         </div>
-
-        <span class="analysis-score-description">
-          Registros utilizados
-        </span>
-
       </div>
-
-    </div>
-
-
-    <!-- TENDENCIAS -->
-    <div class="analysis-section">
-
-      <div class="analysis-section-header">
-
-        <span class="analysis-section-icon">
-          ↗
-        </span>
-
-        <div>
-          <strong>
-            Tendencias detectadas
-          </strong>
-
-          <span>
-            Cambios identificados en la evolución
-          </span>
-        </div>
-
-      </div>
-
-
-      <div class="trend-list">
-
-        @for (
-          trend of patientData.historical_analysis.tendencias;
-          track trend
-        ) {
-
-          <div class="trend-item">
-
-            <span class="trend-indicator">
-              •
-            </span>
-
-            <span>
-              {{ trend }}
-            </span>
-
-          </div>
-
-        }
-
-      </div>
-
-    </div>
-
-
-    <!-- RECOMENDACIÓN -->
-    <div class="analysis-recommendation">
-
-      <div class="recommendation-header">
-
-        <span class="recommendation-icon">
-          ✓
-        </span>
-
-        <strong>
-          Recomendación
-        </strong>
-
-      </div>
-
-      <p>
-        {{ patientData.historical_analysis.recomendacion }}
-      </p>
-
-    </div>
-
-  </div>
-
-</article>
-
-
-          <!-- CITAS -->
-<article class="dashboard-card">
-
-  <div class="card-header">
-
-    <div>
-
-      <h3>
-        Próximas citas
-      </h3>
-
-      <span class="appointment-subtitle">
-        Actividades médicas programadas
-      </span>
-
-    </div>
-
-    <span class="appointment-count">
-      {{ patientData.upcoming_appointments.length }}
-    </span>
-
-  </div>
-
-
-  <div class="appointment-list">
-
-    @for (
-      appointment of patientData.upcoming_appointments;
-      track appointment.id
-    ) {
-
-      <div class="appointment-card">
-
-        <!-- FECHA -->
-        <div class="appointment-date">
-
-          <strong>
-            {{ appointment.fecha | date:'dd' }}
-          </strong>
-
-          <span>
-            {{ appointment.fecha | date:'MMM' | uppercase }}
-          </span>
-
-        </div>
-
-
-        <!-- INFORMACIÓN -->
-        <div class="appointment-info">
-
-          <div class="appointment-title-row">
-
-            <strong>
-              {{ appointment.titulo }}
-            </strong>
-
-            <span class="appointment-status">
-              Próxima
-            </span>
-
-          </div>
-
-
-          <span class="appointment-specialty">
-            {{ appointment.especialidad }}
-          </span>
-
-
-          <div class="appointment-detail">
-
-            <span class="detail-icon">
-              ●
-            </span>
-
-            {{ appointment.profesional }}
-
-          </div>
-
-
-          <div class="appointment-detail">
-
-            <span class="detail-icon">
-              ◷
-            </span>
-
-            {{ appointment.hora }}
-
-          </div>
-
-
-          <div class="appointment-detail">
-
-            <span class="detail-icon">
-              ▪
-            </span>
-
-            {{ appointment.lugar || 'Lugar no registrado' }}
-
-          </div>
-
-        </div>
-
-      </div>
-
+      <p class="xsmall muted">Calculado {{ formatRelative(data.generado) }} · Zona horaria {{ data.zona_horaria }}</p>
     }
-
-  </div>
-
-</article>
-
-        </div>
-
-        </section>
-
-    
-
-</section>
-
-    
-
-}
-</main>
-
+  }
 </div>
