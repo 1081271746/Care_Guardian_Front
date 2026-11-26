@@ -62,3 +62,20 @@ describe('Dashboard', () => {
     http.expectOne('/api/dashboard/summary').flush(SUMMARY);
   });
 });
+
+describe('Dashboard refresh', () => {
+  afterEach(() => vi.useRealTimers());
+
+  it('reloads the summary every five minutes while visible', () => {
+    vi.useFakeTimers();
+    const fixture = TestBed.createComponent(Dashboard);
+    const http = TestBed.inject(HttpTestingController);
+    fixture.detectChanges();
+    http.expectOne('/api/dashboard/summary').flush(SUMMARY);
+    vi.advanceTimersByTime(5 * 60 * 1000);
+    http.expectOne('/api/dashboard/summary').flush(SUMMARY);
+    fixture.destroy();
+    vi.advanceTimersByTime(5 * 60 * 1000);
+    http.expectNone('/api/dashboard/summary');
+  });
+});

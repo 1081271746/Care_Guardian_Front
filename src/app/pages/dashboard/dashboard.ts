@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Api } from '../../services/api';
@@ -11,6 +11,8 @@ import { BarChart } from '../../shared/bar-chart';
 import { EmptyState } from '../../shared/empty-state';
 import { Icon } from '../../shared/icon';
 import { label } from '../../shared/labels';
+
+const REFRESH_MS = 5 * 60 * 1000;
 
 const ACTIVITY_ICONS: Record<string, string> = {
   sintoma: 'pulse', nota: 'note', alerta: 'bell', medicamento: 'pill', cita: 'calendar',
@@ -65,6 +67,14 @@ export class Dashboard {
 
   constructor() {
     this.load();
+    // Keep the panel current while it stays open (e.g. on a shared tablet),
+    // only when the tab is visible so it never polls in the background.
+    if (typeof window !== 'undefined') {
+      const timer = window.setInterval(() => {
+        if (document.visibilityState === 'visible' && !this.loading()) this.load();
+      }, REFRESH_MS);
+      inject(DestroyRef).onDestroy(() => window.clearInterval(timer));
+    }
   }
 
   load(): void {
