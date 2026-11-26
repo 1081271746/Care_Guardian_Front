@@ -174,3 +174,43 @@ En el backend, `CORS_ORIGINS` debe incluir la URL pública del frontend.
 - Accesibilidad: foco visible, enlace “Saltar al contenido”, etiquetas en todos
   los campos, regiones `aria-live` para avisos, gráficas con descripción textual
   y respeto de `prefers-reduced-motion`.
+
+## Pruebas
+
+```sh
+npm run typecheck          # TypeScript de la app y de las pruebas
+npm test -- --watch=false  # pruebas unitarias y de componentes (Vitest)
+npm run test:cache         # caché pública de /recursos
+npm run build              # compilación de producción (incluye prerender de /privacidad)
+
+# Prueba de ejecución completa: levanta el backend real (SQLite desechable),
+# el servidor Node compilado y recorre login, permisos, estadísticas, proxy y SSR.
+BACKEND_DIR=../Care_Guardian_Back PYTHON=python npm run test:runtime
+```
+
+- Las pruebas usan `HttpTestingController`: ninguna depende de datos inventados
+  y cada petición esperada se verifica (URL, método y cuerpo).
+- Cobertura por página: login, panel, panel de paciente, pacientes, medicamentos,
+  citas, síntomas, notas, alertas, evolución, cuenta, shell, rutas, servicios y gráficas.
+
+## Despliegue en Railway
+
+1. Servicio **frontend** con este repositorio (usa `Dockerfile` y `railway.toml`).
+2. Variables:
+   - `API_BASE_URL` = URL del backend (`http://<backend>.railway.internal:<PORT>` o pública)
+   - `PUBLIC_ORIGIN` = `https://<frontend>.up.railway.app`
+   - opcional `NG_ALLOWED_HOSTS` si usas un dominio propio
+3. En el backend, `CORS_ORIGINS` = la misma URL pública del frontend.
+4. Despliega; Railway comprueba `/health`. Luego abre la URL, entra con la cuenta
+   de demostración y verifica Panel, Pacientes y Evolución.
+
+## Seguridad
+
+- El token JWT se guarda en `localStorage` y solo se envía a `/api/*`; si vence o
+  la API responde 401, se borra y se vuelve al login.
+- Al cerrar sesión se borran el token, el perfil y el paciente seleccionado.
+- La redirección posterior al login solo acepta rutas internas.
+- `src/server.ts` envía `Cache-Control: private, no-store`, `X-Frame-Options`,
+  `Referrer-Policy`, `Permissions-Policy` y `frame-ancestors 'none'`; el proxy
+  solo reenvía `Authorization`, `Content-Type`, la dirección del cliente y el id de petición.
+- La cuenta de demostración es pública por diseño; úsala solo con datos ficticios.
