@@ -1,48 +1,91 @@
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { switchMap } from 'rxjs';
+
 import { Auth } from '../../services/auth';
+import { apiError } from '../../services/errors';
+import { PatientContext } from '../../services/patient-context';
+import { Icon } from '../../shared/icon';
+
+const PASSWORD_RULE = /^(?=.*[A-Za-zÁÉÍÓÚáéíóúÑñ])(?=.*\d).{8,128}$/;
 
 @Component({
   selector: 'app-login',
-  standalone: true,
-  imports: [FormsModule],
+  imports: [ReactiveFormsModule, RouterLink, Icon],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './login.html',
-  styleUrl: './login.css'
+  styleUrl: './login.css',
 })
 export class Login {
+  private auth = inject(Auth);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private context = inject(PatientContext);
+  private fb = inject(FormBuilder);
 
-  email = '';
-  password = '';
+  readonly mode = signal<'login' | 'register'>('login');
+  readonly loading = signal(false);
+  readonly error = signal('');
+  readonly showPassword = signal(false);
+  readonly info = signal(this.initialInfo());
 
-  loading = false;
-  errorMessage = '';
+  readonly form = this.fb.nonNullable.group({
+    nombre: [''],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required]],
+  });
 
-  constructor(
-    private auth: Auth,
-    private router: Router
-  ) {}
+  private initialInfo(): string {
+    const reason = this.route.snapshot.queryParamMap.get('sesion');
+    if (reason === 'expirada') return 'Tu sesión expiró. Inicia sesión nuevamente para continuar.';
+    if (reason === 'cerrada') return 'Cerraste sesión correctamente.';
+    return '';
+  }
 
-  login(): void {
+  switchMode(mode: 'login' | 'register'): void {
+    this.mode.set(mode);
+    this.error.set('');
+    const nombre = this.form.controls.nombre;
+    const password = this.form.controls.password;
+    nombre.setValidators(mode === 'register' ? [Validators.required, Validators.minLength(2)] : []);
+    password.setValidators(mode === 'register'
+      ? [Validators.required, Validators.pattern(PASSWORD_RULE)] : [Validators.required]);
+    nombre.updateValueAndValidity();
+    password.updateValueAndValidity();
+  }
 
-    if (!this.email || !this.password) {
-      this.errorMessage = 'Por favor, completa todos los campos.';
+  invalid(control: 'nombre' | 'email' | 'password'): boolean {
+    const field = this.form.controls[control];
+    return field.invalid && (field.touched || field.dirty);
+  }
+
+  submit(): void {
+    if (this.loading()) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
+    const { nombre, email, password } = this.form.getRawValue();
+    this.loading.set(true);
+    this.error.set('');
+    this.info.set('');
+    const login$ = this.mode() === 'register'
+      ? this.auth.register(nombre, email, password).pipe(switchMap(() => this.auth.login(email, password)))
+      : this.auth.login(email, password);
 
-    this.loading = true;
-    this.errorMessage = '';
-
-    this.auth.login(this.email, this.password).subscribe({
+    login$.subscribe({
       next: () => {
-        this.loading = false;
-        this.router.navigate(['/dashboard']);
+        this.context.reset();
+        const target = this.route.snapshot.queryParamMap.get('volver');
+        // Only internal paths: never redirect to another origin.
+        const safe = target && target.startsWith('/') && !target.startsWith('//') ? target : '/dashboard';
+        this.router.navigateByUrl(safe);
       },
-
-      error: () => {
-        this.loading = false;
-        this.errorMessage = 'Correo o contraseña incorrectos.';
-      }
+      error: error => {
+        this.loading.set(false);
+        this.error.set(apiError(error, 'No fue posible iniciar sesión.'));
+      },
     });
   }
 }
