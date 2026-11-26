@@ -2,13 +2,23 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
 import {
-  Alert, AlertInput, AlertLevel, AlertStatus, ApiMessage, Appointment, AppointmentInput, Caregiver, CaregiverNote,
+  AiStatus, Alert, AlertInput, AlertLevel, AlertStatus, ApiMessage, Appointment, AppointmentInput, Caregiver, CaregiverNote,
   DashboardSummary, Evolution, Medication, Patient,
   MedicationInput, PatientDashboard, PatientInput, SavedAnalysis, SymptomInput, SymptomRecord,
 } from './models';
 
 /** Same-origin prefix; src/server.ts proxies it to API_BASE_URL. */
 export const API = '/api';
+export const CONSENT_VERSION = 'groq-minimized-v1';
+
+/** IANA zone of the browser, or '' during SSR / when unavailable. */
+export function browserZone(): string {
+  try {
+    return typeof window === 'undefined' ? '' : Intl.DateTimeFormat().resolvedOptions().timeZone ?? '';
+  } catch {
+    return '';
+  }
+}
 
 /** Drops empty values so optional filters never reach the API as "". */
 export function params(values: Record<string, string | number | boolean | null | undefined>): HttpParams {
@@ -170,9 +180,10 @@ export class Api {
   }
 
   // ---------------- Evolution ----------------
-  getEvolution(patientId: number, desde = '', hasta = '') {
+  /** Period days are interpreted in the browser's timezone (falls back to the server's). */
+  getEvolution(patientId: number, desde = '', hasta = '', zona = browserZone()) {
     return this.http.get<Evolution>(`${API}/evolution/patients/${patientId}`, {
-      params: params({ desde, hasta }),
+      params: params({ desde, hasta, zona }),
     });
   }
 
@@ -180,11 +191,20 @@ export class Api {
     return this.http.get<SavedAnalysis[]>(`${API}/evolution/patients/${patientId}/analyses`);
   }
 
-  analyzeEvolution(patientId: number, desde = '', hasta = '') {
+  /** Only call after the caregiver ticks the consent box; the API validates it again. */
+  analyzeEvolution(patientId: number, desde = '', hasta = '', zona = browserZone()) {
     return this.http.post<SavedAnalysis>(`${API}/evolution/patients/${patientId}/analyses`, {
-      consentimiento: true, version_consentimiento: 'groq-minimized-v1',
-      desde: desde || null, hasta: hasta || null,
+      consentimiento: true, version_consentimiento: CONSENT_VERSION,
+      desde: desde || null, hasta: hasta || null, zona: zona || null,
     });
+  }
+
+  getAnalysis(patientId: number, analysisId: number) {
+    return this.http.get<SavedAnalysis>(`${API}/evolution/patients/${patientId}/analyses/${analysisId}`);
+  }
+
+  getAiStatus() {
+    return this.http.get<AiStatus>(`${API}/evolution/ai-status`);
   }
 }
 
