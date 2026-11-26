@@ -8,7 +8,7 @@ Ejecutado localmente sobre el código de esta rama:
 |---|---|
 | `npm ci` con el lockfile existente | Aprobado |
 | `npm run typecheck` (app y pruebas) | Sin errores |
-| `ng test` (Vitest) | 19 archivos, 96 pruebas aprobadas, 0 fallidas |
+| `ng test` (Vitest) | 20 archivos, 107 pruebas aprobadas, 0 fallidas |
 | `npm run test:cache` | 2 pruebas aprobadas |
 | `ng build` producción (SSR + prerender de `/privacidad`) | Aprobado, sin advertencias; paquete inicial 406 kB (109 kB transferidos) |
 | `tests/runtime-smoke.mjs` con el backend de la rama | Aprobado: registro, login, 201 en creaciones, estadísticas reales, consentimiento, IA no configurada (503), resumen del panel, PUT/DELETE por el proxy, 401 sin token, SSR/SSG/ISR y caché |
