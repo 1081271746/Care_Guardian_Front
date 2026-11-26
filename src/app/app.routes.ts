@@ -21,7 +21,7 @@ export const routes: Routes = [
       { path: 'dashboard', title: 'Panel · CareGuardian',
         loadComponent: () => import('./pages/dashboard/dashboard').then(m => m.Dashboard) },
       { path: 'dashboard/:patientId', title: 'Paciente · CareGuardian',
-        loadComponent: () => import('./pages/dashboard/dashboard').then(m => m.Dashboard) },
+        loadComponent: () => import('./pages/paciente/paciente').then(m => m.Paciente) },
       { path: 'pacientes', title: 'Pacientes · CareGuardian',
         loadComponent: () => import('./pages/pacientes/pacientes').then(m => m.Pacientes) },
       { path: 'medicamentos', title: 'Medicamentos · CareGuardian',
