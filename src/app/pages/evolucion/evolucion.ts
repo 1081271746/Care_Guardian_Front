@@ -14,6 +14,7 @@ import { RecordText } from '../../shared/record-text';
 import { METRIC_LABELS, label } from '../../shared/labels';
 import { LineChart } from '../../shared/line-chart';
 import { PatientPicker } from '../../shared/patient-picker';
+import { Notifier } from '../../services/notifier';
 
 export const PRESETS = [
   { id: '7', label: '7 días', days: 7 },
@@ -40,6 +41,7 @@ export class Evolucion {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   protected context = inject(PatientContext);
+  private notifier = inject(Notifier);
   private loadRequest?: Subscription;
   private aiRequest?: Subscription;
 
@@ -187,6 +189,15 @@ export class Evolucion {
           this.analyzing.set(false);
         },
       });
+  }
+
+  /** Copies a link to this patient and period; only assigned caregivers can open it. */
+  copyLink(): void {
+    if (typeof window === 'undefined' || !navigator.clipboard) return;
+    navigator.clipboard.writeText(window.location.href).then(
+      () => this.notifier.success('Enlace copiado. Solo lo pueden abrir cuidadores asignados.'),
+      () => this.notifier.error('No fue posible copiar el enlace.'),
+    );
   }
 
   /** Prints the current period (charts, figures and saved summary) for an appointment. */
