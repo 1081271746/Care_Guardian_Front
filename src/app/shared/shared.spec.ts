@@ -51,3 +51,19 @@ describe('splitDemo', () => {
     expect(splitDemo(null).text).toBe('');
   });
 });
+
+describe('ConnectionBanner', () => {
+  it('appears when the browser goes offline and hides when it returns', async () => {
+    const { ConnectionBanner } = await import('./connection-banner');
+    const fixture = TestBed.createComponent(ConnectionBanner);
+    fixture.detectChanges();
+    const online = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    window.dispatchEvent(new Event('offline'));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Sin conexión');
+    online.mockReturnValue(true);
+    window.dispatchEvent(new Event('online'));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).not.toContain('Sin conexión');
+  });
+});
