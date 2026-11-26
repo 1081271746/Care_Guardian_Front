@@ -28,6 +28,7 @@ export class Login {
   readonly loading = signal(false);
   readonly error = signal('');
   readonly showPassword = signal(false);
+  readonly capsLock = signal(false);
   readonly info = signal(this.initialInfo());
 
   readonly form = this.fb.nonNullable.group({
@@ -41,6 +42,11 @@ export class Login {
     if (reason === 'expirada') return 'Tu sesión expiró. Inicia sesión nuevamente para continuar.';
     if (reason === 'cerrada') return 'Cerraste sesión correctamente.';
     return '';
+  }
+
+  /** Warns about Caps Lock, a frequent cause of failed logins for older users. */
+  checkCaps(event: KeyboardEvent): void {
+    this.capsLock.set(event.getModifierState?.('CapsLock') ?? false);
   }
 
   switchMode(mode: 'login' | 'register'): void {

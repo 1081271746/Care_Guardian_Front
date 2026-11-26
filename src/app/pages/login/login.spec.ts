@@ -75,6 +75,15 @@ describe('Login', () => {
     expect(fixture.nativeElement.textContent).toContain('Tu sesión expiró');
   });
 
+  it('warns when Caps Lock is on', () => {
+    const { fixture, component } = setup();
+    const event = new KeyboardEvent('keyup', { key: 'A' });
+    vi.spyOn(event, 'getModifierState').mockReturnValue(true);
+    component.checkCaps(event);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Bloq Mayús está activado');
+  });
+
   it('toggles password visibility', () => {
     const { fixture, component } = setup();
     const input = fixture.nativeElement.querySelector('#password') as HTMLInputElement;

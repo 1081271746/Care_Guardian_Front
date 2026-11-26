@@ -48,12 +48,14 @@
           <label for="password" class="required">Contraseña</label>
           <div class="password">
             <input id="password" class="input" [type]="showPassword() ? 'text' : 'password'" formControlName="password"
-                   [attr.autocomplete]="mode() === 'login' ? 'current-password' : 'new-password'">
+                   [attr.autocomplete]="mode() === 'login' ? 'current-password' : 'new-password'"
+                   (keyup)="checkCaps($event)" (keydown)="checkCaps($event)">
             <button type="button" class="btn btn-ghost btn-icon" (click)="showPassword.set(!showPassword())"
                     [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
               <cg-icon [name]="showPassword() ? 'eye-off' : 'eye'" />
             </button>
           </div>
+          @if (capsLock()) { <span class="hint caps" role="status">Bloq Mayús está activado.</span> }
           @if (mode() === 'register') {
             <span class="hint">Mínimo 8 caracteres, con letras y números.</span>
           }

@@ -44,3 +44,4 @@
   .story-copy p, .pillars, .story::after { display: none; }
   .story h1 { font-size: 1.6rem; }
 }
+.caps { color: var(--cg-warn); font-weight: 600; }
