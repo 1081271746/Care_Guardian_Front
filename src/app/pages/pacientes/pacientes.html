@@ -1,443 +1,174 @@
-<div class="patients-page">
-
-  <!-- ENCABEZADO -->
-  <header class="patients-header">
+<div class="page">
+  <header class="page-header">
     <div>
-      <span class="page-eyebrow">CUIDADO</span>
+      <p class="eyebrow">Equipo de cuidado</p>
       <h1>Pacientes</h1>
-      <p>Gestiona y consulta los pacientes bajo seguimiento.</p>
+      <p class="lede">Adultos mayores asignados a ti. Quien registra un paciente queda asignado automáticamente.</p>
     </div>
-
-    <button
-      class="primary-button"
-      type="button"
-      (click)="openPatientForm()"
-    >
-      + Nuevo paciente
-    </button>
+    <div class="header-actions">
+      <button type="button" class="btn btn-primary" (click)="openNew()"><cg-icon name="plus" /> Nuevo paciente</button>
+    </div>
   </header>
 
-
-  <!-- FORMULARIO NUEVO PACIENTE -->
-  @if (showForm) {
-
-    <section class="patient-form-card">
-
-      <div class="form-header">
-        <div>
-          <span class="page-eyebrow">REGISTRO</span>
-          <h2>Registrar nuevo paciente</h2>
-          <p>
-            Ingresa la información básica de la persona que estará
-            bajo seguimiento.
-          </p>
-        </div>
-
-        <button
-          class="close-form-button"
-          type="button"
-          (click)="closePatientForm()"
-        >
-          ×
-        </button>
+  @if (editing() !== null) {
+    <section class="card form-card" aria-labelledby="patient-form-title">
+      <div class="card-header">
+        <h2 id="patient-form-title">{{ editing() ? 'Editar paciente' : 'Registrar paciente' }}</h2>
+        <button type="button" class="btn btn-ghost btn-icon" (click)="close()" aria-label="Cerrar formulario"><cg-icon name="close" /></button>
       </div>
-
-
-      <!-- ERROR DEL FORMULARIO -->
-      @if (formError) {
-        <div class="form-error">
-          <span>!</span>
-          <div>
-            <strong>No se pudo registrar el paciente</strong>
-            <p>{{ formError }}</p>
+      @if (formError()) { <div class="notice notice-error" role="alert"><cg-icon name="warning" />{{ formError() }}</div> }
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="form-grid mt-4">
+          <div class="field">
+            <label for="nombres" class="required">Nombres</label>
+            <input id="nombres" class="input" formControlName="nombres" autocomplete="off">
+            @if (invalid('nombres')) { <span class="error">Escribe los nombres.</span> }
+          </div>
+          <div class="field">
+            <label for="apellidos" class="required">Apellidos</label>
+            <input id="apellidos" class="input" formControlName="apellidos" autocomplete="off">
+            @if (invalid('apellidos')) { <span class="error">Escribe los apellidos.</span> }
+          </div>
+          <div class="field">
+            <label for="fecha_nacimiento" class="required">Fecha de nacimiento</label>
+            <input id="fecha_nacimiento" class="input" type="date" min="1900-01-01" [max]="today" formControlName="fecha_nacimiento">
+            @if (invalid('fecha_nacimiento')) { <span class="error">Indica la fecha de nacimiento.</span> }
+          </div>
+          <div class="field">
+            <label for="documento" class="required">Documento</label>
+            <input id="documento" class="input" formControlName="documento" autocomplete="off">
+            @if (invalid('documento')) { <span class="error">3 a 30 letras, números, puntos o guiones.</span> }
+          </div>
+          <div class="field">
+            <label for="telefono">Teléfono</label>
+            <input id="telefono" class="input" type="tel" formControlName="telefono">
+            @if (invalid('telefono')) { <span class="error">Teléfono no válido.</span> }
+          </div>
+          <div class="field">
+            <label for="direccion">Dirección</label>
+            <input id="direccion" class="input" formControlName="direccion">
+          </div>
+          <div class="field">
+            <label for="contacto_emergencia">Contacto de emergencia</label>
+            <input id="contacto_emergencia" class="input" formControlName="contacto_emergencia">
+          </div>
+          <div class="field">
+            <label for="telefono_emergencia">Teléfono de emergencia</label>
+            <input id="telefono_emergencia" class="input" type="tel" formControlName="telefono_emergencia">
+            @if (invalid('telefono_emergencia')) { <span class="error">Teléfono no válido.</span> }
           </div>
         </div>
-      }
-
-
-      <form
-        class="patient-form"
-        (submit)="createPatient(); $event.preventDefault()"
-      >
-
-        <!-- INFORMACIÓN PERSONAL -->
-        <div class="form-section">
-
-          <div class="form-section-title">
-            <span>01</span>
-            <div>
-              <h3>Información personal</h3>
-              <p>Datos principales del paciente.</p>
-            </div>
-          </div>
-
-
-          <div class="form-grid">
-
-            <div class="form-field">
-              <label for="nombres">
-                Nombres <span>*</span>
-              </label>
-
-              <input
-                id="nombres"
-                type="text"
-                name="nombres"
-                [(ngModel)]="newPatient.nombres"
-                placeholder="Ej. María Elena"
-                required
-              />
-            </div>
-
-
-            <div class="form-field">
-              <label for="apellidos">
-                Apellidos <span>*</span>
-              </label>
-
-              <input
-                id="apellidos"
-                type="text"
-                name="apellidos"
-                [(ngModel)]="newPatient.apellidos"
-                placeholder="Ej. Gómez Rodríguez"
-                required
-              />
-            </div>
-
-
-            <div class="form-field">
-              <label for="documento">
-                Documento <span>*</span>
-              </label>
-
-              <input
-                id="documento"
-                type="text"
-                name="documento"
-                [(ngModel)]="newPatient.documento"
-                placeholder="Ej. 1234567890"
-                required
-              />
-            </div>
-
-
-            <div class="form-field">
-              <label for="fecha_nacimiento">
-                Fecha de nacimiento <span>*</span>
-              </label>
-
-              <input
-                id="fecha_nacimiento"
-                type="date"
-                name="fecha_nacimiento"
-                [(ngModel)]="newPatient.fecha_nacimiento"
-                required
-              />
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- INFORMACIÓN DE CONTACTO -->
-        <div class="form-section">
-
-          <div class="form-section-title">
-            <span>02</span>
-            <div>
-              <h3>Información de contacto</h3>
-              <p>Información útil para el seguimiento.</p>
-            </div>
-          </div>
-
-
-          <div class="form-grid">
-
-            <div class="form-field">
-              <label for="telefono">
-                Teléfono
-              </label>
-
-              <input
-                id="telefono"
-                type="tel"
-                name="telefono"
-                [(ngModel)]="newPatient.telefono"
-                placeholder="Ej. 300 123 4567"
-              />
-            </div>
-
-
-            <div class="form-field form-field-full">
-              <label for="direccion">
-                Dirección
-              </label>
-
-              <input
-                id="direccion"
-                type="text"
-                name="direccion"
-                [(ngModel)]="newPatient.direccion"
-                placeholder="Ej. Calle 10 # 20-30"
-              />
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- CONTACTO DE EMERGENCIA -->
-        <div class="form-section">
-
-          <div class="form-section-title">
-            <span>03</span>
-            <div>
-              <h3>Contacto de emergencia</h3>
-              <p>Persona que puede ser contactada ante una situación urgente.</p>
-            </div>
-          </div>
-
-
-          <div class="form-grid">
-
-            <div class="form-field">
-              <label for="contacto_emergencia">
-                Nombre del contacto
-              </label>
-
-              <input
-                id="contacto_emergencia"
-                type="text"
-                name="contacto_emergencia"
-                [(ngModel)]="newPatient.contacto_emergencia"
-                placeholder="Ej. Carlos Gómez"
-              />
-            </div>
-
-
-            <div class="form-field">
-              <label for="telefono_emergencia">
-                Teléfono de emergencia
-              </label>
-
-              <input
-                id="telefono_emergencia"
-                type="tel"
-                name="telefono_emergencia"
-                [(ngModel)]="newPatient.telefono_emergencia"
-                placeholder="Ej. 310 456 7890"
-              />
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- ACCIONES -->
         <div class="form-actions">
-
-          <button
-            type="button"
-            class="secondary-button"
-            (click)="closePatientForm()"
-            [disabled]="creatingPatient"
-          >
-            Cancelar
+          <button type="button" class="btn btn-secondary" (click)="close()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+            @if (saving()) { <span class="spinner"></span> } {{ editing() ? 'Guardar cambios' : 'Registrar paciente' }}
           </button>
-
-
-          <button
-            type="submit"
-            class="primary-button"
-            [disabled]="creatingPatient"
-          >
-
-            @if (creatingPatient) {
-              Registrando...
-            } @else {
-              Registrar paciente
-            }
-
-          </button>
-
         </div>
-
       </form>
-
     </section>
-
   }
 
+  <section class="toolbar">
+    <div class="field grow">
+      <label for="search">Buscar</label>
+      <input id="search" class="input" type="search" placeholder="Nombre, apellido o documento"
+             [value]="query()" (input)="query.set($any($event.target).value)">
+    </div>
+    <div class="field">
+      <label for="status">Estado</label>
+      <select id="status" class="select" [value]="status()" (change)="status.set($any($event.target).value)">
+        <option value="activos">Activos</option>
+        <option value="inactivos">Inactivos</option>
+        <option value="todos">Todos</option>
+      </select>
+    </div>
+  </section>
 
-  <!-- ESTADO DE CARGA -->
-  @if (loading && patients.length === 0) {
-
-    <section class="patients-state">
-
-      <div class="state-icon">
-        ...
-      </div>
-
-      <h3>Cargando pacientes</h3>
-
-      <p>
-        Estamos obteniendo la información del sistema.
-      </p>
-
-    </section>
-
+  @if (error()) {
+    <div class="notice notice-error" role="alert"><cg-icon name="warning" />{{ error() }}
+      <button type="button" class="btn btn-sm btn-secondary" (click)="refresh()">Reintentar</button></div>
   }
 
-
-  <!-- ERROR AL CARGAR -->
-  @if (!loading && errorMessage) {
-
-    <section class="patients-state error-state">
-
-      <div class="state-icon">
-        !
-      </div>
-
-      <h3>No fue posible cargar los pacientes</h3>
-
-      <p>
-        {{ errorMessage }}
-      </p>
-
+  @if (loading() && !context.patients().length) {
+    <div class="card"><div class="skeleton" style="height:160px"></div></div>
+  } @else if (!visible().length) {
+    <section class="card">
+      @if (context.patients().length) {
+        <cg-empty icon="search" title="Ningún paciente coincide" text="Cambia la búsqueda o el filtro de estado." />
+      } @else {
+        <cg-empty icon="users" title="Aún no tienes pacientes" text="Registra al primer adulto mayor que acompañas.">
+          <button type="button" class="btn btn-primary mt-2" (click)="openNew()"><cg-icon name="plus" /> Nuevo paciente</button>
+        </cg-empty>
+      }
     </section>
-
-  }
-
-
-  <!-- LISTA DE PACIENTES -->
-  @if (patients.length > 0) {
-
-    <section class="patients-content">
-
-      <div class="patients-summary">
-
-        <div class="summary-box">
-          <span>Pacientes registrados</span>
-          <strong>{{ patients.length }}</strong>
-        </div>
-
-        <div class="summary-box active-summary">
-          <span>Seguimiento activo</span>
-          <strong>{{ patients.length }}</strong>
-        </div>
-
-      </div>
-
-
-      <div class="patients-card">
-
-        <div class="patients-card-header">
-
-          <div>
-            <h2>Pacientes</h2>
-            <span>
-              Personas registradas en CareGuardian
-            </span>
+  } @else {
+    <div class="patients">
+      @for (patient of visible(); track patient.id) {
+        <article class="card patient" [class.inactive]="!patient.activo">
+          <div class="row">
+            <span class="avatar" aria-hidden="true">{{ patient.nombres[0] }}{{ patient.apellidos[0] }}</span>
+            <div class="grow">
+              <h3>{{ fullName(patient) }}</h3>
+              <p class="small soft">{{ patient.edad }} años · Doc. {{ patient.documento }}</p>
+            </div>
+            @if (!patient.activo) { <span class="badge badge-inactivo">Inactivo</span> }
           </div>
-
-          <span class="patient-count">
-            {{ patients.length }}
-          </span>
-
-        </div>
-
-
-        <div class="patient-list">
-
-          @for (patient of patients; track patient.id) {
-
-            <article class="patient-item">
-
-              <div class="patient-avatar">
-                {{ patient.nombres.charAt(0) }}
-              </div>
-
-
-              <div class="patient-main">
-
-                <div class="patient-name-row">
-
-                  <h3>
-                    {{ patient.nombres }}
-                    {{ patient.apellidos }}
-                  </h3>
-
-                  @if (patient.activo) {
-                    <span class="patient-status">
-                      Activo
-                    </span>
-                  }
-
-                </div>
-
-
-                <div class="patient-details">
-
-                  <span>
-                    Documento: {{ patient.documento }}
-                  </span>
-
-                  <span>
-                    Nacimiento:
-                    {{ patient.fecha_nacimiento | date:'dd/MM/yyyy' }}
-                  </span>
-
-                  <span>
-                    Teléfono:
-                    {{ patient.telefono || 'No registrado' }}
-                  </span>
-
-                </div>
-
-              </div>
-
-
-              <a
-                class="view-button"
-                [routerLink]="['/dashboard', patient.id]"
-              >
-                Ver paciente
-              </a>
-
-            </article>
-
-          }
-
-        </div>
-
-      </div>
-
-    </section>
-
+          <dl class="facts small">
+            <div><dt>Nacimiento</dt><dd>{{ formatDate(patient.fecha_nacimiento) }}</dd></div>
+            <div><dt>Teléfono</dt><dd>{{ patient.telefono ?? '—' }}</dd></div>
+            <div><dt>Emergencia</dt><dd>{{ patient.contacto_emergencia ?? '—' }}
+              @if (patient.telefono_emergencia) { · {{ patient.telefono_emergencia }} }</dd></div>
+          </dl>
+          <div class="row actions">
+            <a class="btn btn-primary btn-sm" [routerLink]="['/dashboard', patient.id]" (click)="context.select(patient.id)">
+              Ver panel <cg-icon name="chevron" [size]="16" /></a>
+            <button type="button" class="btn btn-secondary btn-sm" (click)="openEdit(patient)"><cg-icon name="edit" /> Editar</button>
+            <button type="button" class="btn btn-secondary btn-sm" (click)="openTeam(patient)"><cg-icon name="users" /> Equipo</button>
+            <button type="button" class="btn btn-sm" [class]="patient.activo ? 'btn btn-sm btn-danger' : 'btn btn-sm btn-secondary'"
+                    (click)="toggleActive(patient)">
+              <cg-icon [name]="patient.activo ? 'archive' : 'refresh'" /> {{ patient.activo ? 'Desactivar' : 'Reactivar' }}
+            </button>
+          </div>
+        </article>
+      }
+    </div>
   }
 
-
-  <!-- SIN PACIENTES -->
-  @if (!loading && !errorMessage && patients.length === 0) {
-
-    <section class="patients-state">
-
-      <div class="state-icon">
-        ♥
+  @if (teamFor(); as patient) {
+    <section class="card team" aria-labelledby="team-title">
+      <div class="card-header">
+        <h2 id="team-title">Equipo de cuidado de {{ fullName(patient) }}</h2>
+        <button type="button" class="btn btn-ghost btn-icon" (click)="teamFor.set(null)" aria-label="Cerrar equipo"><cg-icon name="close" /></button>
       </div>
-
-      <h3>No hay pacientes registrados</h3>
-
-      <p>
-        Todavía no existen pacientes disponibles para este cuidador.
-      </p>
-
+      @if (teamError()) { <div class="notice notice-error" role="alert"><cg-icon name="warning" />{{ teamError() }}</div> }
+      <ul class="list">
+        @for (member of team(); track member.user_id) {
+          <li class="row between">
+            <div><p class="strong small">{{ member.nombre }}</p><p class="xsmall muted">{{ member.email }}</p></div>
+            <div class="row">
+              <span class="badge plain badge-info">{{ label(member.rol) }}</span>
+              <button type="button" class="btn btn-ghost btn-sm" (click)="removeCaregiver(member)"
+                      [disabled]="team().length === 1" [attr.aria-label]="'Quitar a ' + member.nombre">Quitar</button>
+            </div>
+          </li>
+        }
+      </ul>
+      <form [formGroup]="teamForm" (ngSubmit)="addCaregiver()" class="toolbar mt-4" novalidate>
+        <div class="field grow">
+          <label for="team-email">Correo de la cuenta del cuidador</label>
+          <input id="team-email" class="input" type="email" formControlName="email" placeholder="persona@correo.com">
+        </div>
+        <div class="field">
+          <label for="team-rol">Rol</label>
+          <select id="team-rol" class="select" formControlName="rol">
+            <option value="familiar">Familiar</option>
+            <option value="cuidador">Cuidador</option>
+            <option value="profesional">Profesional</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary"><cg-icon name="plus" /> Agregar</button>
+      </form>
+      <p class="xsmall muted mt-2">La persona debe tener una cuenta en CareGuardian. Verá todos los registros de este paciente.</p>
     </section>
-
   }
-
 </div>
