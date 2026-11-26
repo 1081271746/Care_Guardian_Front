@@ -27,13 +27,13 @@
 
   <div class="sidebar-footer">
     <a routerLink="/privacidad" class="privacy"><cg-icon name="shield" [size]="18" /> Privacidad e IA</a>
-    <div class="profile">
+    <a routerLink="/cuenta" routerLinkActive="current" class="profile" title="Mi cuenta">
       <span class="avatar" aria-hidden="true">{{ user() ? initials(user()!.nombre) : '·' }}</span>
       <div class="who">
         <strong>{{ user()?.nombre ?? 'Cargando…' }}</strong>
         <span>{{ user()?.email }}</span>
       </div>
-    </div>
+    </a>
     <button type="button" class="btn btn-secondary logout" (click)="logout()">
       <cg-icon name="logout" /> Cerrar sesión
     </button>

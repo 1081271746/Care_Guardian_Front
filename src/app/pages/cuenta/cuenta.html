@@ -1,0 +1,59 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Mi cuenta</p>
+      <h1>{{ user()?.nombre ?? 'Cuenta' }}</h1>
+      @if (user(); as me) {
+        <p class="lede">Cuenta creada el {{ formatDate(me.fecha_creacion.slice(0, 10)) }} ·
+          {{ me.pacientes_asignados }} paciente(s) asignado(s)</p>
+      }
+    </div>
+  </header>
+
+  <div class="grid grid-2">
+    <section class="card" aria-labelledby="profile-title">
+      <div class="card-header"><h2 id="profile-title">Datos de la cuenta</h2></div>
+      @if (profileError()) { <div class="notice notice-error" role="alert"><cg-icon name="warning" />{{ profileError() }}</div> }
+      <form [formGroup]="profile" (ngSubmit)="saveProfile()" novalidate class="stack mt-4">
+        <div class="field">
+          <label for="nombre" class="required">Nombre</label>
+          <input id="nombre" class="input" formControlName="nombre" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="email" class="required">Correo</label>
+          <input id="email" class="input" type="email" formControlName="email" autocomplete="email">
+          @if (profile.controls.email.invalid && profile.controls.email.touched) { <span class="error">Correo no válido.</span> }
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="savingProfile() || profile.pristine">Guardar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="password-title">
+      <div class="card-header"><h2 id="password-title">Cambiar contraseña</h2></div>
+      <p class="small soft">Al cambiarla se cerrarán todas tus sesiones abiertas, también la actual.</p>
+      @if (passwordError()) { <div class="notice notice-error mt-2" role="alert"><cg-icon name="warning" />{{ passwordError() }}</div> }
+      <form [formGroup]="password" (ngSubmit)="changePassword()" novalidate class="stack mt-4">
+        <div class="field">
+          <label for="actual" class="required">Contraseña actual</label>
+          <input id="actual" class="input" type="password" formControlName="actual" autocomplete="current-password">
+        </div>
+        <div class="field">
+          <label for="nueva" class="required">Nueva contraseña</label>
+          <input id="nueva" class="input" type="password" formControlName="nueva" autocomplete="new-password">
+          <span class="hint">Mínimo 8 caracteres, con letras y números.</span>
+          @if (password.controls.nueva.invalid && password.controls.nueva.touched) { <span class="error">No cumple los requisitos.</span> }
+        </div>
+        <div class="field">
+          <label for="confirmacion" class="required">Repite la nueva contraseña</label>
+          <input id="confirmacion" class="input" type="password" formControlName="confirmacion" autocomplete="new-password">
+          @if (mismatch()) { <span class="error">Las contraseñas no coinciden.</span> }
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="savingPassword()">Cambiar contraseña</button>
+        </div>
+      </form>
+    </section>
+  </div>
+</div>

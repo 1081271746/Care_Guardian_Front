@@ -27,7 +27,8 @@ describe('App', () => {
   it('declares a lazy route for every private module', () => {
     const shell = routes.find(route => route.children)!;
     expect(shell.children!.map(child => child.path)).toEqual([
-      'dashboard', 'dashboard/:patientId', 'pacientes', 'medicamentos', 'citas', 'sintomas', 'notas', 'alertas', 'evolucion',
+      'dashboard', 'dashboard/:patientId', 'pacientes', 'medicamentos', 'citas', 'sintomas', 'notas', 'alertas', 'cuenta',
+      'evolucion',
     ]);
     expect(shell.children!.every(child => typeof child.loadComponent === 'function')).toBe(true);
   });

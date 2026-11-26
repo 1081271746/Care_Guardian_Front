@@ -34,6 +34,8 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/notas/notas').then(m => m.Notas) },
       { path: 'alertas', title: 'Alertas · CareGuardian',
         loadComponent: () => import('./pages/alertas/alertas').then(m => m.Alertas) },
+      { path: 'cuenta', title: 'Mi cuenta · CareGuardian',
+        loadComponent: () => import('./pages/cuenta/cuenta').then(m => m.Cuenta) },
       { path: 'evolucion', title: 'Evolución · CareGuardian',
         loadComponent: () => import('./pages/evolucion/evolucion').then(m => m.Evolucion) },
     ],
