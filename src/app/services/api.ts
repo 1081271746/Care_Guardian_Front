@@ -94,8 +94,11 @@ export class Api {
   }
 
   // ---------------- Symptoms ----------------
-  getPatientSymptoms(patientId: number) {
-    return this.http.get<SymptomRecord[]>(`${API}/symptoms/patients/${patientId}`);
+  /** Newest first; the API caps each page (default 200, max 1000). */
+  getPatientSymptoms(patientId: number, limit?: number, offset?: number) {
+    return this.http.get<SymptomRecord[]>(`${API}/symptoms/patients/${patientId}`, {
+      params: params({ limit, offset }),
+    });
   }
 
   createSymptom(patientId: number, symptom: SymptomInput) {
@@ -152,8 +155,10 @@ export class Api {
   }
 
   // ---------------- Notes ----------------
-  getPatientNotes(patientId: number) {
-    return this.http.get<CaregiverNote[]>(`${API}/notes/patients/${patientId}`);
+  getPatientNotes(patientId: number, limit?: number, offset?: number) {
+    return this.http.get<CaregiverNote[]>(`${API}/notes/patients/${patientId}`, {
+      params: params({ limit, offset }),
+    });
   }
 
   createNote(patientId: number, note: object) {
