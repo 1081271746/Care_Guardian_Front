@@ -230,3 +230,14 @@ Datos ficticios de demostración.
 Más documentación: [`docs/AUDITORIA.md`](docs/AUDITORIA.md),
 [`docs/VERIFICACION.md`](docs/VERIFICACION.md), [`docs/RENDERING.md`](docs/RENDERING.md),
 [`CHANGELOG.md`](CHANGELOG.md).
+
+## Solución de problemas
+
+| Síntoma | Causa probable | Qué revisar |
+|---|---|---|
+| Toda llamada responde “API no configurada” (503) | Falta `API_BASE_URL` en el servicio del frontend | Variables del servicio en Railway |
+| “No fue posible contactar con el backend” (502) | URL del backend incorrecta o servicio caído | `API_BASE_URL`, `/health` del backend |
+| Siempre vuelve al login con “Tu sesión expiró” | `SECRET_KEY` del backend cambió o el token venció | Iniciar sesión de nuevo (es lo esperado tras rotar la clave) |
+| “El servicio de IA no está disponible” en Evolución | El backend no tiene `GROQ_API_KEY`/`GROQ_MODEL` | Variables del backend y `python -m scripts.check_groq` |
+| Página en blanco tras desplegar un dominio propio | Host no permitido por Angular SSR | Agregar el dominio en `NG_ALLOWED_HOSTS` |
+| No aparece ningún paciente | La cuenta no tiene pacientes asignados | Registrar uno o ejecutar la carga de demostración del backend |
