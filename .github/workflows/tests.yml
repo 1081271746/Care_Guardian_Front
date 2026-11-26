@@ -1,4 +1,4 @@
-name: Frontend verification
+﻿name: Frontend verification
 on: [push, pull_request]
 concurrency:
   group: frontend-${{ github.ref }}
@@ -21,9 +21,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: 1081271746/Care_Guardian_Back
-          # Backend branch with the matching API (201 responses, /dashboard/summary,
+          # Backend branch with the matching API (200 responses, /dashboard/summary,
           # /evolution/ai-status). Switch to main once that PR is merged.
-          ref: mejoras/auditoria-produccion
+          ref: mejoras/dashboard-summary-ai-status
           path: backend-smoke
       - uses: actions/setup-python@v5
         with:
@@ -33,3 +33,4 @@ jobs:
         env:
           BACKEND_DIR: backend-smoke
           PYTHON: python
+
