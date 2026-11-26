@@ -1,233 +1,137 @@
-import { AppointmentStatus } from '../../services/models';
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+
 import { Api } from '../../services/api';
+import { apiError } from '../../services/errors';
+import { addDays, formatDate, formatTime, todayISO } from '../../services/format';
+import { Appointment, AppointmentInput, AppointmentStatus } from '../../services/models';
+import { Notifier } from '../../services/notifier';
+import { PatientContext } from '../../services/patient-context';
+import { EmptyState } from '../../shared/empty-state';
+import { Icon } from '../../shared/icon';
+import { label } from '../../shared/labels';
+import { PatientPicker } from '../../shared/patient-picker';
 
 @Component({
   selector: 'app-citas',
-  standalone: true,
-  imports: [
-    FormsModule,
-    DatePipe
-  ],
+  imports: [ReactiveFormsModule, Icon, EmptyState, PatientPicker],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './citas.html',
-  styleUrl: './citas.css'
+  styleUrl: './citas.css',
 })
-export class Citas implements OnInit {
+export class Citas {
+  private api = inject(Api);
+  private fb = inject(FormBuilder);
+  private notifier = inject(Notifier);
+  protected context = inject(PatientContext);
 
-  patientId = 0;
-  private route = inject(ActivatedRoute);
+  readonly appointments = signal<Appointment[]>([]);
+  readonly loading = signal(false);
+  readonly saving = signal(false);
+  readonly error = signal('');
+  readonly formError = signal('');
+  readonly editing = signal<number | null>(null);
+  readonly today = todayISO();
 
-  appointments: any[] = [];
+  protected label = label;
+  protected formatDate = formatDate;
+  protected formatTime = formatTime;
+  protected statuses: AppointmentStatus[] = ['pendiente', 'confirmada', 'completada', 'cancelada'];
 
-  loading = true;
-  saving = false;
+  /** Upcoming first (soonest on top), then past visits (most recent on top). */
+  readonly upcoming = computed(() =>
+    this.appointments().filter(a => a.fecha >= this.today && a.estado !== 'cancelada'));
+  readonly past = computed(() =>
+    this.appointments().filter(a => a.fecha < this.today || a.estado === 'cancelada').slice().reverse());
 
-  errorMessage = '';
-  successMessage = '';
+  readonly form = this.fb.nonNullable.group({
+    titulo: ['', [Validators.required, Validators.maxLength(150)]],
+    especialidad: ['', [Validators.required, Validators.maxLength(100)]],
+    profesional: ['', [Validators.required, Validators.maxLength(150)]],
+    fecha: [addDays(todayISO(), 1), [Validators.required]],
+    hora: ['09:00', [Validators.required]],
+    lugar: ['', [Validators.maxLength(200)]],
+    estado: ['pendiente' as AppointmentStatus],
+    notas: ['', [Validators.maxLength(500)]],
+  });
 
-  showForm = false;
+  constructor() {
+    this.context.load().subscribe({ next: () => this.load(), error: e => this.error.set(apiError(e)) });
+  }
 
-  newAppointment = {
-    titulo: '',
-    especialidad: '',
-    profesional: '',
-    fecha: '',
-    hora: '',
-    lugar: '',
-    estado: 'pendiente',
-    notas: ''
-  };
-
-  constructor(
-    private api: Api,
-    private cdr: ChangeDetectorRef
-  ) {}
-
-  ngOnInit(): void {
-    this.api.getPatients().subscribe({
-      next: patients => {
-        const requested = Number(this.route.snapshot.queryParamMap.get('patientId'));
-        this.patientId = patients.find(p => p.id === requested)?.id ?? patients[0]?.id ?? 0;
-        if (this.patientId) this.loadAppointments();
-        else { this.loading = false; this.errorMessage = 'No tienes pacientes asignados.'; this.cdr.detectChanges(); }
-      },
-      error: () => { this.loading = false; this.errorMessage = 'No fue posible cargar tus pacientes.'; this.cdr.detectChanges(); }
+  load(): void {
+    const id = this.context.selectedId();
+    if (!id) return;
+    this.loading.set(true);
+    this.error.set('');
+    this.api.getPatientAppointments(id).subscribe({
+      next: list => { this.appointments.set(list); this.loading.set(false); },
+      error: error => { this.error.set(apiError(error, 'No fue posible cargar las citas.')); this.loading.set(false); },
     });
   }
 
-  loadAppointments(): void {
-    this.loading = true;
-    this.errorMessage = '';
+  invalid(name: keyof typeof this.form.controls): boolean {
+    const control = this.form.controls[name];
+    return control.invalid && (control.touched || control.dirty);
+  }
 
-    this.api.getPatientAppointments(this.patientId).subscribe({
-      next: (data) => {
-        this.appointments = data;
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
+  /** Mirrors the API rule: a pending visit cannot be in the past. */
+  pastPending(): boolean {
+    const { fecha, estado } = this.form.getRawValue();
+    return estado === 'pendiente' && !!fecha && fecha < this.today;
+  }
 
-        const detail = error?.error?.detail;
+  openNew(): void {
+    this.form.reset({ fecha: addDays(this.today, 1), hora: '09:00', estado: 'pendiente' });
+    this.formError.set('');
+    this.editing.set(0);
+  }
 
-        if (Array.isArray(detail)) {
-          this.errorMessage = detail
-            .map((item: any) => {
-              if (typeof item === 'string') {
-                return item;
-              }
-
-              return item?.msg || 'Error de validación.';
-            })
-            .join(' | ');
-        } else if (typeof detail === 'string') {
-          this.errorMessage = detail;
-        } else {
-          this.errorMessage =
-            'No fue posible cargar las citas.';
-        }
-
-        this.loading = false;
-        this.cdr.detectChanges();
-      }
+  openEdit(visit: Appointment): void {
+    this.form.reset({
+      titulo: visit.titulo, especialidad: visit.especialidad, profesional: visit.profesional, fecha: visit.fecha,
+      hora: visit.hora.slice(0, 5), lugar: visit.lugar ?? '', estado: visit.estado, notas: visit.notas ?? '',
     });
+    this.formError.set('');
+    this.editing.set(visit.id);
   }
 
-  openForm(): void {
-    this.showForm = true;
-    this.errorMessage = '';
-    this.successMessage = '';
-    this.cdr.detectChanges();
-  }
-
-  closeForm(): void {
-    this.showForm = false;
-    this.resetForm();
-    this.cdr.detectChanges();
-  }
-
-  createAppointment(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    if (
-      !this.newAppointment.titulo ||
-      !this.newAppointment.especialidad ||
-      !this.newAppointment.profesional ||
-      !this.newAppointment.fecha ||
-      !this.newAppointment.hora
-    ) {
-      this.errorMessage =
-        'Completa los campos obligatorios antes de continuar.';
-      this.cdr.detectChanges();
+  save(): void {
+    const patientId = this.context.selectedId();
+    if (!patientId) return;
+    if (this.form.invalid || this.pastPending()) {
+      this.form.markAllAsTouched();
       return;
     }
-
-    this.saving = true;
-
-    const appointmentData = {
-      titulo: this.newAppointment.titulo,
-      especialidad: this.newAppointment.especialidad,
-      profesional: this.newAppointment.profesional,
-      fecha: this.newAppointment.fecha,
-      hora: this.newAppointment.hora,
-      lugar: this.newAppointment.lugar || null,
-      estado: this.newAppointment.estado as AppointmentStatus,
-      notas: this.newAppointment.notas || null
-    };
-
-    this.api.createAppointment(
-      this.patientId,
-      appointmentData
-    ).subscribe({
-      next: (response) => {
-        this.saving = false;
-        this.successMessage =
-          'Cita registrada correctamente.';
-        this.showForm = false;
-        this.resetForm();
-        this.loadAppointments();
-        this.cdr.detectChanges();
+    const raw = this.form.getRawValue();
+    const payload: AppointmentInput = { ...raw, lugar: raw.lugar.trim() || null, notas: raw.notas.trim() || null };
+    const id = this.editing();
+    this.saving.set(true);
+    this.formError.set('');
+    const request = id ? this.api.updateAppointment(id, payload) : this.api.createAppointment(patientId, payload);
+    request.subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.editing.set(null);
+        this.notifier.success(id ? 'Cita actualizada.' : 'Cita programada.');
+        this.load();
       },
-      error: (error) => {
-
-        const detail = error?.error?.detail;
-
-        if (Array.isArray(detail)) {
-          this.errorMessage = detail
-            .map((item: any) => {
-              if (typeof item === 'string') {
-                return item;
-              }
-
-              return item?.msg || 'Error de validación.';
-            })
-            .join(' | ');
-        } else if (typeof detail === 'string') {
-          this.errorMessage = detail;
-        } else {
-          this.errorMessage =
-            'No fue posible registrar la cita.';
-        }
-
-        this.saving = false;
-        this.cdr.detectChanges();
-      }
+      error: error => { this.saving.set(false); this.formError.set(apiError(error, 'No fue posible guardar la cita.')); },
     });
   }
 
-  resetForm(): void {
-    this.newAppointment = {
-      titulo: '',
-      especialidad: '',
-      profesional: '',
-      fecha: '',
-      hora: '',
-      lugar: '',
-      estado: 'pendiente',
-      notas: ''
-    };
+  setStatus(visit: Appointment, estado: AppointmentStatus): void {
+    this.api.updateAppointment(visit.id, { estado }).subscribe({
+      next: () => { this.notifier.success(`Cita marcada como ${label(estado).toLowerCase()}.`); this.load(); },
+      error: error => this.notifier.error(apiError(error)),
+    });
   }
 
-  getStatusClass(estado: string): string {
-    switch (estado?.toLowerCase()) {
-      case 'confirmada':
-        return 'status-confirmed';
-
-      case 'cancelada':
-        return 'status-cancelled';
-
-      case 'completada':
-        return 'status-completed';
-
-      default:
-        return 'status-pending';
-    }
-  }
-
-  getStatusLabel(estado: string): string {
-    switch (estado?.toLowerCase()) {
-      case 'confirmada':
-        return 'Confirmada';
-
-      case 'cancelada':
-        return 'Cancelada';
-
-      case 'completada':
-        return 'Completada';
-
-      default:
-        return 'Pendiente';
-    }
-  }
-
-  formatTime(hora: string): string {
-    if (!hora) {
-      return '';
-    }
-
-    return hora.substring(0, 5);
+  remove(visit: Appointment): void {
+    if (typeof window !== 'undefined' && !window.confirm(`¿Eliminar la cita "${visit.titulo}"?`)) return;
+    this.api.deleteAppointment(visit.id).subscribe({
+      next: () => { this.notifier.success('Cita eliminada.'); this.load(); },
+      error: error => this.notifier.error(apiError(error)),
+    });
   }
 }
