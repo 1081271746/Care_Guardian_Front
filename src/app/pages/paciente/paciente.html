@@ -1,0 +1,135 @@
+<div class="page">
+  <a routerLink="/dashboard" class="back small"><cg-icon name="chevron" [size]="16" class="flip" /> Panel general</a>
+
+  @if (error()) {
+    <div class="notice notice-error" role="alert"><cg-icon name="warning" />{{ error() }}</div>
+  }
+
+  @if (loading() && !data()) {
+    <div class="card"><div class="skeleton" style="height:120px" role="status"><span class="sr-only">Cargando…</span></div></div>
+  } @else if (data(); as panel) {
+    <header class="hero card">
+      <div class="identity">
+        <span class="avatar">{{ panel.patient.nombres[0] }}{{ panel.patient.apellidos[0] }}</span>
+        <div>
+          <p class="eyebrow">Paciente</p>
+          <h1>{{ name() }}</h1>
+          <p class="soft small">
+            {{ panel.patient.edad }} años · Doc. {{ panel.patient.documento }}
+            @if (panel.patient.telefono) { · {{ panel.patient.telefono }} }
+          </p>
+        </div>
+      </div>
+      <div class="risk" [class]="'risk risk-' + panel.current_risk_level">
+        <span class="xsmall">Evaluación por reglas (últimos {{ panel.historical_analysis.registros_analizados }} registros)</span>
+        <strong>Nivel {{ label(panel.current_risk_level) }}</strong>
+      </div>
+      @if (!panel.patient.activo) {
+        <div class="notice notice-warn span-all"><cg-icon name="info" />Paciente inactivo: su historial es de solo lectura.</div>
+      }
+      @if (panel.patient.contacto_emergencia) {
+        <p class="small soft span-all">
+          Contacto de emergencia: <strong>{{ panel.patient.contacto_emergencia }}</strong>
+          @if (panel.patient.telefono_emergencia) { · {{ panel.patient.telefono_emergencia }} }
+        </p>
+      }
+    </header>
+
+    <nav class="shortcuts" aria-label="Módulos del paciente">
+      <a routerLink="/sintomas" class="btn btn-secondary"><cg-icon name="pulse" /> Síntomas</a>
+      <a routerLink="/medicamentos" class="btn btn-secondary"><cg-icon name="pill" /> Medicamentos</a>
+      <a routerLink="/citas" class="btn btn-secondary"><cg-icon name="calendar" /> Citas</a>
+      <a routerLink="/notas" class="btn btn-secondary"><cg-icon name="note" /> Notas</a>
+      <a routerLink="/alertas" class="btn btn-secondary"><cg-icon name="bell" /> Alertas</a>
+      <a routerLink="/evolucion" [queryParams]="{ patientId: panel.patient.id }" class="btn btn-primary"><cg-icon name="chart" /> Evolución</a>
+    </nav>
+
+    @if (panel.historical_analysis.tendencias.length) {
+      <section class="card">
+        <div class="card-header"><h2>Cambios observados por las reglas</h2></div>
+        <ul class="list">
+          @for (trend of panel.historical_analysis.tendencias; track trend) { <li class="small">{{ trend }}</li> }
+        </ul>
+        <p class="xsmall muted mt-2">{{ panel.historical_analysis.recomendacion }}</p>
+      </section>
+    }
+
+    <div class="grid grid-2">
+      <section class="card">
+        <div class="card-header"><h2>Alertas activas</h2><a routerLink="/alertas" class="small">Gestionar</a></div>
+        @if (panel.active_alerts.length) {
+          <ul class="list">
+            @for (alert of panel.active_alerts; track alert.id) {
+              <li class="row between">
+                <div><p class="strong small">{{ alert.titulo }}</p><p class="xsmall muted">{{ formatRelative(alert.fecha_registro) }}</p></div>
+                <span [class]="'badge badge-' + alert.nivel">{{ label(alert.nivel) }}</span>
+              </li>
+            }
+          </ul>
+        } @else { <cg-empty icon="check" title="Sin alertas activas" /> }
+      </section>
+
+      <section class="card">
+        <div class="card-header"><h2>Síntomas recientes</h2><a routerLink="/sintomas" class="small">Historial</a></div>
+        @if (panel.symptoms.length) {
+          <ul class="list">
+            @for (symptom of panel.symptoms; track symptom.id) {
+              <li class="row between">
+                <div>
+                  <p class="small">
+                    @if (symptom.nivel_dolor !== null) { Dolor {{ symptom.nivel_dolor }}/10 · }
+                    @if (symptom.calidad_sueno !== null) { Sueño {{ symptom.calidad_sueno }}/10 · }
+                    @if (symptom.temperatura !== null) { {{ symptom.temperatura }} °C }
+                  </p>
+                  <p class="xsmall muted">{{ formatDateTime(symptom.fecha_registro) }}</p>
+                </div>
+                <span [class]="'badge badge-' + symptom.nivel_gravedad">{{ label(symptom.nivel_gravedad) }}</span>
+              </li>
+            }
+          </ul>
+        } @else { <cg-empty icon="pulse" title="Sin registros de síntomas" /> }
+      </section>
+
+      <section class="card">
+        <div class="card-header"><h2>Medicamentos activos</h2><a routerLink="/medicamentos" class="small">Ver todos</a></div>
+        @if (panel.medications.length) {
+          <ul class="list">
+            @for (med of panel.medications; track med.id) {
+              <li class="row between">
+                <div><p class="strong small">{{ med.nombre }}</p><p class="xsmall muted">{{ med.dosis }} · {{ med.frecuencia }}</p></div>
+                <span class="badge plain badge-info">{{ formatTime(med.hora) }}</span>
+              </li>
+            }
+          </ul>
+        } @else { <cg-empty icon="pill" title="Sin medicamentos activos" /> }
+      </section>
+
+      <section class="card">
+        <div class="card-header"><h2>Próximas citas</h2><a routerLink="/citas" class="small">Agenda</a></div>
+        @if (panel.upcoming_appointments.length) {
+          <ul class="list">
+            @for (visit of panel.upcoming_appointments; track visit.id) {
+              <li class="row between">
+                <div><p class="strong small">{{ visit.titulo }}</p>
+                  <p class="xsmall muted">{{ formatDate(visit.fecha) }} · {{ formatTime(visit.hora) }} · {{ visit.profesional }}</p></div>
+                <span [class]="'badge badge-' + visit.estado">{{ label(visit.estado) }}</span>
+              </li>
+            }
+          </ul>
+        } @else { <cg-empty icon="calendar" title="Sin citas próximas" /> }
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="card-header"><h2>Notas recientes</h2><a routerLink="/notas" class="small">Todas las notas</a></div>
+      @if (panel.recent_notes.length) {
+        <ul class="list">
+          @for (note of panel.recent_notes; track note.id) {
+            <li><p class="small pre-line"><cg-record-text [value]="note.contenido" /></p>
+              <p class="xsmall muted">{{ note.autor_nombre ?? 'Cuidador' }} · {{ formatRelative(note.fecha_registro) }}</p></li>
+          }
+        </ul>
+      } @else { <cg-empty icon="note" title="Sin notas registradas" /> }
+    </section>
+  }
+</div>

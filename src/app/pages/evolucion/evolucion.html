@@ -1,106 +1,197 @@
-<main>
-  <nav aria-label="Navegación"><strong>♥ CareGuardian</strong>
-    <a routerLink="/pacientes">Pacientes</a>
-    <a [routerLink]="patientId ? ['/dashboard', patientId] : ['/pacientes']">Panel de cuidado</a>
-    <a routerLink="/privacidad">Privacidad</a>
-  </nav>
-  <header><span>SEGUIMIENTO · CSR PRIVADO</span><h1>Evolución del adulto mayor</h1>
-    <p>Registros reales, cambios observados y resúmenes descriptivos para acompañar el cuidado.</p>
+<div class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Historia del cuidado</p>
+      <h1>Evolución</h1>
+      <p class="lede">Mediciones reales registradas en el período, sin estimaciones ni valores completados.</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn btn-ghost" (click)="copyLink()" [disabled]="!data()">Copiar enlace</button>
+      <button type="button" class="btn btn-secondary" (click)="print()" [disabled]="!data()">
+        <cg-icon name="note" /> Imprimir para la consulta
+      </button>
+    </div>
   </header>
-  <form (ngSubmit)="load()" class="filters">
-    <label>Paciente<select name="patientId" [(ngModel)]="patientId" (ngModelChange)="load()">
-      @for (patient of patients(); track patient.id) {
-        <option [ngValue]="patient.id">{{ patient.nombres }} {{ patient.apellidos }}</option>
-      }
-    </select></label>
-    <label>Desde<input type="date" name="desde" [(ngModel)]="desde"></label>
-    <label>Hasta<input type="date" name="hasta" [(ngModel)]="hasta"></label>
-    <button type="submit" [disabled]="loading() || !patientId">Aplicar y actualizar</button>
-  </form>
-  @if (loading()) { <p role="status">Cargando evolución…</p> }
-  @if (error()) { <p role="alert" class="error">{{ error() }}</p> }
-  @if (!loading() && !patients().length && !error()) {
-    <section><h2>Aún no tienes pacientes asignados</h2><a routerLink="/pacientes">Registrar un paciente</a></section>
-  }
-  @if (data(); as evolution) {
-    <section><h2>Datos históricos</h2><p>{{ evolution.nota }}</p>
-      <div class="totals">
-        <p><strong>{{ evolution.totales.sintoma }}</strong> síntomas</p>
-        <p><strong>{{ evolution.totales.nota }}</strong> notas</p>
-        <p><strong>{{ evolution.totales.medicamento }}</strong> inicios de medicamentos</p>
-        <p><strong>{{ evolution.totales.cita }}</strong> citas</p>
-        <p><strong>{{ evolution.totales.alerta }}</strong> alertas activas</p>
+
+  <section class="card filters">
+    <div class="grow"><cg-patient-picker (changed)="load()" /></div>
+    <div class="field">
+      <span class="label">Período</span>
+      <div class="segmented" role="group" aria-label="Período">
+        @for (option of presets; track option.id) {
+          <button type="button" [class.active]="preset() === option.id" (click)="choosePreset(option.id)">{{ option.label }}</button>
+        }
       </div>
+    </div>
+    <div class="field">
+      <label for="desde">Desde</label>
+      <input id="desde" class="input" type="date" [value]="desde()" (change)="setRange('desde', $any($event.target).value)">
+    </div>
+    <div class="field">
+      <label for="hasta">Hasta</label>
+      <input id="hasta" class="input" type="date" [value]="hasta()" (change)="setRange('hasta', $any($event.target).value)">
+    </div>
+    <button type="button" class="btn btn-primary" (click)="load()" [disabled]="loading() || periodInvalid()">
+      @if (loading()) { <span class="spinner"></span> } Consultar
+    </button>
+  </section>
+
+  @if (periodInvalid()) {
+    <div class="notice notice-warn"><cg-icon name="info" />La fecha inicial debe ser anterior o igual a la final.</div>
+  }
+  @if (error()) { <div class="notice notice-error" role="alert"><cg-icon name="warning" />{{ error() }}</div> }
+
+  @if (loading() && !data()) {
+    <div class="grid grid-3">
+      @for (i of [1, 2, 3]; track i) { <div class="card"><div class="skeleton" style="height:180px" role="status"><span class="sr-only">Cargando…</span></div></div> }
+    </div>
+  } @else if (data(); as evo) {
+    <section class="grid grid-stats totals" aria-label="Registros del período">
+      @for (kind of kinds; track kind) {
+        <div class="card total">
+          <cg-icon [name]="eventIcon(kind)" />
+          <strong class="tabular">{{ evo.totales[kind] }}</strong>
+          <span class="xsmall soft">{{ label(kind) }}</span>
+        </div>
+      }
     </section>
-    @for (indicator of indicators; track indicator.key) {
-      @let metric = evolution.metricas[indicator.key];
-      <section>
-        <h2>{{ indicator.label }}</h2>
-        @if (metric.cantidad) {
-          <p>{{ metric.cantidad }} mediciones · Promedio: {{ metric.promedio | number:'1.0-2' }}{{ indicator.unit }}
-            · Último: {{ metric.ultimo }}{{ indicator.unit }}
-            @if (metric.cambio !== null) { · Cambio: {{ metric.cambio > 0 ? '+' : '' }}{{ metric.cambio }}{{ indicator.unit }} }
-          </p>
-          @let points = chartPoints(metric.puntos, indicator.key);
-          <svg viewBox="0 0 740 210" role="img" [attr.aria-label]="indicator.label + ': mediciones a lo largo del tiempo'">
-            <line x1="52" x2="700" y1="180" y2="180" stroke="currentColor"/>
-            <line x1="52" x2="52" y1="20" y2="180" stroke="currentColor"/>
-            <text x="5" y="30">{{ indicator.key === 'temperatura' ? '°C' : '10' }}</text>
-            <text x="12" y="175">{{ indicator.key === 'temperatura' ? '' : '0' }}</text>
-            <polyline [attr.points]="line(points)" fill="none" stroke="#61A9BD" stroke-width="3"/>
-            @for (point of points; track $index) {
-              <circle [attr.cx]="point.x" [attr.cy]="point.y" r="3" fill="#3C7686">
-                <title>{{ point.fecha | date:'dd/MM/yyyy HH:mm':'UTC' }} UTC: {{ point.valor }}{{ indicator.unit }}</title>
-              </circle>
-            }
-            <text x="52" y="205">{{ metric.puntos[0].fecha | date:'dd/MM/yy':'UTC' }}</text>
-            <text x="610" y="205">{{ metric.puntos[metric.puntos.length - 1].fecha | date:'dd/MM/yy':'UTC' }}</text>
-          </svg>
-          <details><summary>Ver mediciones y fechas exactas</summary>
-            <table><thead><tr><th>Fecha UTC</th><th>{{ indicator.label }}</th></tr></thead>
-              <tbody>@for (point of metric.puntos; track $index) {
-                <tr><td>{{ point.fecha | date:'dd/MM/yyyy HH:mm':'UTC' }}</td><td>{{ point.valor }}{{ indicator.unit }}</td></tr>
-              }</tbody>
-            </table>
-          </details>
-          @if (metric.cantidad < 2) { <p>No hay suficientes mediciones para comparar.</p> }
-        } @else { <p>No hay mediciones de este indicador en el período.</p> }
+
+    <section class="grid grid-3 charts" aria-label="Mediciones">
+      @for (m of metrics; track m.key) {
+        @let summary = metric(m.key);
+        <article class="card">
+          <div class="card-header">
+            <h2>{{ m.title }}</h2>
+            <span class="badge plain">{{ summary?.cantidad ?? 0 }} mediciones</span>
+          </div>
+          @if (summary && summary.cantidad) {
+            <cg-line-chart [points]="summary.puntos" [min]="m.min" [max]="m.max" [unit]="m.unit" [color]="m.color" [title]="m.title" />
+            <dl class="figures">
+              <div><dt>Promedio</dt><dd>{{ summary.promedio }}{{ m.unit }}</dd></div>
+              <div><dt>Primera</dt><dd>{{ summary.inicial }}{{ m.unit }}</dd></div>
+              <div><dt>Más reciente</dt><dd>{{ summary.ultimo }}{{ m.unit }}</dd></div>
+              <div><dt>Diferencia</dt><dd>{{ summary.cambio === null ? '—' : (summary.cambio > 0 ? '+' : '') + summary.cambio + m.unit }}</dd></div>
+            </dl>
+            <p class="xsmall muted">La diferencia compara la primera y la última medición; no es una tendencia clínica.</p>
+          } @else {
+            <cg-empty icon="chart" title="No hay mediciones" text="No se registró este indicador en el período." />
+          }
+        </article>
+      }
+    </section>
+
+    @if (categoryGroups().length) {
+      <section class="card">
+        <div class="card-header"><h2>Categorías registradas</h2></div>
+        <div class="categories">
+          @for (group of categoryGroups(); track group.key) {
+            <div>
+              <h3 class="small soft">{{ group.title }}</h3>
+              <div class="row">
+                @for (entry of group.values; track entry[0]) {
+                  <span class="badge plain">{{ label(entry[0]) }} · {{ entry[1] }}</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
       </section>
     }
-    <section class="ai"><span>INTERPRETACIÓN GENERADA CON IA</span><h2>Resumen con Groq</h2>
-      <p>Groq recibe solo estadísticas y conteos sin nombres, documentos, fechas exactas ni textos de notas.
-        Selecciona hechos relevantes; CareGuardian muestra únicamente descripciones verificadas.
-        El resultado se guarda con la fecha y versión de esta autorización y puede verlo el equipo asignado.</p>
-      <p>No es un diagnóstico ni modifica tratamientos. La autorización debe corresponder a la persona
-        o a su representante autorizado.</p>
-      <label class="consent"><input type="checkbox" name="consent" [(ngModel)]="consent" [disabled]="analyzing()">
-        Confirmo que tengo autorización para este procesamiento externo y consiento enviar estos datos
-        minimizados a Groq para este análisis.</label>
-      <button (click)="analyze()" [disabled]="!consent || analyzing() || !evolution.datos_suficientes">
-        {{ analyzing() ? 'Analizando…' : 'Generar nuevo resumen' }}
-      </button>
-      @if (!evolution.datos_suficientes) { <p>Se necesitan al menos dos mediciones de un mismo indicador.</p> }
-      @if (aiError()) { <p role="alert" class="error">{{ aiError() }}</p> }
-      <h3>Resúmenes guardados del paciente</h3><p>Cada resumen indica su propio período; puede diferir del filtro actual.</p>
-      @for (analysis of analyses(); track analysis.id) {
-        <article>
-          <h4>{{ analysis.fecha | date:'dd/MM/yyyy HH:mm':'UTC' }} UTC · {{ analysis.modelo }}</h4>
-          <p>Período: {{ analysis.resultado.periodo.desde || 'Inicio' }} — {{ analysis.resultado.periodo.hasta || 'Actualidad' }}</p>
-          @for (fact of analysis.resultado.resumen; track $index) { <p>{{ fact }}</p> }
-          @if (analysis.resultado.revisar.length) {
-            <h4>Observaciones para comentar con un profesional</h4>
-            @for (fact of analysis.resultado.revisar; track $index) { <p>{{ fact }}</p> }
+
+    <div class="layout">
+      <section class="card ai" aria-labelledby="ai-title">
+        <div class="card-header">
+          <h2 id="ai-title"><cg-icon name="sparkles" /> Resumen con IA</h2>
+          @if (aiStatus()?.modelo) { <span class="xsmall muted">Groq · {{ aiStatus()!.modelo }}</span> }
+        </div>
+
+        @if (!aiStatus()?.configurado) {
+          <div class="notice notice-warn"><cg-icon name="info" />
+            El servicio de IA no está disponible en este servidor. Las estadísticas y gráficas siguen funcionando con tus datos.</div>
+        } @else if (!evo.datos_suficientes) {
+          <div class="notice notice-info"><cg-icon name="info" />
+            Se necesitan al menos dos mediciones de un mismo indicador en el período para generar un resumen.</div>
+        } @else {
+          <p class="small soft">Se enviarán a Groq solo frases verificadas con conteos y promedios del período. No se envían nombres,
+            documentos, contactos, fechas exactas ni el texto de notas u observaciones.</p>
+          <label class="checkbox mt-2">
+            <input type="checkbox" [checked]="consent()" (change)="consent.set(!consent())">
+            Autorizo enviar este resumen minimizado a Groq para generar el análisis.
+          </label>
+          <button type="button" class="btn btn-primary mt-2" (click)="analyze()" [disabled]="!canAnalyze()">
+            @if (analyzing()) { <span class="spinner"></span> Analizando… } @else { <cg-icon name="sparkles" /> Generar resumen }
+          </button>
+        }
+        @if (aiError()) { <div class="notice notice-error mt-2" role="alert"><cg-icon name="warning" />{{ aiError() }}</div> }
+
+        @if (selectedAnalysis(); as saved) {
+          <article class="analysis">
+            <p class="xsmall muted">Guardado {{ formatDateTime(saved.fecha) }} · {{ saved.modelo }}
+              @if (saved.periodo?.desde || saved.periodo?.hasta) {
+                · Período {{ saved.periodo?.desde ? formatDate(saved.periodo!.desde) : 'inicio' }} – {{ saved.periodo?.hasta ? formatDate(saved.periodo!.hasta) : 'hoy' }}
+              }
+            </p>
+            <h3 class="small strong">Resumen</h3>
+            <ul>@for (line of saved.resultado.resumen; track $index) { <li>{{ line }}</li> }</ul>
+            @if (saved.resultado.revisar.length) {
+              <h3 class="small strong">Para comentar con el profesional de salud</h3>
+              <ul>@for (line of saved.resultado.revisar; track $index) { <li>{{ line }}</li> }</ul>
+            }
+            <p class="xsmall muted">{{ saved.resultado.advertencia }}</p>
+          </article>
+        } @else if (aiStatus()?.configurado) {
+          <p class="xsmall muted mt-2">Todavía no hay resúmenes guardados para este paciente.</p>
+        }
+
+        @if (analyses().length > 1) {
+          <div class="history">
+            <h3 class="small strong">Resúmenes anteriores</h3>
+            <ul class="list">
+              @for (item of analyses(); track item.id) {
+                <li>
+                  <button type="button" class="link" [class.current]="item.id === selectedAnalysis()?.id" (click)="selectedAnalysis.set(item)">
+                    {{ formatDateTime(item.fecha) }}
+                  </button>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </section>
+
+      <section class="card timeline" aria-labelledby="timeline-title">
+        <div class="card-header">
+          <h2 id="timeline-title">Historial cronológico</h2>
+          <select class="select kind" aria-label="Tipo de registro" [value]="kindFilter()"
+                  (change)="kindFilter.set($any($event.target).value); eventLimit.set(40)">
+            <option value="">Todos</option>
+            @for (kind of kinds; track kind) { <option [value]="kind">{{ label(kind) }}</option> }
+          </select>
+        </div>
+        @if (!events().length) {
+          <cg-empty icon="clock" title="No hay registros en este período" />
+        } @else {
+          <ol class="events">
+            @for (event of shownEvents(); track event.id) {
+              <li>
+                <span class="dot" [class]="'dot ' + (event.nivel ?? '')"><cg-icon [name]="eventIcon(event.tipo)" [size]="14" /></span>
+                <div>
+                  <p class="small"><cg-record-text [value]="event.descripcion" /></p>
+                  <p class="xsmall muted">{{ label(event.tipo) }} · {{ formatDateTime(event.fecha) }}</p>
+                </div>
+              </li>
+            }
+          </ol>
+          @if (events().length > shownEvents().length) {
+            <button type="button" class="btn btn-secondary btn-sm" (click)="showMore()">
+              Ver más ({{ events().length - shownEvents().length }} restantes)
+            </button>
           }
-          <small>{{ analysis.resultado.advertencia }}</small>
-        </article>
-      } @empty { <p>Aún no hay resúmenes generados.</p> }
-    </section>
-    <section><h2>Historial cronológico</h2><p>Fechas en UTC. Citas por fecha programada; medicamentos por fecha de inicio.</p>
-      @for (event of evolution.historial.slice(0, eventLimit); track event.id) {
-        <article><strong>{{ event.tipo }} · {{ event.fecha | date:'dd/MM/yyyy HH:mm':'UTC' }}</strong>
-          <p>{{ event.descripcion }}</p></article>
-      } @empty { <p>No hay registros en el período seleccionado.</p> }
-      @if (eventLimit < evolution.historial.length) { <button (click)="eventLimit = eventLimit + 50">Ver más registros</button> }
-    </section>
+        }
+      </section>
+    </div>
+    <p class="xsmall muted">Días calculados en la zona {{ evo.zona_horaria ?? 'del servidor' }}. <a routerLink="/privacidad">Cómo usamos la IA</a></p>
+  } @else if (context.loaded() && context.patients().length && !error()) {
+    <section class="card"><cg-empty icon="chart" title="Selecciona un paciente para ver su evolución" /></section>
   }
-</main>
+</div>

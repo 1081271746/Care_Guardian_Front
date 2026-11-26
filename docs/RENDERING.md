@@ -6,7 +6,7 @@ misma versión para alinear los peers de SSR; no se migra a otro framework.
 
 | Patrón | Rutas | Implementación |
 |---|---|---|
-| CSR | Login, dashboard, pacientes, síntomas, medicamentos, citas, notas, alertas, evolución | `RenderMode.Client` en la regla `**`; guards y HTTP autenticado |
+| CSR | Login, panel, panel de paciente, pacientes, síntomas, medicamentos, citas, notas, alertas, evolución, cuenta y 404 | `RenderMode.Client` en la regla `**`; rutas privadas con carga diferida dentro del `Shell`, guards y HTTP autenticado |
 | SSR | `/acerca` | `RenderMode.Server`; Angular renderiza cada petición |
 | SSG | `/privacidad` | `RenderMode.Prerender`; HTML generado durante el build |
 | Equivalente ISR | `/recursos` | SSR + caché de HTML pública con TTL y stale-while-revalidate en Node |
@@ -82,3 +82,12 @@ El CSS original de dashboard pesa 20,70 kB minificado y ya excedía el límite
 de error de 8 kB del scaffold. Se conserva sin rediseñarlo. El presupuesto de
 estilos sigue activo: aviso a 8 kB y error a 24 kB. El presupuesto inicial
 permanece en aviso 500 kB/error 1 MB; las advertencias no se ocultan.
+
+## Rutas privadas y carga diferida (noviembre de 2026)
+
+Las páginas privadas cuelgan de un componente `Shell` (navegación lateral) y se
+cargan con `loadComponent`, de modo que el paquete inicial solo incluye el login,
+el shell y los servicios. El HTML que el servidor envía para estas rutas es la
+plantilla vacía de la aplicación: `tests/rendering-smoke.mjs` comprueba que no
+contiene “Cerrar sesión” ni “Historial cronológico”, es decir, que ningún dato
+o componente privado se renderiza en el servidor.

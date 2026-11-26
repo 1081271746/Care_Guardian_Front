@@ -1,0 +1,20 @@
+.public { min-height: 100vh; }
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--cg-space-3);
+  padding: var(--cg-space-4) clamp(16px, 5vw, 64px); border-bottom: 1px solid var(--cg-line); background: var(--cg-surface); }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--cg-ink); font-family: var(--cg-font-display); font-size: 1.25rem; }
+.brand b { color: var(--cg-accent); font-weight: 600; }
+.mark { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(140deg, #e08a5e, var(--cg-accent)); color: #fff; }
+nav { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cg-space-4); }
+nav a:not(.btn) { color: var(--cg-ink-soft); text-decoration: none; font-weight: 550; font-size: var(--cg-text-sm); }
+nav a:not(.btn):hover { color: var(--cg-primary); }
+.content { max-width: 880px; margin: 0 auto; padding: var(--cg-space-7) clamp(16px, 5vw, 32px); display: flex; flex-direction: column; gap: var(--cg-space-4); }
+.eyebrow { font-size: var(--cg-text-xs); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--cg-accent); }
+.lead { font-size: var(--cg-text-lg); color: var(--cg-ink-soft); }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: var(--cg-space-4); margin-top: var(--cg-space-3); }
+.cards article { padding: var(--cg-space-5); border-radius: var(--cg-radius); background: var(--cg-surface); border: 1px solid var(--cg-line); display: flex; flex-direction: column; gap: 8px; }
+.cards cg-icon { color: var(--cg-primary); }
+.cards h2 { font-size: var(--cg-text-lg); font-family: var(--cg-font-body); font-weight: 650; }
+.cards p { color: var(--cg-ink-soft); font-size: var(--cg-text-sm); }
+.prose { display: flex; flex-direction: column; gap: var(--cg-space-3); line-height: 1.7; }
+.prose h2 { font-size: var(--cg-text-lg); margin-top: var(--cg-space-3); }
+.prose ul { margin: 0; padding-left: 20px; }

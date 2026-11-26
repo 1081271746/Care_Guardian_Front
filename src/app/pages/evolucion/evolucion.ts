@@ -1,114 +1,216 @@
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
-import { DatePipe, DecimalPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { forkJoin, Subscription } from 'rxjs';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Subscription, forkJoin } from 'rxjs';
+
 import { Api } from '../../services/api';
+import { apiError } from '../../services/errors';
+import { addDays, formatDate, formatDateTime, todayISO } from '../../services/format';
+import { AiStatus, EventKind, Evolution, MetricKey, SavedAnalysis } from '../../services/models';
+import { PatientContext } from '../../services/patient-context';
+import { EmptyState } from '../../shared/empty-state';
+import { Icon } from '../../shared/icon';
+import { RecordText } from '../../shared/record-text';
+import { METRIC_LABELS, label } from '../../shared/labels';
+import { LineChart } from '../../shared/line-chart';
+import { PatientPicker } from '../../shared/patient-picker';
+import { Notifier } from '../../services/notifier';
+
+export const PRESETS = [
+  { id: '7', label: '7 días', days: 7 },
+  { id: '30', label: '30 días', days: 30 },
+  { id: '90', label: '90 días', days: 90 },
+  { id: 'todo', label: 'Todo', days: 0 },
+] as const;
+
+const EVENT_ICONS: Record<EventKind, string> = {
+  sintoma: 'pulse', nota: 'note', medicamento: 'pill', cita: 'calendar', alerta: 'bell',
+};
+const PAGE = 40;
 
 @Component({
   selector: 'app-evolucion',
-  imports: [DatePipe, DecimalPipe, FormsModule, RouterLink],
+  imports: [RouterLink, Icon, EmptyState, LineChart, PatientPicker, RecordText],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './evolucion.html',
   styleUrl: './evolucion.css',
 })
-export class Evolucion implements OnInit {
+export class Evolucion {
   private api = inject(Api);
-  private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  protected context = inject(PatientContext);
+  private notifier = inject(Notifier);
   private loadRequest?: Subscription;
   private aiRequest?: Subscription;
-  patients = signal<any[]>([]);
-  data = signal<any>(null);
-  analyses = signal<any[]>([]);
-  loading = signal(false);
-  analyzing = signal(false);
-  error = signal('');
-  aiError = signal('');
-  patientId: number | null = null;
-  desde = '';
-  hasta = '';
-  consent = false;
-  eventLimit = 50;
-  readonly indicators = [
-    { key: 'nivel_dolor', label: 'Dolor', unit: '/10' },
-    { key: 'calidad_sueno', label: 'Calidad del sueño', unit: '/10' },
-    { key: 'temperatura', label: 'Temperatura', unit: ' °C' },
-  ];
 
-  ngOnInit() {
-    this.loading.set(true);
-    this.api.getPatients().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+  readonly data = signal<Evolution | null>(null);
+  readonly analyses = signal<SavedAnalysis[]>([]);
+  readonly selectedAnalysis = signal<SavedAnalysis | null>(null);
+  readonly aiStatus = signal<AiStatus | null>(null);
+  readonly loading = signal(false);
+  readonly analyzing = signal(false);
+  readonly error = signal('');
+  readonly aiError = signal('');
+  readonly preset = signal<string>('30');
+  readonly desde = signal(addDays(todayISO(), -29));
+  readonly hasta = signal(todayISO());
+  readonly consent = signal(false);
+  readonly kindFilter = signal<EventKind | ''>('');
+  readonly eventLimit = signal(PAGE);
+
+  protected presets = PRESETS;
+  protected label = label;
+  protected formatDate = formatDate;
+  protected formatDateTime = formatDateTime;
+  protected eventIcon = (kind: EventKind) => EVENT_ICONS[kind] ?? 'info';
+  protected metrics: { key: MetricKey; title: string; unit: string; min: number; max: number; color: string }[] = [
+    { key: 'nivel_dolor', ...METRIC_LABELS.nivel_dolor, color: 'var(--cg-series-2)' },
+    { key: 'calidad_sueno', ...METRIC_LABELS.calidad_sueno, color: 'var(--cg-series-3)' },
+    { key: 'temperatura', ...METRIC_LABELS.temperatura, color: 'var(--cg-series-1)' },
+  ];
+  protected kinds: EventKind[] = ['sintoma', 'nota', 'alerta', 'cita', 'medicamento'];
+
+  readonly events = computed(() => {
+    const all = this.data()?.historial ?? [];
+    const kind = this.kindFilter();
+    return kind ? all.filter(event => event.tipo === kind) : all;
+  });
+  readonly shownEvents = computed(() => this.events().slice(0, this.eventLimit()));
+  readonly periodInvalid = computed(() => !!this.desde() && !!this.hasta() && this.desde() > this.hasta());
+  readonly categoryGroups = computed(() => {
+    const categories = this.data()?.categorias ?? {};
+    return [
+      { key: 'nivel_gravedad', title: 'Gravedad' },
+      { key: 'estado_animo', title: 'Estado de ánimo' },
+      { key: 'apetito', title: 'Apetito' },
+    ].map(group => ({ ...group, values: Object.entries(categories[group.key] ?? {}) }))
+      .filter(group => group.values.length);
+  });
+  readonly canAnalyze = computed(() =>
+    !!this.aiStatus()?.configurado && !!this.data()?.datos_suficientes && this.consent() && !this.analyzing());
+
+  constructor() {
+    const query = this.route.snapshot.queryParamMap;
+    const requested = Number(query.get('patientId'));
+    const iso = /^\d{4}-\d{2}-\d{2}$/;
+    if (query.has('desde') || query.has('hasta')) {
+      // A shared link keeps its exact period.
+      this.preset.set('personalizado');
+      this.desde.set(iso.test(query.get('desde') ?? '') ? query.get('desde')! : '');
+      this.hasta.set(iso.test(query.get('hasta') ?? '') ? query.get('hasta')! : '');
+    }
+    this.context.load().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: patients => {
-        this.patients.set(patients);
-        const requested = Number(this.route.snapshot.queryParamMap.get('patientId'));
-        this.patientId = patients.some(p => p.id === requested) ? requested : patients[0]?.id ?? null;
+        if (requested && patients.some(p => p.id === requested)) this.context.select(requested);
         this.load();
       },
-      error: () => { this.loading.set(false); this.error.set('No fue posible cargar tus pacientes.'); }
+      error: error => this.error.set(apiError(error, 'No fue posible cargar tus pacientes.')),
+    });
+    this.api.getAiStatus().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: status => this.aiStatus.set(status),
+      error: () => this.aiStatus.set(null),
     });
   }
 
-  load() {
+  choosePreset(id: string): void {
+    const preset = PRESETS.find(p => p.id === id);
+    if (!preset) return;
+    this.preset.set(id);
+    this.hasta.set(preset.days ? todayISO() : '');
+    this.desde.set(preset.days ? addDays(todayISO(), -(preset.days - 1)) : '');
+    this.load();
+  }
+
+  setRange(field: 'desde' | 'hasta', value: string): void {
+    this.preset.set('personalizado');
+    (field === 'desde' ? this.desde : this.hasta).set(value);
+  }
+
+  load(): void {
     this.loadRequest?.unsubscribe();
     this.aiRequest?.unsubscribe();
     this.analyzing.set(false);
-    this.data.set(null);
-    this.analyses.set([]);
+    this.consent.set(false);
     this.error.set('');
     this.aiError.set('');
-    this.consent = false;
-    this.eventLimit = 50;
-    if (!this.patientId) { this.loading.set(false); return; }
-    if (this.desde && this.hasta && this.desde > this.hasta) {
-      this.loading.set(false); this.error.set('Revisa el período seleccionado.'); return;
+    this.eventLimit.set(PAGE);
+    const patientId = this.context.selectedId();
+    if (!patientId) {
+      this.data.set(null);
+      return;
+    }
+    if (this.periodInvalid()) {
+      this.error.set('La fecha inicial debe ser anterior o igual a la final.');
+      return;
     }
     this.loading.set(true);
+    this.router.navigate([], {
+      relativeTo: this.route, replaceUrl: true,
+      queryParams: { patientId, desde: this.desde() || null, hasta: this.hasta() || null },
+    });
     this.loadRequest = forkJoin({
-      evolution: this.api.getEvolution(this.patientId, this.desde, this.hasta),
-      analyses: this.api.getEvolutionAnalyses(this.patientId),
+      evolution: this.api.getEvolution(patientId, this.desde(), this.hasta()),
+      analyses: this.api.getEvolutionAnalyses(patientId),
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: result => {
-        this.data.set(result.evolution); this.analyses.set(result.analyses); this.loading.set(false);
-      },
-      error: err => {
+      next: ({ evolution, analyses }) => {
+        this.data.set(evolution);
+        this.analyses.set(analyses);
+        this.selectedAnalysis.set(analyses[0] ?? null);
         this.loading.set(false);
-        this.error.set(typeof err.error?.detail === 'string' ? err.error.detail : 'No se pudo cargar la evolución.');
-      }
+      },
+      error: error => {
+        this.data.set(null);
+        this.analyses.set([]);
+        this.selectedAnalysis.set(null);
+        this.error.set(apiError(error, 'No se pudo cargar la evolución.'));
+        this.loading.set(false);
+      },
     });
   }
 
-  analyze() {
-    if (!this.consent || !this.patientId || this.analyzing() || !this.data()?.datos_suficientes) return;
-    this.analyzing.set(true); this.aiError.set('');
-    const period = this.data().periodo ?? { desde: this.desde, hasta: this.hasta };
-    this.aiRequest = this.api.analyzeEvolution(this.patientId, period.desde || '', period.hasta || '')
+  /** Real call to Groq through the backend; requires explicit consent each time. */
+  analyze(): void {
+    const patientId = this.context.selectedId();
+    if (!patientId || !this.consent() || this.analyzing() || !this.data()?.datos_suficientes) return;
+    this.analyzing.set(true);
+    this.aiError.set('');
+    this.aiRequest = this.api.analyzeEvolution(patientId, this.desde(), this.hasta())
       .pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: result => {
-          this.analyses.update(list => [result, ...list]); this.analyzing.set(false); this.consent = false;
-        },
-        error: err => {
-          this.aiError.set(typeof err.error?.detail === 'string' ? err.error.detail : 'El análisis IA no está disponible.');
+        next: saved => {
+          this.analyses.update(list => [saved, ...list]);
+          this.selectedAnalysis.set(saved);
           this.analyzing.set(false);
-        }
+          this.consent.set(false);
+        },
+        error: error => {
+          this.aiError.set(apiError(error, 'El análisis con IA no está disponible en este momento.'));
+          this.analyzing.set(false);
+        },
       });
   }
 
-  // Real elapsed-time spacing; no interpolation of missing measurements.
-  chartPoints(points: { fecha: string; valor: number }[], key: string) {
-    const times = points.map(p => new Date(p.fecha).getTime());
-    const values = points.map(p => p.valor);
-    const minY = key === 'temperatura' ? Math.min(...values) - 0.5 : 0;
-    const maxY = key === 'temperatura' ? Math.max(...values) + 0.5 : 10;
-    const span = (times.at(-1)! - times[0]) || 1;
-    return points.map((p, i) => ({
-      x: 52 + ((times[i] - times[0]) / span) * 640,
-      y: 170 - ((p.valor - minY) / (maxY - minY)) * 145,
-      ...p,
-    }));
+  /** Copies a link to this patient and period; only assigned caregivers can open it. */
+  copyLink(): void {
+    if (typeof window === 'undefined' || !navigator.clipboard) return;
+    navigator.clipboard.writeText(window.location.href).then(
+      () => this.notifier.success('Enlace copiado. Solo lo pueden abrir cuidadores asignados.'),
+      () => this.notifier.error('No fue posible copiar el enlace.'),
+    );
   }
 
-  line(points: { x: number; y: number }[]) {
-    return points.map(p => `${p.x},${p.y}`).join(' ');
+  /** Prints the current period (charts, figures and saved summary) for an appointment. */
+  print(): void {
+    this.eventLimit.set(this.events().length);
+    if (typeof window !== 'undefined') setTimeout(() => window.print());
+  }
+
+  showMore(): void {
+    this.eventLimit.update(limit => limit + PAGE);
+  }
+
+  metric(key: MetricKey) {
+    return this.data()?.metricas[key];
   }
 }

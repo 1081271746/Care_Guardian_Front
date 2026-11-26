@@ -1,91 +1,45 @@
 import { Routes } from '@angular/router';
 
+import { Shell } from './layout/shell';
 import { Login } from './pages/login/login';
-import { Dashboard } from './pages/dashboard/dashboard';
-
-import { Pacientes } from './pages/pacientes/pacientes';
-import { Sintomas } from './pages/sintomas/sintomas';
-import { Medicamentos } from './pages/medicamentos/medicamentos';
-import { Citas } from './pages/citas/citas';
-import { Notas } from './pages/notas/notas';
-import { Alertas } from './pages/alertas/alertas';
-import { Evolucion } from './pages/evolucion/evolucion';
-import { authGuard } from './services/auth.guard';
 import { PublicPage } from './pages/public/public';
+import { authGuard, guestGuard } from './services/auth.guard';
 
 export const routes: Routes = [
-
-  { path: 'acerca', component: PublicPage, data: { mode: 'SSR' } },
-  { path: 'privacidad', component: PublicPage, data: { mode: 'SSG' } },
-  { path: 'recursos', component: PublicPage, data: { mode: 'ISR equivalente' } },
+  { path: 'acerca', component: PublicPage, data: { mode: 'SSR' }, title: 'Acerca · CareGuardian' },
+  { path: 'privacidad', component: PublicPage, data: { mode: 'SSG' }, title: 'Privacidad e IA · CareGuardian' },
+  { path: 'recursos', component: PublicPage, data: { mode: 'ISR equivalente' }, title: 'Recursos · CareGuardian' },
+  { path: 'login', component: Login, canActivate: [guestGuard], title: 'Iniciar sesión · CareGuardian' },
+  { path: '', pathMatch: 'full', redirectTo: 'login' },
   {
+    // Every private module shares the navigation shell and the auth guard.
     path: '',
-    component: Login
-  },
-
-  {
-    path: 'login',
-    component: Login
-  },
-
-  {
-    path: 'dashboard',
+    component: Shell,
     canActivate: [authGuard],
-    component: Dashboard
+    canActivateChild: [authGuard],
+    children: [
+      { path: 'dashboard', title: 'Panel · CareGuardian',
+        loadComponent: () => import('./pages/dashboard/dashboard').then(m => m.Dashboard) },
+      { path: 'dashboard/:patientId', title: 'Paciente · CareGuardian',
+        loadComponent: () => import('./pages/paciente/paciente').then(m => m.Paciente) },
+      { path: 'pacientes', title: 'Pacientes · CareGuardian',
+        loadComponent: () => import('./pages/pacientes/pacientes').then(m => m.Pacientes) },
+      { path: 'medicamentos', title: 'Medicamentos · CareGuardian',
+        loadComponent: () => import('./pages/medicamentos/medicamentos').then(m => m.Medicamentos) },
+      { path: 'citas', title: 'Citas · CareGuardian',
+        loadComponent: () => import('./pages/citas/citas').then(m => m.Citas) },
+      { path: 'sintomas', title: 'Síntomas · CareGuardian',
+        loadComponent: () => import('./pages/sintomas/sintomas').then(m => m.Sintomas) },
+      { path: 'notas', title: 'Notas · CareGuardian',
+        loadComponent: () => import('./pages/notas/notas').then(m => m.Notas) },
+      { path: 'alertas', title: 'Alertas · CareGuardian',
+        loadComponent: () => import('./pages/alertas/alertas').then(m => m.Alertas) },
+      { path: 'cuenta', title: 'Mi cuenta · CareGuardian',
+        loadComponent: () => import('./pages/cuenta/cuenta').then(m => m.Cuenta) },
+      { path: 'evolucion', title: 'Evolución · CareGuardian',
+        loadComponent: () => import('./pages/evolucion/evolucion').then(m => m.Evolucion) },
+    ],
   },
-
-    {
-    path: 'dashboard/:patientId',
-    canActivate: [authGuard],
-    component: Dashboard
-
-  },
-
-  {
-    path: 'pacientes',
-    canActivate: [authGuard],
-    component: Pacientes
-  },
-
-  {
-    path: 'sintomas',
-    canActivate: [authGuard],
-    component: Sintomas
-  },
-
-  {
-    path: 'medicamentos',
-    canActivate: [authGuard],
-    component: Medicamentos
-  },
-
-  {
-    path: 'citas',
-    canActivate: [authGuard],
-    component: Citas
-  },
-
-  {
-    path: 'notas',
-    canActivate: [authGuard],
-    component: Notas
-  },
-
-  {
-    path: 'alertas',
-    canActivate: [authGuard],
-    component: Alertas
-  },
-
-  {
-    path: 'evolucion',
-    canActivate: [authGuard],
-    component: Evolucion
-  },
-
-  {
-    path: '**',
-    redirectTo: ''
-  }
-
+  { path: '**', title: 'Página no encontrada · CareGuardian',
+    loadComponent: () => import('./pages/not-found/not-found').then(m => m.NotFound) },
 ];

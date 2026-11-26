@@ -1,12 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+
+import { ConnectionBanner } from './shared/connection-banner';
+import { Toasts } from './shared/toasts';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+  imports: [RouterOutlet, Toasts, ConnectionBanner],
+  template: `<cg-connection-banner /><router-outlet /><cg-toasts />`,
 })
-export class App {
-  protected readonly title = signal('careguardian_front');
-}
+export class App {}

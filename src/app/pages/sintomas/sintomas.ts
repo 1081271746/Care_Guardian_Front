@@ -1,240 +1,167 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+
 import { Api } from '../../services/api';
+import { apiError } from '../../services/errors';
+import { formatDateTime, localInputToISO, nowLocalInput } from '../../services/format';
+import { Severity, SymptomInput, SymptomRecord } from '../../services/models';
+import { Notifier } from '../../services/notifier';
+import { PatientContext } from '../../services/patient-context';
+import { EmptyState } from '../../shared/empty-state';
+import { Icon } from '../../shared/icon';
+import { revealForm } from '../../shared/scroll';
+import { RecordText } from '../../shared/record-text';
+import { label } from '../../shared/labels';
+import { PatientPicker } from '../../shared/patient-picker';
+
+/** Categories recognised by the API rules and the Evolución summaries. */
+export const MOODS = ['tranquilo', 'estable', 'alegre', 'regular', 'triste', 'ansioso', 'irritable', 'confundido', 'decaído'];
+export const APPETITES = ['bueno', 'normal', 'regular', 'bajo', 'muy bajo', 'aumentado'];
+
+const scale = [Validators.min(0), Validators.max(10)];
+
+export const PAGE_SIZE = 50;
 
 @Component({
   selector: 'app-sintomas',
-  standalone: true,
-  imports: [
-    FormsModule,
-    DatePipe
-  ],
+  imports: [ReactiveFormsModule, RouterLink, Icon, EmptyState, PatientPicker, RecordText],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './sintomas.html',
-  styleUrl: './sintomas.css'
+  styleUrl: './sintomas.css',
 })
-export class Sintomas implements OnInit {
+export class Sintomas {
+  private api = inject(Api);
+  private fb = inject(FormBuilder);
+  private notifier = inject(Notifier);
+  protected context = inject(PatientContext);
 
-  patientId = 0;
+  readonly records = signal<SymptomRecord[]>([]);
+  readonly loading = signal(false);
+  readonly hasMore = signal(false);
+  readonly saving = signal(false);
+  readonly error = signal('');
+  readonly formError = signal('');
+  /** null = create mode; id = correcting that record. */
+  readonly editing = signal<number | null>(null);
+  readonly maxMoment = nowLocalInput();
 
-  symptoms: any[] = [];
+  protected moods = MOODS;
+  protected appetites = APPETITES;
+  protected label = label;
+  protected formatDateTime = formatDateTime;
+  protected severities: Severity[] = ['bajo', 'moderado', 'grave'];
 
-  loading = true;
-  saving = false;
+  readonly form = this.fb.group({
+    nivel_dolor: this.fb.control<number | null>(null, scale),
+    calidad_sueno: this.fb.control<number | null>(null, scale),
+    temperatura: this.fb.control<number | null>(null, [Validators.min(30), Validators.max(45)]),
+    estado_animo: this.fb.nonNullable.control(''),
+    apetito: this.fb.nonNullable.control(''),
+    observaciones: this.fb.nonNullable.control('', [Validators.maxLength(5000)]),
+    nivel_gravedad: this.fb.nonNullable.control<Severity>('bajo'),
+    momento: this.fb.nonNullable.control(''),
+  });
 
-  errorMessage = '';
-  successMessage = '';
+  constructor() {
+    this.context.load().subscribe({ next: () => this.load(), error: e => this.error.set(apiError(e)) });
+  }
 
-  showForm = false;
-
-  newSymptom = {
-    calidad_sueno: null,
-    estado_animo: '',
-    apetito: '',
-    nivel_dolor: null,
-    temperatura: null,
-    observaciones: '',
-    nivel_gravedad: 'bajo'
-  };
-
-  constructor(
-    private api: Api,
-    private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
-  ) {}
-
-  ngOnInit(): void {
-
-    this.api.getPatients().subscribe({
-      next: patients => {
-        const requested = Number(this.route.snapshot.queryParamMap.get('patientId'));
-        this.patientId = patients.find(p => p.id === requested)?.id ?? patients[0]?.id ?? 0;
-        if (this.patientId) this.loadSymptoms();
-        else { this.loading = false; this.errorMessage = 'No tienes pacientes asignados.'; this.cdr.detectChanges(); }
-      },
-      error: () => { this.loading = false; this.errorMessage = 'No fue posible cargar tus pacientes.'; this.cdr.detectChanges(); }
+  load(): void {
+    const id = this.context.selectedId();
+    if (!id) return;
+    this.loading.set(true);
+    this.error.set('');
+    this.api.getPatientSymptoms(id, PAGE_SIZE, 0).subscribe({
+      next: list => { this.records.set(list); this.hasMore.set(list.length === PAGE_SIZE); this.loading.set(false); },
+      error: error => { this.error.set(apiError(error, 'No fue posible cargar el historial.')); this.loading.set(false); },
     });
   }
 
-  loadSymptoms(): void {
-
-    this.loading = true;
-    this.errorMessage = '';
-
-    this.api.getPatientSymptoms(this.patientId).subscribe({
-
-      next: (data) => {
-
-
-        this.symptoms = data;
-
-        this.loading = false;
-
-        this.cdr.detectChanges();
-
+  /** Next page of older records (the API returns newest first). */
+  loadMore(): void {
+    const id = this.context.selectedId();
+    if (!id || this.loading()) return;
+    this.loading.set(true);
+    this.api.getPatientSymptoms(id, PAGE_SIZE, this.records().length).subscribe({
+      next: list => {
+        this.records.update(current => [...current, ...list]);
+        this.hasMore.set(list.length === PAGE_SIZE);
+        this.loading.set(false);
       },
-
-      error: (error) => {
-
-
-        this.errorMessage =
-          error?.error?.detail ||
-          'No fue posible cargar los registros de síntomas.';
-
-        this.loading = false;
-
-        this.cdr.detectChanges();
-      }
-
+      error: error => { this.error.set(apiError(error)); this.loading.set(false); },
     });
   }
 
-  openForm(): void {
-
-    this.showForm = true;
-
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    this.cdr.detectChanges();
+  invalid(name: keyof typeof this.form.controls): boolean {
+    const control = this.form.controls[name];
+    return control.invalid && (control.touched || control.dirty);
   }
 
-  closeForm(): void {
-
-    this.showForm = false;
-
-    this.resetForm();
-
-    this.cdr.detectChanges();
+  /** The API rejects a record without any measurement or observation. */
+  isEmpty(): boolean {
+    const v = this.form.getRawValue();
+    return v.nivel_dolor === null && v.calidad_sueno === null && v.temperatura === null &&
+      !v.estado_animo && !v.apetito && !v.observaciones.trim();
   }
 
-  createSymptom(): void {
+  futureMoment(): boolean {
+    const iso = localInputToISO(this.form.controls.momento.value);
+    return !!iso && Date.parse(iso) > Date.now();
+  }
 
-    this.errorMessage = '';
-    this.successMessage = '';
+  reset(): void {
+    this.form.reset({ nivel_gravedad: 'bajo', estado_animo: '', apetito: '', observaciones: '', momento: '' });
+    this.editing.set(null);
+    this.formError.set('');
+  }
 
-    this.saving = true;
-
-    const symptomData = {
-      calidad_sueno:
-        this.newSymptom.calidad_sueno !== null
-          ? Number(this.newSymptom.calidad_sueno)
-          : null,
-
-      estado_animo:
-        this.newSymptom.estado_animo || null,
-
-      apetito:
-        this.newSymptom.apetito || null,
-
-      nivel_dolor:
-        this.newSymptom.nivel_dolor !== null
-          ? Number(this.newSymptom.nivel_dolor)
-          : null,
-
-      temperatura:
-        this.newSymptom.temperatura !== null
-          ? Number(this.newSymptom.temperatura)
-          : null,
-
-      observaciones:
-        this.newSymptom.observaciones || null,
-
-      nivel_gravedad:
-        this.newSymptom.nivel_gravedad
-    };
-
-
-    this.api.createSymptom(
-      this.patientId,
-      symptomData
-    ).subscribe({
-
-      next: (response) => {
-
-
-        this.saving = false;
-
-        this.successMessage =
-          'Registro de síntomas guardado correctamente.';
-
-        this.showForm = false;
-
-        this.resetForm();
-
-        this.loadSymptoms();
-
-        this.cdr.detectChanges();
-      },
-
-      error: (error) => {
-
-
-        this.errorMessage =
-          error?.error?.detail ||
-          'No fue posible guardar el registro.';
-
-        this.saving = false;
-
-        this.cdr.detectChanges();
-      }
-
+  edit(record: SymptomRecord): void {
+    this.form.reset({
+      nivel_dolor: record.nivel_dolor, calidad_sueno: record.calidad_sueno, temperatura: record.temperatura,
+      estado_animo: record.estado_animo ?? '', apetito: record.apetito ?? '',
+      observaciones: record.observaciones ?? '', nivel_gravedad: record.nivel_gravedad, momento: '',
     });
+    this.editing.set(record.id);
+    this.formError.set('');
+    revealForm();
   }
 
-  resetForm(): void {
-
-    this.newSymptom = {
-
-      calidad_sueno: null,
-
-      estado_animo: '',
-
-      apetito: '',
-
-      nivel_dolor: null,
-
-      temperatura: null,
-
-      observaciones: '',
-
-      nivel_gravedad: 'bajo'
-
-    };
-  }
-
-  getSeverityClass(nivel: string): string {
-
-    switch (nivel?.toLowerCase()) {
-
-      case 'alto':
-      case 'grave':
-        return 'severity-high';
-
-      case 'medio':
-      case 'moderado':
-        return 'severity-medium';
-
-      default:
-        return 'severity-low';
+  save(): void {
+    const patientId = this.context.selectedId();
+    if (!patientId) return;
+    if (this.form.invalid || this.isEmpty() || this.futureMoment()) {
+      this.form.markAllAsTouched();
+      if (this.isEmpty()) this.formError.set('Registra al menos una medición u observación.');
+      return;
     }
+    const v = this.form.getRawValue();
+    const payload: SymptomInput = {
+      nivel_dolor: v.nivel_dolor, calidad_sueno: v.calidad_sueno, temperatura: v.temperatura,
+      estado_animo: v.estado_animo || null, apetito: v.apetito || null,
+      observaciones: v.observaciones.trim() || null, nivel_gravedad: v.nivel_gravedad,
+    };
+    const id = this.editing();
+    if (!id && v.momento) payload.fecha_registro = localInputToISO(v.momento);
+    this.saving.set(true);
+    this.formError.set('');
+    const request = id ? this.api.updateSymptom(id, payload) : this.api.createSymptom(patientId, payload);
+    request.subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.notifier.success(id ? 'Registro corregido.' : 'Síntomas registrados. Si hay riesgo se creó una alerta.');
+        this.reset();
+        this.load();
+      },
+      error: error => { this.saving.set(false); this.formError.set(apiError(error, 'No fue posible guardar el registro.')); },
+    });
   }
 
-  getSeverityLabel(nivel: string): string {
-
-    switch (nivel?.toLowerCase()) {
-
-      case 'alto':
-      case 'grave':
-        return 'Alto';
-
-      case 'medio':
-      case 'moderado':
-        return 'Medio';
-
-      default:
-        return 'Bajo';
-    }
+  remove(record: SymptomRecord): void {
+    if (typeof window !== 'undefined' && !window.confirm('¿Retirar este registro del historial?')) return;
+    this.api.deactivateSymptom(record.id).subscribe({
+      next: () => { this.notifier.success('Registro retirado del historial.'); this.load(); },
+      error: error => this.notifier.error(apiError(error)),
+    });
   }
 }

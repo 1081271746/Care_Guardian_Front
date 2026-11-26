@@ -1,247 +1,137 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+
 import { Api } from '../../services/api';
+import { Auth } from '../../services/auth';
+import { apiError } from '../../services/errors';
+import { formatDateTime, formatRelative, localInputToISO, nowLocalInput } from '../../services/format';
+import { CaregiverNote } from '../../services/models';
+import { Notifier } from '../../services/notifier';
+import { PatientContext } from '../../services/patient-context';
+import { EmptyState } from '../../shared/empty-state';
+import { Icon } from '../../shared/icon';
+import { RecordText } from '../../shared/record-text';
+import { PatientPicker } from '../../shared/patient-picker';
+
+export const PAGE_SIZE = 50;
 
 @Component({
   selector: 'app-notas',
-  standalone: true,
-  imports: [
-    FormsModule,
-    DatePipe
-  ],
+  imports: [ReactiveFormsModule, Icon, EmptyState, PatientPicker, RecordText],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './notas.html',
-  styleUrl: './notas.css'
+  styleUrl: './notas.css',
 })
-export class Notas implements OnInit {
+export class Notas {
+  private api = inject(Api);
+  private fb = inject(FormBuilder);
+  private notifier = inject(Notifier);
+  private auth = inject(Auth);
+  protected context = inject(PatientContext);
+  protected user = this.auth.user;
 
-  // ==========================================
-  // CONFIGURACIÓN DEL PACIENTE
-  // ==========================================
+  readonly notes = signal<CaregiverNote[]>([]);
+  readonly loading = signal(false);
+  readonly hasMore = signal(false);
+  readonly saving = signal(false);
+  readonly error = signal('');
+  readonly formError = signal('');
+  readonly editing = signal<number | null>(null);
+  readonly editText = signal('');
+  readonly maxMoment = nowLocalInput();
 
-  patientId = 0;
-  private route = inject(ActivatedRoute);
+  protected formatDateTime = formatDateTime;
+  protected formatRelative = formatRelative;
 
-  // ==========================================
-  // DATOS
-  // ==========================================
+  readonly form = this.fb.nonNullable.group({
+    contenido: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(5000)]],
+    momento: [''],
+  });
 
-  notes: any[] = [];
+  constructor() {
+    this.auth.loadUser()?.subscribe({ error: () => {} });
+    this.context.load().subscribe({ next: () => this.load(), error: e => this.error.set(apiError(e)) });
+  }
 
-  loading = true;
-  saving = false;
-
-  errorMessage = '';
-  successMessage = '';
-
-  showForm = false;
-
-  // ==========================================
-  // NUEVA NOTA
-  // ==========================================
-
-  newNote = {
-    contenido: ''
-  };
-
-  // ==========================================
-  // CONSTRUCTOR
-  // ==========================================
-
-  constructor(
-    private api: Api,
-    private cdr: ChangeDetectorRef
-  ) {}
-
-  // ==========================================
-  // INICIALIZACIÓN
-  // ==========================================
-
-  ngOnInit(): void {
-    this.api.getPatients().subscribe({
-      next: patients => {
-        const requested = Number(this.route.snapshot.queryParamMap.get('patientId'));
-        this.patientId = patients.find(p => p.id === requested)?.id ?? patients[0]?.id ?? 0;
-        if (this.patientId) this.loadNotes();
-        else { this.loading = false; this.errorMessage = 'No tienes pacientes asignados.'; this.cdr.detectChanges(); }
-      },
-      error: () => { this.loading = false; this.errorMessage = 'No fue posible cargar tus pacientes.'; this.cdr.detectChanges(); }
+  load(): void {
+    const id = this.context.selectedId();
+    if (!id) return;
+    this.loading.set(true);
+    this.error.set('');
+    this.api.getPatientNotes(id, PAGE_SIZE, 0).subscribe({
+      next: list => { this.notes.set(list); this.hasMore.set(list.length === PAGE_SIZE); this.loading.set(false); },
+      error: error => { this.error.set(apiError(error, 'No fue posible cargar el historial.')); this.loading.set(false); },
     });
   }
 
-  // ==========================================
-  // CARGAR NOTAS
-  // ==========================================
-
-  loadNotes(): void {
-    this.loading = true;
-    this.errorMessage = '';
-
-    this.api.getPatientNotes(this.patientId).subscribe({
-      next: (data) => {
-        this.notes = data;
-        this.loading = false;
-
-        this.cdr.detectChanges();
+  /** Next page of older records (the API returns newest first). */
+  loadMore(): void {
+    const id = this.context.selectedId();
+    if (!id || this.loading()) return;
+    this.loading.set(true);
+    this.api.getPatientNotes(id, PAGE_SIZE, this.notes().length).subscribe({
+      next: list => {
+        this.notes.update(current => [...current, ...list]);
+        this.hasMore.set(list.length === PAGE_SIZE);
+        this.loading.set(false);
       },
-
-      error: (error) => {
-
-        this.errorMessage =
-          error?.error?.detail ||
-          'No fue posible cargar las notas del paciente.';
-
-        this.loading = false;
-
-        this.cdr.detectChanges();
-      }
+      error: error => { this.error.set(apiError(error)); this.loading.set(false); },
     });
   }
 
-  // ==========================================
-  // ABRIR FORMULARIO
-  // ==========================================
-
-  openNoteForm(): void {
-    this.showForm = true;
-
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    this.cdr.detectChanges();
+  /** Only the author can edit or remove a note (enforced by the API too). */
+  isMine(note: CaregiverNote): boolean {
+    return note.caregiver_id === this.user()?.id;
   }
 
-  // ==========================================
-  // CERRAR FORMULARIO
-  // ==========================================
-
-  closeNoteForm(): void {
-    this.showForm = false;
-
-    this.errorMessage = '';
-
-    this.resetForm();
-
-    this.cdr.detectChanges();
-  }
-
-  // ==========================================
-  // CREAR NOTA
-  // ==========================================
-
-  createNote(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    const content = this.newNote.contenido.trim();
-
-    if (!content) {
-      this.errorMessage =
-        'Escribe una observación antes de guardar la nota.';
-
-      this.cdr.detectChanges();
-
+  save(): void {
+    const patientId = this.context.selectedId();
+    if (!patientId) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
-
-    if (content.length < 5) {
-      this.errorMessage =
-        'La nota debe tener al menos 5 caracteres.';
-
-      this.cdr.detectChanges();
-
+    const { contenido, momento } = this.form.getRawValue();
+    const fecha = localInputToISO(momento);
+    if (fecha && Date.parse(fecha) > Date.now()) {
+      this.formError.set('La fecha de la observación no puede ser futura.');
       return;
     }
-
-    if (content.length > 5000) {
-      this.errorMessage =
-        'La nota no puede superar los 5000 caracteres.';
-
-      this.cdr.detectChanges();
-
-      return;
-    }
-
-    this.saving = true;
-
-    const noteData = {
-      contenido: content
-    };
-
-    this.api.createNote(
-      this.patientId,
-      noteData
-    ).subscribe({
-
-      next: (note) => {
-
-        this.saving = false;
-        this.showForm = false;
-
-        this.successMessage =
-          'Nota registrada correctamente.';
-
-        this.resetForm();
-
-        this.loadNotes();
-
-        this.cdr.detectChanges();
+    this.saving.set(true);
+    this.formError.set('');
+    this.api.createNote(patientId, { contenido: contenido.trim(), ...(fecha ? { fecha_registro: fecha } : {}) }).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.form.reset();
+        this.notifier.success('Nota guardada.');
+        this.load();
       },
-
-      error: (error) => {
-
-        this.errorMessage =
-          error?.error?.detail ||
-          'No fue posible registrar la nota.';
-
-        this.saving = false;
-
-        this.cdr.detectChanges();
-      }
+      error: error => { this.saving.set(false); this.formError.set(apiError(error, 'No fue posible guardar la nota.')); },
     });
   }
 
-  // ==========================================
-  // LIMPIAR FORMULARIO
-  // ==========================================
-
-  resetForm(): void {
-    this.newNote = {
-      contenido: ''
-    };
+  startEdit(note: CaregiverNote): void {
+    this.editing.set(note.id);
+    this.editText.set(note.contenido);
   }
 
-  // ==========================================
-  // CONTADOR DE CARACTERES
-  // ==========================================
-
-  getCharacterCount(): number {
-    return this.newNote.contenido.length;
+  saveEdit(note: CaregiverNote): void {
+    const text = this.editText().trim();
+    if (text.length < 5) {
+      this.notifier.error('La nota debe tener al menos 5 caracteres.');
+      return;
+    }
+    this.api.updateNote(note.id, text).subscribe({
+      next: () => { this.editing.set(null); this.notifier.success('Nota actualizada.'); this.load(); },
+      error: error => this.notifier.error(apiError(error)),
+    });
   }
 
-  // ==========================================
-  // CLASE VISUAL PARA LA NOTA
-  // ==========================================
-
-  getNoteClass(note: any): string {
-
-    if (!note?.contenido) {
-      return '';
-    }
-
-    const content = note.contenido.toLowerCase();
-
-    if (
-      content.includes('dolor') ||
-      content.includes('fiebre') ||
-      content.includes('mareo') ||
-      content.includes('confusión') ||
-      content.includes('confusion')
-    ) {
-      return 'note-warning';
-    }
-
-    return 'note-normal';
+  remove(note: CaregiverNote): void {
+    if (typeof window !== 'undefined' && !window.confirm('¿Retirar esta nota del historial?')) return;
+    this.api.deactivateNote(note.id).subscribe({
+      next: () => { this.notifier.success('Nota retirada.'); this.load(); },
+      error: error => this.notifier.error(apiError(error)),
+    });
   }
 }

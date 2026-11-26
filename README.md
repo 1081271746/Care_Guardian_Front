@@ -1,453 +1,243 @@
-CREDENCIALES PARA INICIAR:
+# CareGuardian · Interfaz web (frontend)
 
-CORREO: carlos@careguardian.com
-CONTRASEÑA: CareGuardian123
+Aplicación Angular (con SSR) para cuidadores de adultos mayores: pacientes,
+medicamentos, citas, síntomas, notas, alertas y evolución con resúmenes de IA
+(Groq) bajo consentimiento. La API está en
+[Care_Guardian_Back](https://github.com/1081271746/Care_Guardian_Back).
 
+## Acceso de demostración
 
-
-# CareGuardian 
-## Sistema inteligente de acompañamiento y seguimiento para adultos mayores
-
-**CareGuardian** es una plataforma web orientada al acompañamiento y cuidado de adultos mayores. Su propósito es facilitar el trabajo de familiares y cuidadores mediante herramientas digitales para administrar información, realizar seguimiento de síntomas, organizar medicamentos y citas médicas y analizar la evolución de los pacientes mediante inteligencia artificial.
-
-El proyecto integra tecnologías de desarrollo web, almacenamiento de información, procesamiento de datos e inteligencia artificial, buscando ofrecer una solución centralizada, modular y escalable.
-
----
-
-# 1. Objetivo general
-
-Desarrollar una plataforma web que facilite el acompañamiento y seguimiento de adultos mayores mediante la gestión de información personal, registros de síntomas, actividades de cuidado y análisis inteligente de patrones de evolución.
-
-## Objetivos específicos
-
-- Centralizar la información de los adultos mayores.
-- Facilitar el seguimiento de medicamentos y citas médicas.
-- Registrar síntomas y cambios en el estado del paciente.
-- Mantener un historial de seguimiento.
-- Incorporar inteligencia artificial para analizar patrones en la información registrada.
-- Generar información de apoyo para familiares y cuidadores.
-- Implementar diferentes estrategias de renderizado web para mejorar la experiencia y el funcionamiento de la aplicación.
-
----
-
-# 2. Tecnologías utilizadas
-
-El proyecto utiliza una arquitectura cliente-servidor con separación entre frontend, backend y base de datos.
-
-## 2.1. Frontend
-
-| Tecnología | Función |
+| Campo | Valor |
 |---|---|
-| Angular 22 | Framework para desarrollar la interfaz web. |
-| TypeScript | Lenguaje principal del frontend. |
-| HTML5 | Estructura de los componentes y páginas. |
-| CSS3 | Diseño y presentación visual. |
-| Node.js | Entorno de ejecución utilizado para las herramientas del frontend y SSR. |
-
-El frontend permite a los usuarios interactuar con los módulos del sistema, consultar información y realizar operaciones mediante una interfaz organizada por componentes.
-
-También se trabaja con renderizado del lado del servidor (SSR), además del funcionamiento habitual del navegador.
-
-## 2.2. Backend
-
-| Tecnología | Función |
-|---|---|
-| Python | Lenguaje principal del backend. |
-| FastAPI | Framework para desarrollar la API REST. |
-| SQLAlchemy | Comunicación con la base de datos mediante ORM. |
-| Pydantic | Validación y estructuración de datos. |
-| Alembic | Administración de migraciones de PostgreSQL. |
-| HTTPX | Cliente HTTP utilizado para comunicarse con Groq. |
-
-El backend recibe las solicitudes del frontend, valida los datos, ejecuta la lógica de negocio y administra las operaciones relacionadas con la información almacenada.
-
-## 2.3. Base de datos
-
-**PostgreSQL**
-
-Se utiliza para almacenar de forma persistente la información del sistema.
-
-La comunicación con la base de datos se realiza mediante SQLAlchemy, mientras que Alembic permite administrar los cambios en su estructura mediante migraciones.
-
-## 2.4. Inteligencia artificial
-
-**Groq API**
-
-Se integró Groq como proveedor de inteligencia artificial para incorporar capacidades de análisis de información.
-
-| Elemento | Configuración |
-|---|---|
-| Proveedor | Groq |
-| Modelo | `openai/gpt-oss-20b` |
-| Comunicación | HTTP mediante HTTPX |
-| Configuración | Variables de entorno |
-| Módulo | `app/services/groq_analysis.py` |
-
-La integración permite enviar información al modelo para procesarla y obtener respuestas estructuradas que pueden utilizarse en el análisis de evolución de los pacientes.
-
-La API key se administra exclusivamente desde el backend mediante la variable de entorno `GROQ_API_KEY`.
-
-El frontend no necesita conocer ni almacenar esta clave.
-
----
-
-# 3. Integración de inteligencia artificial con Groq
-
-Uno de los componentes importantes de CareGuardian es la incorporación de inteligencia artificial mediante Groq.
-
-Esta integración permite ampliar las capacidades del sistema para analizar información relacionada con el seguimiento de los adultos mayores.
-
-## ¿Cómo funciona?
-
-1. El cuidador registra información relacionada con el paciente.
-2. El backend recibe y organiza los datos.
-3. El módulo de análisis prepara la información que será procesada.
-4. El backend realiza una solicitud a Groq mediante HTTPX.
-5. Groq procesa la solicitud utilizando el modelo configurado.
-6. El resultado es recibido por el backend.
-7. La aplicación puede utilizar la respuesta para presentar información de análisis y seguimiento.
-
-## Modelo utilizado
-
-`openai/gpt-oss-20b`
-
-Este modelo se configura mediante la variable:
-
-```env
-GROQ_MODEL=openai/gpt-oss-20b
-```
-
-La clave de acceso se configura mediante:
-
-```env
-GROQ_API_KEY=tu_clave_de_groq
-```
-
-La comunicación se realiza desde el servidor, evitando exponer las credenciales en el navegador.
-
-## Validación de la integración
-
-La conexión con Groq fue probada satisfactoriamente.
-
-Se verificó:
-
-- Disponibilidad del modelo.
-- Comunicación con la API.
-- Respuesta HTTP 200.
-- Generación de una respuesta de prueba con estado `ok`.
-
-## Aplicación dentro del proyecto
-
-La inteligencia artificial funciona como herramienta de apoyo para el análisis de información.
-
-Puede contribuir a identificar tendencias, cambios y patrones presentes en los registros del paciente.
-
-**Importante:** los resultados son orientativos y no sustituyen la evaluación, el diagnóstico ni las decisiones de profesionales de la salud.
-
----
-
-# 4. Patrones de renderizado web (Rendering Patterns)
-
-Otro aspecto técnico trabajado en CareGuardian es el estudio y aplicación de estrategias de renderizado web.
-
-Los patrones de renderizado determinan cómo y dónde se genera el contenido que finalmente recibe el navegador.
-
-En el proyecto se trabaja con los enfoques de renderizado del lado del cliente y del servidor, especialmente relacionados con Angular y su configuración SSR.
-
-## 4.1. CSR (Client-Side Rendering)
-
-El renderizado del lado del cliente consiste en entregar inicialmente una estructura HTML básica y permitir que JavaScript genere el contenido de la aplicación dentro del navegador.
-
-**Funcionamiento:**
-
-1. El navegador solicita la aplicación.
-2. Recibe el HTML inicial y los archivos JavaScript.
-3. Angular se ejecuta en el navegador.
-4. Se construyen los componentes.
-5. Se muestra la interfaz al usuario.
-
-**Ventajas:**
-- Permite interfaces interactivas.
-- Facilita la actualización dinámica de componentes.
-- Es adecuado para aplicaciones con paneles y operaciones frecuentes.
-
-**Aplicación en CareGuardian:**
-
-Se utiliza el funcionamiento habitual de Angular en el navegador para permitir la interacción con los módulos de la plataforma.
-
-## 4.2. SSR (Server-Side Rendering)
-
-El renderizado del lado del servidor permite generar el HTML inicial antes de enviarlo al navegador.
-
-**Funcionamiento:**
-
-1. El navegador solicita una página.
-2. El servidor ejecuta el proceso de renderizado.
-3. Se genera el HTML inicial.
-4. El navegador recibe el contenido renderizado.
-5. Angular se inicializa en el cliente para habilitar la interactividad.
-
-**Ventajas:**
-- Permite mostrar contenido inicial desde el servidor.
-- Puede mejorar la percepción de velocidad de carga.
-- Facilita la indexación de contenido público por buscadores.
-- Puede mejorar la experiencia en la primera visualización.
-
-**Aplicación en CareGuardian:**
-
-El proyecto incorpora Angular con configuración SSR y Node.js para soportar el renderizado del lado del servidor.
-
-## 4.3. SSG (Static Site Generation)
-
-SSG consiste en generar páginas HTML estáticas durante el proceso de construcción de la aplicación.
-
-El contenido se prepara antes de que el usuario realice una solicitud.
-
-**Ventajas:**
-- Permite servir archivos estáticos rápidamente.
-- Reduce el trabajo de procesamiento por solicitud.
-- Es útil para páginas cuyo contenido cambia poco.
-
-SSG se documenta como una estrategia de renderizado relacionada, pero no se afirma como una funcionalidad implementada en la versión desplegada de CareGuardian.
-
-## 4.4. ISR (Incremental Static Regeneration)
-
-ISR permite actualizar páginas estáticas después de su generación inicial, siguiendo una estrategia de regeneración definida.
-
-**Ventajas:**
-- Permite reutilizar contenido estático.
-- Facilita la actualización periódica de páginas.
-- Reduce la necesidad de reconstruir todo el sitio ante ciertos cambios.
-
-ISR también se incluye como concepto de arquitectura web, no como una funcionalidad confirmada en la implementación actual.
-
-## Comparación de patrones
-
-| Patrón | Lugar de renderizado | Momento |
-|---|---|---|
-| CSR | Navegador | Durante la ejecución del cliente |
-| SSR | Servidor | Durante la solicitud |
-| SSG | Proceso de construcción | Antes de la solicitud |
-| ISR | Generación estática con regeneración | Después de la generación inicial |
-
----
-
-# 5. Arquitectura general
-
-CareGuardian utiliza una arquitectura dividida en componentes independientes.
-
-### Frontend
-
-Desarrollado con Angular 22. Se encarga de presentar la información y permitir la interacción con los usuarios.
-
-### Backend
-
-Desarrollado con FastAPI. Administra la lógica de negocio, recibe solicitudes, valida datos y realiza operaciones con PostgreSQL.
-
-### Base de datos
-
-PostgreSQL almacena la información persistente del sistema.
-
-### Inteligencia artificial
-
-Groq se integra mediante el backend para procesar solicitudes de análisis utilizando el modelo `openai/gpt-oss-20b`.
-
-### Flujo general
+| Correo | `carlos@careguardian.com` |
+| Contraseña | `CareGuardian123` |
+
+Es una **cuenta de demostración** con pacientes ficticios marcados “(demo)”.
+No registres datos reales con ella: cualquiera que lea este README puede entrar.
+Si la cuenta no existe en un entorno nuevo, créala desde la pestaña
+**Crear cuenta** del login o con la carga de demostración del backend
+(`python -m scripts.seed_demo --apply --create-account`).
+
+> CareGuardian apoya el seguimiento; no diagnostica, no recomienda
+> medicamentos y no reemplaza a un profesional de la salud.
+
+## Contenido
+
+1. [Arquitectura](#arquitectura)
+2. [Tecnologías](#tecnologías)
+3. [Estructura de carpetas](#estructura-de-carpetas)
+4. [Instalación y ejecución local](#instalación-y-ejecución-local)
+5. [Variables de entorno](#variables-de-entorno)
+6. [Páginas y navegación](#páginas-y-navegación)
+7. [Conexión con la API](#conexión-con-la-api)
+8. [Evolución e IA](#evolución-e-ia)
+9. [Diseño](#diseño)
+10. [Pruebas](#pruebas)
+11. [Despliegue en Railway](#despliegue-en-railway)
+12. [Seguridad](#seguridad)
+
+## Arquitectura
 
 ```text
-             USUARIO
-                |
-                v
-       ANGULAR 22 FRONTEND
-                |
-                v
-           API REST
-            FASTAPI
-                |
-       +--------+--------+
-       |                 |
-       v                 v
-  POSTGRESQL          GROQ API
-       |                 |
-       v                 v
-  INFORMACIÓN       ANÁLISIS IA
-       |                 |
-       +--------+--------+
-                |
-                v
-         RESPUESTA API
-                |
-                v
-        INTERFAZ ANGULAR
+Navegador ── HTTPS ──► Servidor Node (Express + Angular SSR)  ── /api/* ──► FastAPI ──► PostgreSQL
+                         │                                                  │
+                         ├─ /acerca      SSR por petición                    └──► Groq (solo backend)
+                         ├─ /privacidad  prerenderizada (SSG)
+                         ├─ /recursos    SSR con caché pública (ISR equivalente)
+                         └─ resto        renderizado en el navegador (datos privados)
 ```
 
----
+- El navegador **solo** llama a `/api/...` en el mismo origen. `src/server.ts`
+  reenvía esas peticiones a `API_BASE_URL`; la URL del backend nunca llega al
+  JavaScript del navegador y no hay CORS que configurar en producción.
+- Las páginas privadas nunca se renderizan en el servidor: los datos clínicos
+  solo existen en el navegador del cuidador autenticado.
 
-# 6. Funcionamiento de los módulos
+## Tecnologías
 
-## 6.1. Gestión de usuarios
+Angular 22 (componentes standalone, signals, control flow `@if/@for`), TypeScript 6,
+RxJS, Angular SSR + Express 5, CSS propio (sin framework de UI), Vitest.
 
-Permite administrar la información de los usuarios que interactúan con la plataforma.
+## Estructura de carpetas
 
-El backend recibe los datos, realiza las validaciones correspondientes y ejecuta las operaciones de almacenamiento.
+```text
+src/
+  server.ts                 servidor Node: proxy /api, cabeceras de seguridad, SSR público
+  styles.css                sistema de diseño (tokens, componentes, utilidades)
+  app/
+    app.routes.ts           rutas; las privadas cuelgan del Shell con carga diferida
+    layout/shell.*          barra lateral, perfil, cierre de sesión, menú móvil
+    services/
+      api.ts                todas las llamadas HTTP tipadas
+      models.ts             tipos que reflejan los esquemas de la API
+      auth.ts, auth.guard.ts, auth.interceptor.ts   sesión JWT
+      patient-context.ts    paciente seleccionado compartido entre módulos
+      errors.ts, format.ts, notifier.ts             mensajes, fechas, avisos
+    shared/                 icono, gráficas, selector de paciente, estados vacíos…
+    pages/                  login, dashboard, paciente, pacientes, medicamentos,
+                            citas, sintomas, notas, alertas, evolucion, public
+tests/                      pruebas de ejecución contra un backend real desechable
+content/recursos.json       contenido público (sin datos personales)
+```
 
-## 6.2. Gestión de pacientes
+## Instalación y ejecución local
 
-Permite centralizar la información de los adultos mayores para facilitar su consulta y seguimiento.
+Requisitos: Node 24 y npm 11; el backend corriendo (por defecto en `http://127.0.0.1:8000`).
 
-## 6.3. Control de medicamentos
+```sh
+npm ci                      # usa el package-lock.json
+npm run build               # compila navegador + servidor SSR
+API_BASE_URL=http://127.0.0.1:8000 PUBLIC_ORIGIN=http://localhost:4000 npm start
+# abre http://localhost:4000
+```
 
-Organiza información relacionada con medicamentos, horarios y seguimiento de su administración.
-
-## 6.4. Calendario de citas médicas
-
-Permite organizar las citas y actividades relacionadas con la atención médica de los pacientes.
-
-## 6.5. Registro de síntomas
-
-Permite almacenar observaciones relacionadas con el estado del paciente.
-
-Estos registros pueden servir como fuente de información para el seguimiento y el análisis de evolución.
-
-## 6.6. Análisis de evolución mediante IA
-
-Utiliza los registros disponibles para apoyar el análisis de patrones y cambios en la evolución del adulto mayor.
-
-El componente de Groq amplía las capacidades de procesamiento y generación de respuestas del sistema.
-
----
-
-# 7. Funcionamiento técnico de una solicitud
-
-El proceso de comunicación entre los componentes funciona de la siguiente manera:
-
-1. El usuario realiza una acción desde Angular.
-2. El frontend construye una solicitud HTTP.
-3. FastAPI recibe la petición.
-4. Pydantic valida los datos recibidos.
-5. El backend ejecuta la lógica correspondiente.
-6. SQLAlchemy realiza las operaciones necesarias en PostgreSQL.
-7. Si la operación requiere análisis inteligente, el backend utiliza el módulo de Groq.
-8. La respuesta es procesada por FastAPI.
-9. Angular recibe la información y actualiza la interfaz.
-
-Esta separación permite mantener una arquitectura organizada y facilita el mantenimiento del proyecto.
-
----
-
-# 8. Despliegue e infraestructura
-
-CareGuardian utiliza Railway como plataforma de despliegue.
-
-Los componentes principales de producción son:
-
-- Backend desarrollado con FastAPI.
-- Frontend desarrollado con Angular y configuración SSR.
-- Base de datos PostgreSQL.
-- Integración externa con Groq.
-
-También se utiliza Docker para preparar los entornos de ejecución y facilitar la construcción y despliegue de los servicios.
-
-Los repositorios se administran mediante Git y GitHub.
+Desarrollo con recarga: `npm run dev` (usa `proxy.conf.json` para enviar `/api`
+al backend local en el puerto 8000).
 
 ## Variables de entorno
 
-La configuración de producción utiliza variables de entorno para evitar almacenar credenciales directamente en el código.
+| Variable | Obligatoria | Descripción |
+|---|---|---|
+| `API_BASE_URL` | Sí | URL del backend, solo para el servidor Node. En Railway: `http://<servicio-backend>.railway.internal:<PORT>` (red privada) o la URL pública `https://...`. Sin ella, `/api` responde 503. |
+| `PUBLIC_ORIGIN` | Sí en producción | URL pública del frontend (`https://<frontend>.up.railway.app`). Se usa para validar el host y renderizar `/recursos`. |
+| `NG_ALLOWED_HOSTS` | No | Hosts adicionales permitidos, separados por comas (dominio propio). `RAILWAY_PUBLIC_DOMAIN` se agrega automáticamente. |
+| `PUBLIC_CACHE_TTL_SECONDS` | No | Vida de la caché de `/recursos` (300 por defecto). |
+| `PUBLIC_RESOURCES_FILE` | No | Ruta del JSON público de recursos (`content/recursos.json`). |
+| `PORT` | Railway | Puerto del servidor Node (4000 local). |
 
-Entre las variables utilizadas se encuentran:
+En el backend, `CORS_ORIGINS` debe incluir la URL pública del frontend.
 
-```env
-DATABASE_URL=
-SECRET_KEY=
-CORS_ORIGINS=
-GROQ_API_KEY=
-GROQ_MODEL=openai/gpt-oss-20b
-API_BASE_URL=
-PUBLIC_ORIGIN=
+## Páginas y navegación
+
+| Ruta | Qué hace | Endpoints |
+|---|---|---|
+| `/login` | Iniciar sesión o crear cuenta; mensajes de sesión expirada o cerrada | `POST /auth/login`, `POST /users/` |
+| `/dashboard` | Indicadores de todos tus pacientes, síntomas por día, próximas citas, alertas por nivel y actividad reciente | `GET /dashboard/summary` |
+| `/dashboard/:id` | Panel de un paciente: nivel por reglas, alertas, síntomas, medicamentos, citas y notas | `GET /dashboard/patients/{id}` |
+| `/pacientes` | Buscar, crear, editar, desactivar/reactivar y gestionar el equipo de cuidado | `GET/POST/PUT/DELETE /patients/…`, `/patients/{id}/caregivers` |
+| `/medicamentos` | Registrar, editar, suspender y reactivar; estado vigente | `/medications/…` |
+| `/citas` | Próximas e historial; confirmar, cancelar, completar, editar y eliminar | `/appointments/…` |
+| `/sintomas` | Mediciones, categorías, gravedad, momento de la observación; corregir y retirar | `/symptoms/…` |
+| `/notas` | Bitácora del equipo; solo el autor edita o retira | `/notes/…` |
+| `/alertas` | Activas por gravedad e historial; revisar, atender, descartar, reabrir y crear manuales | `/alerts/…` |
+| `/evolucion` | Período, gráficas de mediciones reales, categorías, historial y resúmenes con Groq | `/evolution/…` |
+| `/cuenta` | Datos de la cuenta y cambio de contraseña | `/auth/me`, `/users/{id}` |
+| `/acerca`, `/privacidad`, `/recursos` | Páginas públicas | — |
+
+- El paciente elegido se recuerda entre módulos (`PatientContext`).
+- Los pacientes inactivos se pueden consultar, pero sus formularios se deshabilitan
+  (la API también lo impide).
+- Rutas privadas protegidas por `authGuard`: sin sesión válida se redirige a
+  `/login?volver=<ruta>` y, tras entrar, se vuelve a la página pedida.
+- Si la API responde 401 (token vencido o revocado) se cierra la sesión y se
+  muestra “Tu sesión expiró”.
+
+## Conexión con la API
+
+- `src/app/services/api.ts` concentra todas las llamadas; `models.ts` replica
+  los esquemas de FastAPI con los mismos nombres de campos (en español).
+- No hay datos quemados ni respuestas simuladas: cada número, lista o gráfica
+  viene de la respuesta de la API. Si la API falla, la página lo dice.
+- Los errores se traducen con `errors.ts`: mensajes de FastAPI (`detail`),
+  errores de validación 422 con el nombre del campo, red caída (`status 0`),
+  límites `429` y errores del servidor.
+- Las fechas de calendario (`AAAA-MM-DD`) se muestran sin conversión; los
+  instantes UTC se muestran en la zona del navegador. Evolución envía la zona
+  del navegador (`zona`) para que los días del filtro coincidan con los del cuidador.
+- Los valores opcionales vacíos se envían como `null` para que la API pueda borrarlos.
+
+## Evolución e IA
+
+1. Eliges paciente y período (7, 30, 90 días, todo o fechas exactas).
+2. Se muestran totales, gráficas de dolor, sueño y temperatura, categorías
+   (gravedad, ánimo, apetito) e historial cronológico paginado.
+3. Las gráficas dibujan **solo** los puntos devueltos por la API, espaciados
+   según el tiempo real entre registros; no se interpolan valores ni se habla de
+   “tendencias clínicas” (la diferencia compara la primera y la última medición).
+4. El bloque **Resumen con IA** consulta `GET /evolution/ai-status`:
+   - sin configuración: “El servicio de IA no está disponible” (nunca simula);
+   - con menos de dos mediciones de un indicador: explica por qué no se puede;
+   - con datos: exige marcar la casilla de consentimiento en cada solicitud.
+5. El resumen generado por Groq se guarda en PostgreSQL y se muestra desde la
+   respuesta guardada; los anteriores se pueden abrir desde la lista.
+6. Si Groq falla (límite, tiempo agotado, clave), el mensaje de la API se
+   muestra y las estadísticas siguen visibles.
+
+## Diseño
+
+- `src/styles.css` define el sistema: paleta cálida (verde azulado, papel,
+  terracota), tipografías Fraunces (títulos) y Figtree (texto), espaciado de 4 px,
+  botones, tarjetas, formularios, tablas que se apilan en móvil, insignias por
+  estado de la API, avisos, esqueletos de carga y estados vacíos.
+- Íconos SVG propios (`shared/icon.ts`), sin fuentes de íconos externas.
+- Navegación lateral fija en escritorio y menú desplegable en móvil (< 960 px).
+- Accesibilidad: foco visible, enlace “Saltar al contenido”, etiquetas en todos
+  los campos, regiones `aria-live` para avisos, gráficas con descripción textual
+  y respeto de `prefers-reduced-motion`.
+
+## Pruebas
+
+```sh
+npm run typecheck          # TypeScript de la app y de las pruebas
+npm test -- --watch=false  # pruebas unitarias y de componentes (Vitest)
+npm run test:cache         # caché pública de /recursos
+npm run build              # compilación de producción (incluye prerender de /privacidad)
+
+# Prueba de ejecución completa: levanta el backend real (SQLite desechable),
+# el servidor Node compilado y recorre login, permisos, estadísticas, proxy y SSR.
+BACKEND_DIR=../Care_Guardian_Back PYTHON=python npm run test:runtime
 ```
 
-Los valores reales deben configurarse en el entorno correspondiente y nunca publicarse en GitHub.
+- Las pruebas usan `HttpTestingController`: ninguna depende de datos inventados
+  y cada petición esperada se verifica (URL, método y cuerpo).
+- Cobertura por página: login, panel, panel de paciente, pacientes, medicamentos,
+  citas, síntomas, notas, alertas, evolución, cuenta, shell, rutas, servicios y gráficas.
 
----
+## Despliegue en Railway
 
-# 9. Pruebas y validaciones
+1. Servicio **frontend** con este repositorio (usa `Dockerfile` y `railway.toml`).
+2. Variables:
+   - `API_BASE_URL` = URL del backend (`http://<backend>.railway.internal:<PORT>` o pública)
+   - `PUBLIC_ORIGIN` = `https://<frontend>.up.railway.app`
+   - opcional `NG_ALLOWED_HOSTS` si usas un dominio propio
+3. En el backend, `CORS_ORIGINS` = la misma URL pública del frontend.
+4. Despliega; Railway comprueba `/health`. Luego abre la URL, entra con la cuenta
+   de demostración y verifica Panel, Pacientes y Evolución.
 
-El proyecto cuenta con pruebas automatizadas para verificar el funcionamiento del backend.
+## Seguridad
 
-Se registró un resultado de:
+- El token JWT se guarda en `localStorage` y solo se envía a `/api/*`; si vence o
+  la API responde 401, se borra y se vuelve al login.
+- Al cerrar sesión se borran el token, el perfil y el paciente seleccionado.
+- La redirección posterior al login solo acepta rutas internas.
+- `src/server.ts` envía `Cache-Control: private, no-store`, `X-Frame-Options`,
+  `Referrer-Policy`, `Permissions-Policy` y `frame-ancestors 'none'`; el proxy
+  solo reenvía `Authorization`, `Content-Type`, la dirección del cliente y el id de petición.
+- La cuenta de demostración es pública por diseño; úsala solo con datos ficticios.
 
-**32 pruebas aprobadas.**
+## Capturas
 
-También se realizaron validaciones de la integración con Groq, incluyendo la comunicación con el modelo y la recepción de respuestas satisfactorias.
+Datos ficticios de demostración.
 
-Las pruebas permiten detectar errores y comprobar que los componentes principales se comporten según lo esperado.
-
----
-
-# 10. Herramientas de desarrollo
-
-| Herramienta | Uso |
+| Panel | Evolución |
 |---|---|
-| Visual Studio Code | Desarrollo y edición del código. |
-| Python | Desarrollo del backend. |
-| Angular CLI | Administración y ejecución del frontend. |
-| Node.js | Entorno de ejecución de Angular y SSR. |
-| FastAPI | Construcción de servicios web. |
-| PostgreSQL | Persistencia de información. |
-| SQLAlchemy | Acceso a datos. |
-| Alembic | Migraciones de base de datos. |
-| Groq | Procesamiento mediante inteligencia artificial. |
-| HTTPX | Comunicación HTTP con Groq. |
-| Docker | Contenerización. |
-| Railway | Despliegue de servicios. |
-| Git y GitHub | Control de versiones y repositorios. |
+| ![Panel general](docs/capturas/dashboard.png) | ![Evolución](docs/capturas/evolucion.png) |
 
----
+| Pacientes | Alertas | Móvil |
+|---|---|---|
+| ![Pacientes](docs/capturas/pacientes.png) | ![Alertas](docs/capturas/alertas.png) | ![Móvil](docs/capturas/movil.png) |
 
-# 11. Seguridad y buenas prácticas
+Más documentación: [`docs/AUDITORIA.md`](docs/AUDITORIA.md),
+[`docs/VERIFICACION.md`](docs/VERIFICACION.md), [`docs/RENDERING.md`](docs/RENDERING.md),
+[`CHANGELOG.md`](CHANGELOG.md).
 
-CareGuardian contempla buenas prácticas de desarrollo:
+## Solución de problemas
 
-- Separación entre frontend y backend.
-- Validación de datos mediante Pydantic.
-- Uso de variables de entorno para información sensible.
-- Protección de las credenciales de Groq.
-- Configuración de CORS.
-- Control de cambios en la base de datos mediante Alembic.
-- Separación de entornos de desarrollo y producción.
-- Comunicación entre servicios mediante API REST.
-
-Por tratarse de información relacionada con adultos mayores, es importante mantener controles de acceso y proteger los datos personales y de salud.
-
----
-
-# 12. Posibles mejoras y evolución
-
-El proyecto puede ampliarse mediante nuevas funcionalidades:
-
-- Mayor precisión en el análisis de evolución.
-- Ampliación del historial de síntomas.
-- Mejoras en la generación de informes.
-- Incorporación de notificaciones y recordatorios.
-- Mejoras en la gestión de medicamentos y citas.
-- Ampliación de las pruebas automatizadas.
-- Optimización de los procesos de renderizado.
-- Fortalecimiento de la seguridad y protección de datos.
-
----
-
-# 13. Conclusión
-
-CareGuardian integra desarrollo web, gestión de bases de datos e inteligencia artificial para ofrecer una herramienta tecnológica orientada al acompañamiento de adultos mayores.
-
-La combinación de Angular 22, FastAPI y PostgreSQL proporciona una arquitectura modular, mientras que la integración con Groq incorpora capacidades de análisis inteligente.
-
-Adicionalmente, el trabajo con patrones de renderizado web permite comprender y utilizar diferentes estrategias para generar y entregar contenido al navegador, incluyendo CSR y SSR.
-
-El proyecto busca facilitar la labor de los cuidadores, centralizar información relevante y contribuir a un seguimiento más organizado de los adultos mayores.
-
----
-
-**CareGuardian**
-
-*Tecnología, inteligencia y acompañamiento para mejorar el cuidado de los adultos mayores.*
+| Síntoma | Causa probable | Qué revisar |
+|---|---|---|
+| Toda llamada responde “API no configurada” (503) | Falta `API_BASE_URL` en el servicio del frontend | Variables del servicio en Railway |
+| “No fue posible contactar con el backend” (502) | URL del backend incorrecta o servicio caído | `API_BASE_URL`, `/health` del backend |
+| Siempre vuelve al login con “Tu sesión expiró” | `SECRET_KEY` del backend cambió o el token venció | Iniciar sesión de nuevo (es lo esperado tras rotar la clave) |
+| “El servicio de IA no está disponible” en Evolución | El backend no tiene `GROQ_API_KEY`/`GROQ_MODEL` | Variables del backend y `python -m scripts.check_groq` |
+| Página en blanco tras desplegar un dominio propio | Host no permitido por Angular SSR | Agregar el dominio en `NG_ALLOWED_HOSTS` |
+| No aparece ningún paciente | La cuenta no tiene pacientes asignados | Registrar uno o ejecutar la carga de demostración del backend |

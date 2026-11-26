@@ -1,0 +1,59 @@
+<div class="public">
+  <header class="bar">
+    <a routerLink="/login" class="brand"><span class="mark"><cg-icon name="heart" [size]="18" /></span><span>Care<b>Guardian</b></span></a>
+    <nav aria-label="Páginas públicas">
+      <a routerLink="/acerca">Acerca</a>
+      <a routerLink="/privacidad">Privacidad e IA</a>
+      <a routerLink="/recursos">Recursos</a>
+      <a routerLink="/login" class="btn btn-primary btn-sm">Ingresar</a>
+    </nav>
+  </header>
+
+  <main class="content">
+    @if (mode === 'SSR') {
+      <p class="eyebrow">Acerca</p>
+      <h1>Acompañamiento para cuidadores de adultos mayores</h1>
+      <p class="lead">CareGuardian organiza síntomas, medicamentos, citas y observaciones del cuidado para que todo el equipo
+        —familia, cuidadores y profesionales— vea la misma información.</p>
+      <div class="cards">
+        <article><cg-icon name="pulse" /><h2>Registro diario</h2><p>Mediciones de dolor, sueño y temperatura, ánimo y apetito, con alertas automáticas cuando algo cambia.</p></article>
+        <article><cg-icon name="chart" /><h2>Evolución real</h2><p>Gráficas construidas solo con mediciones guardadas, sin valores estimados.</p></article>
+        <article><cg-icon name="users" /><h2>Equipo de cuidado</h2><p>Cada paciente se comparte solo con las personas asignadas.</p></article>
+      </div>
+      <p class="small muted">Los datos personales se consultan únicamente en áreas privadas autenticadas.</p>
+    } @else if (mode === 'SSG') {
+      <p class="eyebrow">Privacidad</p>
+      <h1>Privacidad y uso responsable de la IA</h1>
+      <section class="prose">
+        <h2>Quién ve la información</h2>
+        <p>Los registros de un paciente solo son visibles para los cuidadores asignados a ese paciente. Ninguna página pública ni caché compartida contiene datos personales.</p>
+        <h2>Qué se envía a la IA (Groq)</h2>
+        <p>Solo cuando un cuidador marca la casilla de autorización en Evolución. Se envían frases con conteos y promedios del período
+          (por ejemplo, “Dolor: 4 mediciones; promedio 3”). No se envían nombres, documentos, contactos, fechas exactas ni el texto de notas u observaciones.</p>
+        <p>Cada resumen queda guardado con la fecha, el período, el modelo y la versión del consentimiento.</p>
+        <h2>Qué hace y qué no hace la IA</h2>
+        <ul>
+          <li>Selecciona hechos verificados para un resumen descriptivo.</li>
+          <li>No diagnostica, no recomienda medicamentos ni cambia dosis.</li>
+          <li>No sustituye la consulta con un profesional de la salud.</li>
+        </ul>
+        <h2>Si la IA no está disponible</h2>
+        <p>La aplicación lo indica claramente y nunca muestra un resultado simulado. Las estadísticas y gráficas siguen funcionando.</p>
+        <p class="small muted">Esta página se genera durante la compilación (SSG). El operador debe publicar su política de conservación y canal de atención antes de tratar datos reales.</p>
+      </section>
+    } @else {
+      <p class="eyebrow">Recursos</p>
+      <h1>Recursos para el cuidado</h1>
+      <div class="cards">
+        @for (item of resources().items; track $index) {
+          <article><h2>{{ item.title }}</h2><p>{{ item.text }}</p></article>
+        } @empty {
+          <p class="muted">Cargando recursos…</p>
+        }
+      </div>
+      @if (resources().version) {
+        <p class="small muted">Versión {{ resources().version }} · Regenerado {{ resources().generatedAt }}</p>
+      }
+    }
+  </main>
+</div>
