@@ -214,3 +214,19 @@ BACKEND_DIR=../Care_Guardian_Back PYTHON=python npm run test:runtime
   `Referrer-Policy`, `Permissions-Policy` y `frame-ancestors 'none'`; el proxy
   solo reenvía `Authorization`, `Content-Type`, la dirección del cliente y el id de petición.
 - La cuenta de demostración es pública por diseño; úsala solo con datos ficticios.
+
+## Capturas
+
+Datos ficticios de demostración.
+
+| Panel | Evolución |
+|---|---|
+| ![Panel general](docs/capturas/dashboard.png) | ![Evolución](docs/capturas/evolucion.png) |
+
+| Pacientes | Alertas | Móvil |
+|---|---|---|
+| ![Pacientes](docs/capturas/pacientes.png) | ![Alertas](docs/capturas/alertas.png) | ![Móvil](docs/capturas/movil.png) |
+
+Más documentación: [`docs/AUDITORIA.md`](docs/AUDITORIA.md),
+[`docs/VERIFICACION.md`](docs/VERIFICACION.md), [`docs/RENDERING.md`](docs/RENDERING.md),
+[`CHANGELOG.md`](CHANGELOG.md).
