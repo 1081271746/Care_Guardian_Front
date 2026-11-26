@@ -183,12 +183,14 @@ export type EventKind = 'sintoma' | 'nota' | 'medicamento' | 'cita' | 'alerta';
 
 export interface MetricPoint { fecha: string; valor: number }
 
+/** Mirrors evolution.py: values are null when there are no measurements. */
 export interface MetricSummary {
   cantidad: number;
-  promedio?: number;
-  inicial?: number;
-  reciente?: number;
-  diferencia?: number;
+  promedio: number | null;
+  inicial: number | null;
+  ultimo: number | null;
+  /** Difference between first and last measurement — not a clinical trend. */
+  cambio: number | null;
   puntos: MetricPoint[];
 }
 
