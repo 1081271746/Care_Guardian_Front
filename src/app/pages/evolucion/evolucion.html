@@ -5,6 +5,11 @@
       <h1>Evolución</h1>
       <p class="lede">Mediciones reales registradas en el período, sin estimaciones ni valores completados.</p>
     </div>
+    <div class="header-actions">
+      <button type="button" class="btn btn-secondary" (click)="print()" [disabled]="!data()">
+        <cg-icon name="note" /> Imprimir para la consulta
+      </button>
+    </div>
   </header>
 
   <section class="card filters">

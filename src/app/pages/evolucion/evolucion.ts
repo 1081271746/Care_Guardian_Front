@@ -176,6 +176,12 @@ export class Evolucion {
       });
   }
 
+  /** Prints the current period (charts, figures and saved summary) for an appointment. */
+  print(): void {
+    this.eventLimit.set(this.events().length);
+    if (typeof window !== 'undefined') setTimeout(() => window.print());
+  }
+
   showMore(): void {
     this.eventLimit.update(limit => limit + PAGE);
   }
