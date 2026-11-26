@@ -131,3 +131,46 @@ En el backend, `CORS_ORIGINS` debe incluir la URL pública del frontend.
   `/login?volver=<ruta>` y, tras entrar, se vuelve a la página pedida.
 - Si la API responde 401 (token vencido o revocado) se cierra la sesión y se
   muestra “Tu sesión expiró”.
+
+## Conexión con la API
+
+- `src/app/services/api.ts` concentra todas las llamadas; `models.ts` replica
+  los esquemas de FastAPI con los mismos nombres de campos (en español).
+- No hay datos quemados ni respuestas simuladas: cada número, lista o gráfica
+  viene de la respuesta de la API. Si la API falla, la página lo dice.
+- Los errores se traducen con `errors.ts`: mensajes de FastAPI (`detail`),
+  errores de validación 422 con el nombre del campo, red caída (`status 0`),
+  límites `429` y errores del servidor.
+- Las fechas de calendario (`AAAA-MM-DD`) se muestran sin conversión; los
+  instantes UTC se muestran en la zona del navegador. Evolución envía la zona
+  del navegador (`zona`) para que los días del filtro coincidan con los del cuidador.
+- Los valores opcionales vacíos se envían como `null` para que la API pueda borrarlos.
+
+## Evolución e IA
+
+1. Eliges paciente y período (7, 30, 90 días, todo o fechas exactas).
+2. Se muestran totales, gráficas de dolor, sueño y temperatura, categorías
+   (gravedad, ánimo, apetito) e historial cronológico paginado.
+3. Las gráficas dibujan **solo** los puntos devueltos por la API, espaciados
+   según el tiempo real entre registros; no se interpolan valores ni se habla de
+   “tendencias clínicas” (la diferencia compara la primera y la última medición).
+4. El bloque **Resumen con IA** consulta `GET /evolution/ai-status`:
+   - sin configuración: “El servicio de IA no está disponible” (nunca simula);
+   - con menos de dos mediciones de un indicador: explica por qué no se puede;
+   - con datos: exige marcar la casilla de consentimiento en cada solicitud.
+5. El resumen generado por Groq se guarda en PostgreSQL y se muestra desde la
+   respuesta guardada; los anteriores se pueden abrir desde la lista.
+6. Si Groq falla (límite, tiempo agotado, clave), el mensaje de la API se
+   muestra y las estadísticas siguen visibles.
+
+## Diseño
+
+- `src/styles.css` define el sistema: paleta cálida (verde azulado, papel,
+  terracota), tipografías Fraunces (títulos) y Figtree (texto), espaciado de 4 px,
+  botones, tarjetas, formularios, tablas que se apilan en móvil, insignias por
+  estado de la API, avisos, esqueletos de carga y estados vacíos.
+- Íconos SVG propios (`shared/icon.ts`), sin fuentes de íconos externas.
+- Navegación lateral fija en escritorio y menú desplegable en móvil (< 960 px).
+- Accesibilidad: foco visible, enlace “Saltar al contenido”, etiquetas en todos
+  los campos, regiones `aria-live` para avisos, gráficas con descripción textual
+  y respeto de `prefers-reduced-motion`.
