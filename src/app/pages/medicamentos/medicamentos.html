@@ -81,6 +81,18 @@
 
   @if (error()) { <div class="notice notice-error" role="alert"><cg-icon name="warning" />{{ error() }}</div> }
 
+  @if (context.selected() && today().length) {
+    <section class="card schedule" aria-labelledby="today-title">
+      <div class="card-header"><h2 id="today-title">Horario de hoy</h2><span class="xsmall muted">Según lo registrado</span></div>
+      <ol class="timeline">
+        @for (med of today(); track med.id) {
+          <li><span class="hour">{{ formatTime(med.hora) }}</span><span class="strong small">{{ med.nombre }}</span>
+            <span class="xsmall muted">{{ med.dosis }} · {{ med.frecuencia }}</span></li>
+        }
+      </ol>
+    </section>
+  }
+
   @if (context.selected()) {
     @if (loading() && !medications().length) {
       <div class="card"><div class="skeleton" style="height:120px" role="status"><span class="sr-only">Cargando…</span></div></div>

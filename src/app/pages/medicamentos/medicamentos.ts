@@ -38,6 +38,11 @@ export class Medicamentos {
 
   readonly visible = computed(() => this.medications().filter(m => this.showSuspended() || m.activo));
   readonly suspendedCount = computed(() => this.medications().filter(m => !m.activo).length);
+  /** Today's schedule: medications in effect today, ordered by hour. */
+  readonly today = computed(() => this.medications()
+    .filter(m => m.vigente)
+    .slice()
+    .sort((a, b) => a.hora.localeCompare(b.hora)));
 
   readonly form = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.maxLength(100)]],

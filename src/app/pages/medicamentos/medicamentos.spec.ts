@@ -14,6 +14,18 @@ describe('Medicamentos', () => {
     expect(fixture.nativeElement.textContent).toContain('Mostrar suspendidos (1)');
   });
 
+  it('builds today\'s schedule only from medications in effect, by hour', () => {
+    const { fixture, component, http } = createWithPatients(Medicamentos);
+    http.expectOne('/api/medications/patients/1').flush([
+      { ...MED, id: 1, nombre: 'Noche', hora: '20:00' },
+      { ...MED, id: 2, nombre: 'Mañana', hora: '07:30' },
+      { ...MED, id: 3, nombre: 'Futuro', vigente: false },
+    ]);
+    fixture.detectChanges();
+    expect(component.today().map(m => m.nombre)).toEqual(['Mañana', 'Noche']);
+    expect(fixture.nativeElement.textContent).toContain('Horario de hoy');
+  });
+
   it('blocks an end date before the start date', () => {
     const { component, http } = createWithPatients(Medicamentos);
     http.expectOne('/api/medications/patients/1').flush([]);
