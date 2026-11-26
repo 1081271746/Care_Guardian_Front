@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subscription, forkJoin } from 'rxjs';
 
 import { Api } from '../../services/api';
@@ -38,6 +38,7 @@ export class Evolucion {
   private api = inject(Api);
   private destroyRef = inject(DestroyRef);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   protected context = inject(PatientContext);
   private loadRequest?: Subscription;
   private aiRequest?: Subscription;
@@ -89,7 +90,15 @@ export class Evolucion {
     !!this.aiStatus()?.configurado && !!this.data()?.datos_suficientes && this.consent() && !this.analyzing());
 
   constructor() {
-    const requested = Number(this.route.snapshot.queryParamMap.get('patientId'));
+    const query = this.route.snapshot.queryParamMap;
+    const requested = Number(query.get('patientId'));
+    const iso = /^\d{4}-\d{2}-\d{2}$/;
+    if (query.has('desde') || query.has('hasta')) {
+      // A shared link keeps its exact period.
+      this.preset.set('personalizado');
+      this.desde.set(iso.test(query.get('desde') ?? '') ? query.get('desde')! : '');
+      this.hasta.set(iso.test(query.get('hasta') ?? '') ? query.get('hasta')! : '');
+    }
     this.context.load().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: patients => {
         if (requested && patients.some(p => p.id === requested)) this.context.select(requested);
@@ -135,6 +144,10 @@ export class Evolucion {
       return;
     }
     this.loading.set(true);
+    this.router.navigate([], {
+      relativeTo: this.route, replaceUrl: true,
+      queryParams: { patientId, desde: this.desde() || null, hasta: this.hasta() || null },
+    });
     this.loadRequest = forkJoin({
       evolution: this.api.getEvolution(patientId, this.desde(), this.hasta()),
       analyses: this.api.getEvolutionAnalyses(patientId),

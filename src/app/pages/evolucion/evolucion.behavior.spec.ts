@@ -111,3 +111,21 @@ describe('Evolución conectada', () => {
     expect(component.events().length).toBe(45);
   });
 });
+
+describe('Evolución con enlace compartido', () => {
+  it('uses the period from the URL and keeps the URL in sync', async () => {
+    const { ActivatedRoute, Router, convertToParamMap } = await import('@angular/router');
+    localStorage.clear();
+    TestBed.overrideProvider(ActivatedRoute, { useValue: { snapshot: { queryParamMap:
+      convertToParamMap({ patientId: '1', desde: '2026-11-01', hasta: '2026-11-15' }) } } });
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    const fixture = TestBed.createComponent(Evolucion);
+    const http = TestBed.inject(HttpTestingController);
+    fixture.detectChanges();
+    http.expectOne('/api/patients/').flush(PATIENTS);
+    http.expectOne(r => r.url === '/api/evolution/patients/1' && r.params.get('desde') === '2026-11-01'
+      && r.params.get('hasta') === '2026-11-15');
+    expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({
+      queryParams: { patientId: 1, desde: '2026-11-01', hasta: '2026-11-15' } }));
+  });
+});
