@@ -365,3 +365,12 @@
   .mt-4 { margin-top: var(--cg-space-4); }
   .pre-line { white-space: pre-line; }
 }
+
+/* Printing a page (e.g. Evolución for a medical appointment): content only. */
+@media print {
+  body { background: #fff; }
+  cg-shell .sidebar, cg-shell .topbar, cg-shell .scrim, cg-toasts, .btn, .skip, .header-actions { display: none !important; }
+  cg-shell .content { margin: 0 !important; padding: 0 !important; max-width: none !important; }
+  .card { box-shadow: none !important; break-inside: avoid; }
+  .page { animation: none !important; }
+}
